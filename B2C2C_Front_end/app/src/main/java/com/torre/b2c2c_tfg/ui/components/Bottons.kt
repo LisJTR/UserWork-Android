@@ -28,35 +28,7 @@ fun ButtonGeneric(
     }
 }
 
-@Composable
-fun ButtonUploadImage (
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-){
-    Button(
-        onClick = onClick,
-        modifier = modifier
 
-    ){
-        Text(text = text)
-    }
-}
-
-@Composable
-fun ButtonUploadFile (
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-){
-    Button(
-        onClick = onClick,
-        modifier = modifier
-
-    ){
-        Text(text = text)
-    }
-}
 
 
 

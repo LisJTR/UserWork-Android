@@ -50,6 +50,9 @@ dependencies {
     //Dependencias para mostrar imagenes
     implementation(libs.coil.compose)
 
+    //Dependencias para usar iconos de material extendidos
+    implementation(libs.material.icons.extended)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

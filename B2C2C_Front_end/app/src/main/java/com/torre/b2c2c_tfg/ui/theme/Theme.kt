@@ -13,50 +13,52 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = primaryD,
-    onPrimary = onPrimaryD,
-    secondary = secondaryD,
-    onSecondary = onSecondaryD,
-    tertiary = tertiaryD,
-    onTertiary = onTertiaryD,
-    error = errorD,
-    onError = onErrorD,
-    primaryContainer = primaryContainerD,
-    onPrimaryContainer = onPrimaryContainerD,
-    secondaryContainer = secondaryContainerD,
-    onSecondaryContainer = onSecondaryContainerD,
-    tertiaryContainer = tertiaryContainerD,
-    onTertiaryContainer = onTertiaryContainerD,
-    errorContainer = errorContainerD,
-    onErrorContainer = onErrorContainerD,
-    surfaceDim = surfaceDimD,
-    surface = surfaceD,
-    surfaceBright = surfaceBrightD,
-    inverseSurface = inverseSurfaceD,
-    inverseOnSurface = inverseOnSurfaceD,
-    inversePrimary = inversePrimaryD,
-    surfaceContainerLowest = surfContrainerLowestD,
+    primary = primaryD,                        // Color principal (botones, acentos, etc.)
+    onPrimary = onPrimaryD,                    // Texto/icono sobre primary
+    secondary = secondaryD,                    // Color secundario (chips, botones secundarios)
+    onSecondary = onSecondaryD,                // Texto/icono sobre secondary
+    tertiary = tertiaryD,                      // Color adicional para variar UI
+    onTertiary = onTertiaryD,                  // Texto/icono sobre tertiary
+    error = errorD,                            // Colores para errores
+    onError = onErrorD,                        // Texto sobre color de error
+
+    primaryContainer = primaryContainerD,      // Fondo para elementos destacados (cards, botones)
+    onPrimaryContainer = onPrimaryContainerD,  // Texto sobre primaryContainer
+    secondaryContainer = secondaryContainerD,  // Fondo para secondary
+    onSecondaryContainer = onSecondaryContainerD, // Texto sobre secondaryContainer
+    tertiaryContainer = tertiaryContainerD,    // Fondo para tertiary
+    onTertiaryContainer = onTertiaryContainerD,// Texto sobre tertiaryContainer
+    errorContainer = errorContainerD,          // Fondo para errores (snackbars, alerts)
+    onErrorContainer = onErrorContainerD,      // Texto sobre errorContainer
+
+    surfaceDim = surfaceDimD,                  // Fondo más oscuro (background principal en dark)
+    surface = surfaceD,                        // Fondo base (pantalla, cards, etc.)
+    surfaceBright = surfaceBrightD,            // Fondo claro en dark mode
+    inverseSurface = inverseSurfaceD,          // Fondo usado en componentes inversos (ej: Snackbars)
+    inverseOnSurface = inverseOnSurfaceD,      // Texto sobre inverseSurface
+    inversePrimary = inversePrimaryD,          // Versión invertida de primary (para contraste)
+
+    surfaceContainerLowest = surfContrainerLowestD,  // Fondo muy neutro
     surfaceContainerLow = surfContrainerLowD,
     surfaceContainer = surfContrainerD,
     surfaceContainerHigh = surfContrainerHighD,
     surfaceContainerHighest = surfContrainerHighestD,
-    onSurface = onSurfaceD,
-    outline = outlineD,
-    outlineVariant = outlineVariantD,
-    scrim = scrimD,
 
+    onSurface = onSurfaceD,                    // Texto/iconos sobre surface
+    outline = outlineD,                        // Borde de componentes (inputs, cards)
+    outlineVariant = outlineVariantD,          // Borde más suave o alternativo
+    scrim = scrimD                             // Efecto de desenfoque/fondo detrás de diálogos
 )
 
 private val LightColorScheme = lightColorScheme(
-
     primary = primaryL,
     onPrimary = onPrimaryL,
     secondary = secondaryL,
     onSecondary = onSecondaryL,
     tertiary = tertiaryL,
     onTertiary = onTertiaryL,
-    error = errorL,
-    onError = onErrorL,
+    error = errorL, onError = onErrorL,
+
     primaryContainer = primaryContainerL,
     onPrimaryContainer = onPrimaryContainerL,
     secondaryContainer = secondaryContainerL,
@@ -65,21 +67,25 @@ private val LightColorScheme = lightColorScheme(
     onTertiaryContainer = onTertiaryContainerL,
     errorContainer = errorContainerL,
     onErrorContainer = onErrorContainerL,
+
     surfaceDim = surfaceDimL,
     surface = surfaceL,
     surfaceBright = surfaceBrightL,
     inverseSurface = inverseSurfaceL,
     inverseOnSurface = inverseOnSurfaceL,
     inversePrimary = inversePrimaryL,
+
     surfaceContainerLowest = surfContrainerLowestL,
     surfaceContainerLow = surfContrainerLowL,
     surfaceContainer = surfContrainerL,
     surfaceContainerHigh = surfContrainerHighL,
     surfaceContainerHighest = surfContrainerHighestL,
+
+    onSurfaceVariant = onSurfaceVarL,
     onSurface = onSurfaceL,
     outline = outlineL,
     outlineVariant = outlineVariantL,
-    scrim = scrimL,
+    scrim = scrimL
 
 
 
@@ -97,8 +103,8 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun B2C2C_TFGTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Dynamic color is available on Android 12+ , por lo que se desactiva por defecto
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
