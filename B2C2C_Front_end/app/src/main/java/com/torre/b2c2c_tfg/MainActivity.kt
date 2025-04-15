@@ -10,6 +10,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            // Aplicar el tema personalizado en lugar del tema por defecto
             B2C2C_TFGTheme {
                 AppNavigation()
             }

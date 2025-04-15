@@ -29,6 +29,8 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 navigation-compose = "androidx.navigation:navigation-compose:2.7.5" # Navigation compose
 coil-core = { module = "io.coil-kt:coil", version.ref = "coil" } # El módulo central de coil
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" } # El módulo compose de coil
+material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version = "1.5.4" } # iconos de material extendidos
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
