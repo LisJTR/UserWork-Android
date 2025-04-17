@@ -53,6 +53,12 @@ dependencies {
     //Dependencias para usar iconos de material extendidos
     implementation(libs.material.icons.extended)
 
+    //Dependencias para usar retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp.logging)
+
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

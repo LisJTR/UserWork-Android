@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+//CAMBIAR ESTO ANTES DE PONERLO, NO ESTA REUTILIZABLE
 @Composable
 fun OfferCard(
     title: String,
@@ -38,6 +39,7 @@ fun OfferCard(
             Text("• $description", style = MaterialTheme.typography.bodyMedium)
             Text("   • Requisitos mínimos", style = MaterialTheme.typography.bodySmall)
             Text("   • Habilidades necesarias", style = MaterialTheme.typography.bodySmall)
+
 
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                 IconButton(onClick = onDelete) {
