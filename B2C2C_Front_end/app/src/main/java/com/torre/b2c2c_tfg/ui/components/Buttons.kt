@@ -1,6 +1,5 @@
 package com.torre.b2c2c_tfg.ui.components
 
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme

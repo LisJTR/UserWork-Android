@@ -1,10 +1,12 @@
 package com.torre.b2c2c_tfg.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
@@ -14,28 +16,37 @@ fun ScreenTitle(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.headlineLarge,
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = Modifier
     )
 }
 
 //Campo de texto para la descripcion
 @Composable
-fun SectionDescription(text: String) {
+fun SectionDescription(
+    text: String,
+    modifier: Modifier = Modifier
+) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
+        modifier = Modifier
     )
 }
 
 //Campo de texto para el titulo
 @Composable
-fun TextTitle(text: String){
-
+fun TextTitle(
+    text: String,
+    style: TextStyle = MaterialTheme.typography.headlineLarge,
+    color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+) {
     Text(
         text = text,
-        style = MaterialTheme.typography.headlineLarge,
-        modifier = Modifier.padding(bottom = 10.dp)
+        style = style,
+        color = color,
+        modifier = modifier
     )
 }
 

@@ -9,15 +9,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.ui.components.BottomBar
+import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes.ScreenHome
 import com.torre.b2c2c_tfg.ui.screens.LoginEmpresaScreen
 import com.torre.b2c2c_tfg.ui.screens.WelcomeScreen
 import com.torre.b2c2c_tfg.ui.screens.LoginAlumnoScreen
+import com.torre.b2c2c_tfg.ui.screens.ScreenHome
 
 // Definir las rutas de navegación de las pantallas
 object ScreenRoutes {
     const val Welcome = "Welcome"
     const val LoginAlumno = "LoginAlumno"
     const val LoginEmpresa = "LoginEmpresa"
+    const val ScreenHome = "ScreenHome"
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -39,7 +42,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             }
         }
 
-        composable("loginEmpresa") {
+        composable(ScreenRoutes.LoginEmpresa) {
 
             Scaffold(
                 bottomBar = { BottomBar(navController, isUserEmpresa = true) }
@@ -47,6 +50,11 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                 LoginEmpresaScreen(navController)
             }
         }
+
+        composable(ScreenRoutes.ScreenHome) {
+            ScreenHome(navController)
+        }
+
     }
 }
 
