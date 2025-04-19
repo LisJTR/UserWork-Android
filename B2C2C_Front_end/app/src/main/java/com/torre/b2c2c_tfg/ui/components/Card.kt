@@ -16,40 +16,80 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 
-//CAMBIAR ESTO ANTES DE PONERLO, NO ESTA REUTILIZABLE
+
+
+
 @Composable
-fun OfferCard(
+fun OfferCardForm(
     title: String,
     description: String,
+    aptitudes: String,
+    queSeOfrece: String,
+    isPublic: Boolean, // variable para controlar la visibilidad
+    onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
+    onAptitudesChange: (String) -> Unit,
+    onQueSeOfreceChange: (String) -> Unit,
     onDelete: () -> Unit,
     onView: () -> Unit,
     onHide: () -> Unit
 ) {
+
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = if (isPublic) 1f else 0.4f)
+        )
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("• $title", style = MaterialTheme.typography.titleSmall)
-            Text("• $description", style = MaterialTheme.typography.bodyMedium)
-            Text("   • Requisitos mínimos", style = MaterialTheme.typography.bodySmall)
-            Text("   • Habilidades necesarias", style = MaterialTheme.typography.bodySmall)
+            OutlinedInputTextField(
+                value = title,
+                onValueChange = onTitleChange,
+                label = "Título oferta",
+                enabled = isPublic
+            )
+            OutlinedInputTextField(
+                value = description,
+                onValueChange = onDescriptionChange,
+                label = "Descripción de la oferta",
+                enabled = isPublic
+            )
+            OutlinedInputTextField(
+                value = aptitudes,
+                onValueChange = onAptitudesChange,
+                label = "Aptitudes",
+                enabled = isPublic
+            )
+            OutlinedInputTextField(
+                value = queSeOfrece,
+                onValueChange = onQueSeOfreceChange,
+                label = "¿Qué se ofrece?",
+                enabled = isPublic
+            )
 
-
-            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 IconButton(onClick = onDelete) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
                 IconButton(onClick = onView) {
-                    Icon(Icons.Default.Visibility, contentDescription = "Ver")
+                    Icon(Icons.Default.Visibility, contentDescription = "Marcar como visible")
                 }
                 IconButton(onClick = onHide) {
-                    Icon(Icons.Default.VisibilityOff, contentDescription = "Ocultar")
+                    Icon(Icons.Default.VisibilityOff, contentDescription = "Marcar como oculta")
                 }
             }
         }

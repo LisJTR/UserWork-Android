@@ -25,16 +25,16 @@ fun BottomBar(navController: NavHostController, isUserEmpresa: Boolean) {
     val bottomNavItems =
     if (isUserEmpresa) {
         listOf(
-            BottomNavItem("Ofertas", "pantallaPrincipalEmpresa", Icons.Filled.Home),
-            BottomNavItem("Mis Ofertas", "pantallaPrincipalEmpresa", Icons.Default.AccountBox),
-            BottomNavItem("Perfil", "profileEmpresa", Icons.Default.Person),
+            BottomNavItem("Ofertas", "HomeScreen", Icons.Filled.Home),
+            BottomNavItem("Mis Ofertas", "HomeScreen", Icons.Default.AccountBox),
+            BottomNavItem("Perfil", "Register/ProfileEmpresa?fromRegistro={fromRegistro}", Icons.Default.Person),
             BottomNavItem("Ajustes", "settingsEmpresa", Icons.Default.Settings)
         )
     } else {
         listOf(
-            BottomNavItem("Ofertas", "pantallaPrincipalAlumno", Icons.Filled.Home),
-            BottomNavItem("Mis Ofertas", "pantallaPrincipalAlumno", Icons.Default.AccountBox),
-            BottomNavItem("Perfil", "profileAlumno", Icons.Default.Person),
+            BottomNavItem("Ofertas", "HomeScreen", Icons.Filled.Home),
+            BottomNavItem("Mis Ofertas", "HomeScreen", Icons.Default.AccountBox),
+            BottomNavItem("Perfil", "Register/ProfileAlumno?fromRegistro={fromRegistro}", Icons.Default.Person),
             BottomNavItem("Ajustes", "settingsAlumno", Icons.Default.Settings)
         )
     }
