@@ -21,7 +21,8 @@ import coil.request.ImageRequest
 
 @Composable
 fun UploadFileComponent(
-    onFileSelected: (Uri) -> Unit
+    onFileSelected: (Uri) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -37,9 +38,7 @@ fun UploadFileComponent(
     //Se tiene que especificar Style para el OutlinedButton No toma el color por defecto
     OutlinedButton(
         onClick = { filePickerLauncher.launch("*/*") }, // Se podría limitar el tipo de archivo seleccionable: "application/pdf"
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp),
+        modifier = modifier,
         border = BorderStroke(2.dp,  MaterialTheme.colorScheme.primary),
         shape = RoundedCornerShape(8.dp),
     ) {
@@ -68,6 +67,7 @@ fun UploadFileComponent(
         )
     }
 }
+
 
 @Composable
 fun UserSelectedImage(

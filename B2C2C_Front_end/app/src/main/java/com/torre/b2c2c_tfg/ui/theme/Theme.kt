@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+
 private val DarkColorScheme = darkColorScheme(
     primary = primaryD,                        // Color principal (botones, acentos, etc.)
     onPrimary = onPrimaryD,                    // Texto/icono sobre primary
@@ -47,7 +48,9 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = onSurfaceD,                    // Texto/iconos sobre surface
     outline = outlineD,                        // Borde de componentes (inputs, cards)
     outlineVariant = outlineVariantD,          // Borde más suave o alternativo
-    scrim = scrimD                             // Efecto de desenfoque/fondo detrás de diálogos
+    scrim = scrimD,                             // Efecto de desenfoque/fondo detrás de diálogos
+
+
 )
 
 private val LightColorScheme = lightColorScheme(

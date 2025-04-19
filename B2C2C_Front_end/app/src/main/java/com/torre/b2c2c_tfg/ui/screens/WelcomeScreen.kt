@@ -24,6 +24,7 @@ import com.torre.b2c2c_tfg.ui.components.SectionDescription
 import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
 import com.torre.b2c2c_tfg.ui.components.RegisterTypeDialog
 import com.torre.b2c2c_tfg.ui.components.TextTitle
+import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.LoginViewModel
 
 // UI principal
@@ -51,7 +52,7 @@ fun WelcomeScreen(navController: NavController) {
 
                 if (loginResult.contains("exitoso")) {
                     showLoginDialog = false
-                    navController.navigate("ScreenHome")
+                    navController.navigate("HomeScreen")
                 }
             }
         }
@@ -125,11 +126,14 @@ fun WelcomeScreen(navController: NavController) {
             onDismiss = { showRegisterDialog = false },
             onAlumnoClick = {
                 showRegisterDialog = false
-                navController.navigate("LoginAlumno")
+                navController.navigate(
+                    ScreenRoutes.AlumnoWithParam.replace("{fromRegistro}", "true"))
             },
             onEmpresaClick = {
                 showRegisterDialog = false
-                navController.navigate("LoginEmpresa")
+                navController.navigate(
+                    ScreenRoutes.EmpresaWithParam.replace("{fromRegistro}", "true")
+                )
             }
         )
     }

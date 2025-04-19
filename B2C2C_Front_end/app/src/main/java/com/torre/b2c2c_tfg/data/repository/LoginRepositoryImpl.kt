@@ -20,26 +20,39 @@ import retrofit2.Response
 // Fake para pruebas sin backend
 class FakeLoginRepository : LoginRepository {
     override suspend fun login(request: LoginRequest): Response<LoginResponse> {
-        return if (request.username == "test" && request.password == "1234") {
-            // Simulamos login exitoso
-            Response.success(
-                LoginResponse(
-                    token = "fake-token-123",
-                    userType = "alumno", // o "empresa", depende de lo que necesites
-                    message = "Login exitoso (fake)"
+        return when {
+            // Login para alumno (de pruebas)
+            request.username == "test" && request.password == "1234" -> {
+                Response.success(
+                    LoginResponse(
+                        token = "fake-token-alumno",
+                        userType = "alumno",
+                        message = "Login exitoso (fake alumno)"
+                    )
                 )
-            )
+            }
 
-        } else {
-            // Simulamos fallo de autenticación
-            Response.success(
-                LoginResponse(
-                    token = "",
-                    userType = "",
-                    message = "Error: usuario o contraseña incorrectos (fake)"
+            // Login para empresa fake
+            request.username == "empresafake" && request.password == "1234" -> {
+                Response.success(
+                    LoginResponse(
+                        token = "fake-token-empresa",
+                        userType = "empresa",
+                        message = "Login exitoso (fake empresa)"
+                    )
                 )
-            )
+            }
 
+            // Si no coincide nada, error
+            else -> {
+                Response.success(
+                    LoginResponse(
+                        token = "",
+                        userType = "",
+                        message = "Error: usuario o contraseña incorrectos (fake)"
+                    )
+                )
+            }
         }
     }
 }
