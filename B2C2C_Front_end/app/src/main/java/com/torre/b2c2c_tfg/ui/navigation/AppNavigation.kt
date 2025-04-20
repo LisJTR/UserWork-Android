@@ -13,6 +13,7 @@ import com.torre.b2c2c_tfg.ui.screens.RegisterProfileEmpresaScreen
 import com.torre.b2c2c_tfg.ui.screens.WelcomeScreen
 import com.torre.b2c2c_tfg.ui.screens.RegisterProfileAlumnoScreen
 import com.torre.b2c2c_tfg.ui.screens.HomeScreen
+import com.torre.b2c2c_tfg.ui.util.UserType
 
 // Definir las rutas de navegación de las pantallas
 object ScreenRoutes {
@@ -48,14 +49,18 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
             if (fromRegistro) {
 
-                RegisterProfileAlumnoScreen(navController)
+                RegisterProfileAlumnoScreen(navController, esEdicion = false)
             } else {
 
                 Scaffold(bottomBar = {
-                    BottomBar(navController, isUserEmpresa = false)
+                    BottomBar(navController, userType = UserType.ALUMNO)
                 }
                 ){ paddingValues ->
-                    RegisterProfileAlumnoScreen(navController = navController, contentPadding = paddingValues)
+                    RegisterProfileAlumnoScreen(
+                        navController = navController,
+                        contentPadding = paddingValues,
+                        esEdicion = true
+                    )
                 }
             }
         }
@@ -72,26 +77,41 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             val fromRegistro = backStackEntry.arguments?.getString("fromRegistro")?.toBoolean() ?: false
 
             if (fromRegistro) {
-                RegisterProfileEmpresaScreen(navController)
+                RegisterProfileEmpresaScreen(navController, esEdicion = false)
 
             } else {
                 Scaffold(bottomBar = {
-                    BottomBar(navController, isUserEmpresa = true)
-                }
-                ){ paddingValues ->
+                    BottomBar(navController, userType = UserType.EMPRESA)
+                })
+                { paddingValues ->
 
-                    RegisterProfileEmpresaScreen(navController = navController, contentPadding = paddingValues)
+                    RegisterProfileEmpresaScreen(
+                        navController = navController,
+                        contentPadding = paddingValues,
+                        esEdicion = true
+                    )
                 }
             }
         }
 
-        composable(ScreenRoutes.HomeScreen) {
+        composable(ScreenRoutes.HomeScreen + "?isEmpresa={isEmpresa}") {
+                backStackEntry ->
+
+            val isEmpresa = backStackEntry.arguments?.getString("isEmpresa")?.toBoolean() ?: false
+
             Scaffold(bottomBar = {
-                BottomBar(navController, isUserEmpresa = true) })
-            {
-                HomeScreen(navController)
+                BottomBar(
+                    navController,
+                    userType = if (isEmpresa) UserType.EMPRESA else UserType.ALUMNO
+                )
+            }) {
+                HomeScreen(
+                    navController = navController,
+                    isUserEmpresa = isEmpresa
+                )
             }
         }
+
     }
 }
 

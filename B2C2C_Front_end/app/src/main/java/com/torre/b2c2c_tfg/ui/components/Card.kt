@@ -1,11 +1,16 @@
 package com.torre.b2c2c_tfg.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -23,8 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.*
-
-
+import androidx.compose.ui.Alignment
 
 
 @Composable
@@ -95,3 +99,31 @@ fun OfferCardForm(
         }
     }
 }
+
+@Composable
+fun HabilidadChip(
+    habilidad: String,
+    onRemove: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(4.dp)
+            .background(
+                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
+                shape = MaterialTheme.shapes.medium
+            )
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = habilidad,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(onClick = onRemove, modifier = Modifier.size(16.dp)) {
+            Icon(Icons.Default.Close, contentDescription = "Eliminar", modifier = Modifier.size(16.dp))
+        }
+    }
+}
+
