@@ -1,7 +1,5 @@
 package com.torre.b2c2c_tfg.ui.screens
 
-
-
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -37,14 +35,14 @@ fun WelcomeScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showRegisterDialog by remember { mutableStateOf(false) }
-   // val loginViewModel = remember {
-       // LoginViewModel(LoginUseCase(LoginRepositoryImpl(RetrofitInstance.api))) }
-    // login falso para que no me de error
+    // Viewmodel para el login
     val loginViewModel = remember {
         LoginViewModel(LoginUseCase(FakeLoginRepository()))
+        // LoginViewModel(LoginUseCase(LoginRepositoryImpl(RetrofitInstance.api))) }
     }
 
     val loginResult by loginViewModel.loginResult.collectAsState()
+
         LaunchedEffect(loginResult) {
 
             if (loginResult.isNotEmpty()) {
@@ -52,7 +50,12 @@ fun WelcomeScreen(navController: NavController) {
 
                 if (loginResult.contains("exitoso")) {
                     showLoginDialog = false
-                    navController.navigate("HomeScreen")
+
+                    // Lógica temporal para distinguir empresa vs alumno
+                    val isEmpresa = username.contains("empresa", ignoreCase = true)
+
+                    // Navegar con el parámetro isEmpresa
+                    navController.navigate("HomeScreen?isEmpresa=$isEmpresa")
                 }
             }
         }

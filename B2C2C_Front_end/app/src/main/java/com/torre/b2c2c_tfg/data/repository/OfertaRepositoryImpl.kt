@@ -11,7 +11,15 @@ import kotlinx.coroutines.delay
 //) : OfertaRepository {
 //   override suspend fun crearOferta(oferta: Oferta): Boolean {
 //     return api.crearOferta(oferta).isSuccessful
-// }
+//     }
+
+    //override suspend fun getOfertas(): List<Oferta> {
+       // return try {
+        //    api.getOfertas()
+       // } catch (e: Exception) {
+       //     emptyList() // Manejo simple por ahora
+        //}
+   // }
 //}
 
 class FakeOfertaRepository : OfertaRepository {
@@ -24,4 +32,11 @@ class FakeOfertaRepository : OfertaRepository {
         println("Oferta creada (fake): $oferta")
         return true
     }
+
+    override suspend fun getOfertas(): List<Oferta> {
+        delay(500) // Simula una llamada al backend
+        return listaOfertas.toList() // Devuelve una copia para evitar modificar la original accidentalmente
+    }
+
+
 }

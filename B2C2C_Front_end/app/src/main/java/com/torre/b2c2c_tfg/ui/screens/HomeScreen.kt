@@ -6,7 +6,7 @@ import androidx.navigation.NavController
 
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, isUserEmpresa: Boolean) {
     //Logica
     Text(text = "Pantalla Home")
 

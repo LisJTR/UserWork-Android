@@ -49,11 +49,15 @@ import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
 import com.torre.b2c2c_tfg.ui.components.UploadFileComponent
 import com.torre.b2c2c_tfg.ui.components.UserSelectedImage
 import com.torre.b2c2c_tfg.ui.components.OfferCardForm
+import com.torre.b2c2c_tfg.ui.components.TextTitle
 import com.torre.b2c2c_tfg.ui.viewmodel.OfertaViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.RegisterEmpresaViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
+import com.torre.b2c2c_tfg.ui.util.UserType
+
 
 data class OfferCardData(
     var title: String = "",
@@ -65,7 +69,7 @@ data class OfferCardData(
 
 
 @Composable
-fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: PaddingValues = PaddingValues()) {
+fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false) {
 
     var nombreEmpresa by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -86,31 +90,58 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
 
         )
     }
-    val empresa by viewModel.empresa.collectAsState()
     val ofertaViewModel = remember {
-        // OfertaViewModel(CrearOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.api)))
-        OfertaViewModel(CrearOfertaUseCase(FakeOfertaRepository()))
+        OfertaViewModel(
+        // CrearOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.api)))
+            crearOfertaUseCase = CrearOfertaUseCase(FakeOfertaRepository()),
+            //crearAlumnoUseCase(OfertaRepositoryImpl(RetrofitInstance.api)),
+            getOfertasUseCase = GetOfertasUseCase(FakeOfertaRepository())
+            //getOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.api))
+        )
     }
 
 
-    // Cargar empresa al inicio
-    LaunchedEffect(Unit) {
-        viewModel.cargarDatos()
-    }
+    // Obtiene el alumno actual desde el ViewModel
+    if (esEdicion) {
+        val empresa by viewModel.empresa.collectAsState()
+        val ofertas by ofertaViewModel.ofertas.collectAsState()
 
-    // Actualiza los campos cuando llegue la empresa
-    LaunchedEffect(empresa) {
-        empresa?.let {
-            nombreEmpresa = it.nombre
-            username = it.username
-            password = it.password
-            sector = it.sector
-            ciudad = it.ciudad
-            telefono = it.telefono
-            correo = it.correoElectronico
-            descripcion = it.descripcion
+        // Cargar los datos
+        LaunchedEffect(Unit) {
+            viewModel.cargarDatos()               // carga empresa
+            ofertaViewModel.cargarOfertas()       // carga ofertas
+        }
+
+        // Cuando llega la empresa, actualizar campos
+        LaunchedEffect(empresa) {
+            empresa?.let {
+                nombreEmpresa = it.nombre
+                username = it.username
+                password = it.password
+                sector = it.sector
+                ciudad = it.ciudad
+                telefono = it.telefono
+                correo = it.correoElectronico
+                descripcion = it.descripcion
+                imageUri = Uri.parse(it.imagen ?: "")
+            }
+        }
+
+        // Cuando llegan las ofertas, actualiza tus cards:
+        LaunchedEffect(ofertas) {
+            offerCards.clear()
+            offerCards.addAll(ofertas.map {
+                OfferCardData(
+                    title = it.titulo,
+                    description = it.descripcion,
+                    aptitudes = it.aptitudes,
+                    queSeOfrece = it.queSeOfrece,
+                    isPublic = it.publicada
+                )
+            })
         }
     }
+
 
 
 
@@ -214,7 +245,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
+            TextTitle(
                 text = "OFERTAS",
                 style = MaterialTheme.typography.titleSmall
             )
@@ -300,7 +331,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
                 }
 
                 // 3. Navegar a la pantalla principal
-                navController.navigate("HomeScreen")
+                navController.navigate("HomeScreen?isEmpresa=true")
             },
             modifier = Modifier
                 .width(300.dp)
@@ -323,7 +354,7 @@ fun RegisterProfileEmpresaScreenPreview() {
     B2C2C_TFGTheme {
         Scaffold(
             bottomBar = {
-                BottomBar(navController = navController, isUserEmpresa = true)
+                BottomBar(navController = navController, userType = UserType.EMPRESA)
             }
         ) {
             RegisterProfileEmpresaScreen(navController = navController)

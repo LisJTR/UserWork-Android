@@ -13,28 +13,31 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
+import com.torre.b2c2c_tfg.ui.util.UserType
 
 data class BottomNavItem( val name:String, val route:String, val icon:ImageVector, )
 
 
+
 @Composable
-fun BottomBar(navController: NavHostController, isUserEmpresa: Boolean) {
+fun BottomBar(
+    navController: NavHostController,
+    userType: UserType
+) {
     val currentDestination = navController.currentBackStackEntry?.destination?.route
 
     // Lista de ítems de navegación, dependiendo del tipo de usuario
-    val bottomNavItems =
-    if (isUserEmpresa) {
-        listOf(
-            BottomNavItem("Ofertas", "HomeScreen", Icons.Filled.Home),
-            BottomNavItem("Mis Ofertas", "HomeScreen", Icons.Default.AccountBox),
-            BottomNavItem("Perfil", "Register/ProfileEmpresa?fromRegistro={fromRegistro}", Icons.Default.Person),
+    val bottomNavItems = when (userType) {
+        UserType.EMPRESA -> listOf(
+            BottomNavItem("Ofertas", "HomeScreen?isEmpresa=true", Icons.Filled.Home),
+            BottomNavItem("Mis Ofertas", "HomeScreen?isEmpresa=true", Icons.Default.AccountBox),
+            BottomNavItem("Perfil", "Register/ProfileEmpresa?fromRegistro=false", Icons.Default.Person),
             BottomNavItem("Ajustes", "settingsEmpresa", Icons.Default.Settings)
         )
-    } else {
-        listOf(
-            BottomNavItem("Ofertas", "HomeScreen", Icons.Filled.Home),
-            BottomNavItem("Mis Ofertas", "HomeScreen", Icons.Default.AccountBox),
-            BottomNavItem("Perfil", "Register/ProfileAlumno?fromRegistro={fromRegistro}", Icons.Default.Person),
+        UserType.ALUMNO -> listOf(
+            BottomNavItem("Ofertas", "HomeScreen?isEmpresa=false", Icons.Filled.Home),
+            BottomNavItem("Mis Ofertas", "HomeScreen?isEmpresa=false", Icons.Default.AccountBox),
+            BottomNavItem("Perfil", "Register/ProfileAlumno?fromRegistro=false", Icons.Default.Person),
             BottomNavItem("Ajustes", "settingsAlumno", Icons.Default.Settings)
         )
     }

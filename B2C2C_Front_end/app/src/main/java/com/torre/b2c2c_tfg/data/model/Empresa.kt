@@ -17,6 +17,7 @@ data class Empresa (
     val telefono: String,
     @SerializedName("correo_electronico")
     val correoElectronico: String,
+    @SerializedName("descripcion")
     val descripcion: String,
     @SerializedName("logo")
     val imagen: String? = null
