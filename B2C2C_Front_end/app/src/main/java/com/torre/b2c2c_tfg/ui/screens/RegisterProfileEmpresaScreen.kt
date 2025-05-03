@@ -30,15 +30,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.model.Empresa
 import com.torre.b2c2c_tfg.data.model.Oferta
-import com.torre.b2c2c_tfg.data.repository.FakeEmpresaRepository
-import com.torre.b2c2c_tfg.data.repository.FakeLoginRepository
-import com.torre.b2c2c_tfg.data.repository.FakeOfertaRepository
+import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
+import com.torre.b2c2c_tfg.data.repository.EmpresaRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.CrearOfertaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.UpdateEmpresaUseCase
@@ -60,6 +61,7 @@ import com.torre.b2c2c_tfg.ui.util.UserType
 
 
 data class OfferCardData(
+    var id: Int? = null,
     var title: String = "",
     var description: String = "",
     var aptitudes: String = "",
@@ -71,6 +73,7 @@ data class OfferCardData(
 @Composable
 fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false) {
 
+    var empresaId by remember { mutableStateOf<Int?>(null) }
     var nombreEmpresa by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -81,22 +84,24 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
     var descripcion by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val offerCards = remember { mutableStateListOf<OfferCardData>() }
+
+    val context = LocalContext.current
     val viewModel = remember {
         RegisterEmpresaViewModel(
-            GetEmpresaUseCase(FakeEmpresaRepository()),
-            //GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.api)),
-            UpdateEmpresaUseCase(FakeEmpresaRepository())
-            //UpdateEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.api))
+            //GetEmpresaUseCase(FakeEmpresaRepository()),
+            GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            //UpdateEmpresaUseCase(FakeEmpresaRepository())
+            UpdateEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context)))
 
         )
     }
     val ofertaViewModel = remember {
         OfertaViewModel(
         // CrearOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.api)))
-            crearOfertaUseCase = CrearOfertaUseCase(FakeOfertaRepository()),
-            //crearAlumnoUseCase(OfertaRepositoryImpl(RetrofitInstance.api)),
-            getOfertasUseCase = GetOfertasUseCase(FakeOfertaRepository())
-            //getOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.api))
+            //crearOfertaUseCase = CrearOfertaUseCase(FakeOfertaRepository()),
+            CrearOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            //getOfertasUseCase = GetOfertasUseCase(FakeOfertaRepository())
+            GetOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
 
@@ -115,6 +120,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
         // Cuando llega la empresa, actualizar campos
         LaunchedEffect(empresa) {
             empresa?.let {
+                empresaId = it.id
                 nombreEmpresa = it.nombre
                 username = it.username
                 password = it.password
@@ -132,6 +138,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
             offerCards.clear()
             offerCards.addAll(ofertas.map {
                 OfferCardData(
+                    id = it.id,
                     title = it.titulo,
                     description = it.descripcion,
                     aptitudes = it.aptitudes,
@@ -263,6 +270,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
         // Mostrar la tarjeta si el botón se ha pulsado
         offerCards.forEachIndexed { index, card ->
             OfferCardForm(
+                id = card.id,
                 title = card.title,
                 description = card.description,
                 aptitudes = card.aptitudes,
@@ -299,6 +307,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
             onClick = {
                 // 1. Guardar empresa
                 val nuevaEmpresa = Empresa(
+                    id = empresaId,
                     nombre = nombreEmpresa,
                     username = username,
                     password = password,
@@ -318,6 +327,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
                 // 2. Guardar ofertas
                 offerCards.forEach { card ->
                     val nuevaOferta = Oferta(
+                        id = card.id,
                         titulo = card.title,
                         descripcion = card.description,
                         aptitudes = card.aptitudes,

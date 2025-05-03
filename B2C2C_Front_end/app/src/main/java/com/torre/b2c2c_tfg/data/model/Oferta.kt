@@ -3,6 +3,8 @@ package com.torre.b2c2c_tfg.data.model
 import com.google.gson.annotations.SerializedName
 
 data class Oferta(
+    @SerializedName("id")
+    val id: Int? = null,
     @SerializedName("titulo")
     val titulo: String,
     @SerializedName("descripcion")

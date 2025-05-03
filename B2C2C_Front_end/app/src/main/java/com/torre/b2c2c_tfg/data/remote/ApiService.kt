@@ -23,45 +23,49 @@ interface ApiService {
 
     // -------------------------------------------------------------------
     // Peticiones HTTP de Empresa
-    @GET("empresa/perfil")
+    @GET("api/empresa/perfil")
     suspend fun getEmpresa(): Empresa
 
-    @PUT("empresa/perfil")
+    @PUT("api/empresa/perfil")
     suspend fun updateEmpresa(@Body empresa: Empresa): Response<Unit>
 
-    @POST("empresa")
+    @POST("api/empresa")
     suspend fun crearEmpresa(@Body empresa: Empresa): Response<Unit>
 
     // -------------------------------------------------------------------
+    // Peticiones HTTP de Alumno
+
+    @POST("api/alumno")
+    suspend fun crearAlumno(@Body alumno: Alumno): Response<Unit>
+
+    @GET("api/alumno/perfil")
+    suspend fun getAlumno(): Alumno
+
+
+    @PUT("api/alumno/perfil")
+    suspend fun updateAlumno(@Body alumno: Alumno): Response<Unit>
+
+
+    // -------------------------------------------------------------------
     // Peticiones HTTP de Ofertas (Empresa)
-    @POST("oferta")
+    @POST("api/oferta")
     suspend fun crearOferta(@Body oferta: Oferta): Response<Unit>
 
-    @GET("oferta/perfil")
+    @GET("api/oferta/perfil")
     suspend fun getOfertas(): List<Oferta>
 
-    @PUT("oferta/{id}")
+    @PUT("api/oferta/{id}")
     suspend fun updateOferta(
         @Path("id") id: Int,
         @Body oferta: Oferta
     ): Response<Unit>
 
-    @DELETE("oferta/{id}")
+    @DELETE("api/oferta/{id}")
     suspend fun deleteOfertasDesdePerfil(
         @Path("id") id: Int
     ): Response<Unit>
 
     // -------------------------------------------------------------------
-    // Peticiones HTTP de Alumno
-
-    @POST("alumno")
-    suspend fun crearAlumno(@Body alumno: Alumno): Response<Unit>
-
-    @GET("alumno/perfil")
-    suspend fun getAlumno(): Alumno
-
-    @PUT("alumno/perfil")
-    suspend fun updateAlumno(@Body alumno: Alumno): Response<Unit>
 
 
 }

@@ -35,7 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.model.Alumno
-import com.torre.b2c2c_tfg.data.repository.FakeAlumnoRepository
+import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
+import com.torre.b2c2c_tfg.data.repository.AlumnoRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.UpdateAlumnoUserCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
@@ -47,11 +48,14 @@ import com.torre.b2c2c_tfg.ui.components.UploadFileComponent
 import com.torre.b2c2c_tfg.ui.components.UserSelectedImage
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.RegisterAlumnoViewModel
+import androidx.compose.ui.platform.LocalContext
+
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false) {
 
+    var alumnoId by remember { mutableStateOf<Int?>(null) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var nombre by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -69,12 +73,13 @@ fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: P
     var docUri by remember { mutableStateOf<Uri?>(null) }
     var cvUri by remember { mutableStateOf<Uri?>(null) }
 
+    val context = LocalContext.current
     val viewModel = remember {
         RegisterAlumnoViewModel(
-            GetAlumnoUseCase(FakeAlumnoRepository()),
-            //GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.api)),
-            UpdateAlumnoUserCase(FakeAlumnoRepository())
-            //UpdateAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.api))
+            //GetAlumnoUseCase(FakeAlumnoRepository()),
+            GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
+            //UpdateAlumnoUserCase(FakeAlumnoRepository())
+            UpdateAlumnoUserCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
 
@@ -96,6 +101,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: P
         // Actualiza los campos cuando llegue el alumno
         LaunchedEffect(alumno) {
             alumno?.let {
+                alumnoId = it.id
                 nombre = it.nombre
                 username = it.username
                 password = it.password
@@ -291,6 +297,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: P
                 val habilidadesTexto = listaHabilidades.joinToString(",") // Convierte la lista en una cadena separada por comas
 
                 val nuevoAlumno = Alumno(
+                    id = alumnoId,
                     nombre = nombre,
                     username = username,
                     apellido = apellido,

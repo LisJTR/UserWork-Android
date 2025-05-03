@@ -7,12 +7,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
-import com.torre.b2c2c_tfg.data.repository.FakeLoginRepository
+import com.torre.b2c2c_tfg.data.repository.LoginRepositoryImpl
 //import com.torre.b2c2c_tfg.data.repository.LoginRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.LoginUseCase
 import com.torre.b2c2c_tfg.ui.components.Applogo
@@ -25,6 +26,8 @@ import com.torre.b2c2c_tfg.ui.components.TextTitle
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.LoginViewModel
 
+
+
 // UI principal
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -35,10 +38,13 @@ fun WelcomeScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showRegisterDialog by remember { mutableStateOf(false) }
+
     // Viewmodel para el login
+    val context = LocalContext.current
     val loginViewModel = remember {
-        LoginViewModel(LoginUseCase(FakeLoginRepository()))
-        // LoginViewModel(LoginUseCase(LoginRepositoryImpl(RetrofitInstance.api))) }
+        //LoginViewModel(LoginUseCase(FakeLoginRepository()))
+        LoginViewModel(LoginUseCase(LoginRepositoryImpl(RetrofitInstance.getInstance(context)))
+        )
     }
 
     val loginResult by loginViewModel.loginResult.collectAsState()
