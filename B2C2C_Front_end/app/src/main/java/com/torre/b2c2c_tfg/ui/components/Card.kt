@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 
 @Composable
 fun OfferCardForm(
+    id: Int? = null,
     title: String,
     description: String,
     aptitudes: String,
@@ -57,6 +58,13 @@ fun OfferCardForm(
         )
     ) {
         Column(Modifier.padding(16.dp)) {
+            id?.let {
+                Text(
+                    text = "ID: $id",
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
             OutlinedInputTextField(
                 value = title,
                 onValueChange = onTitleChange,

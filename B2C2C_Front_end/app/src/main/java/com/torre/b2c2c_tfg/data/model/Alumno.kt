@@ -3,6 +3,8 @@ package com.torre.b2c2c_tfg.data.model
 import com.google.gson.annotations.SerializedName
 
 data class Alumno(
+    @SerializedName("id")
+    val id: Int? = null,
     @SerializedName("nombre")
     val nombre: String,
     @SerializedName("username")
@@ -23,7 +25,7 @@ data class Alumno(
     val centro: String,
     @SerializedName("titulacion")
     val titulacion: String,
-    @SerializedName("conocimientos") // Cambia el nombre a "conocimientos" a descripcion o eliminar el campo y añadir descripcion en la BBDD
+    @SerializedName("descripcion") // Cambia el nombre a "conocimientos" a descripcion o eliminar el campo y añadir descripcion en la BBDD
     val descripcion: String,
     @SerializedName("aptitudes")
     val habilidades: String,
