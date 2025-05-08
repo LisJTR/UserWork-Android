@@ -49,7 +49,10 @@ import com.torre.b2c2c_tfg.ui.components.UserSelectedImage
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.RegisterAlumnoViewModel
 import androidx.compose.ui.platform.LocalContext
+import com.google.gson.Gson
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
+import androidx.compose.ui.platform.LocalFocusManager
+
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -73,6 +76,8 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     val listaHabilidades = remember { mutableStateListOf<String>() }
     var docUri by remember { mutableStateOf<Uri?>(null) }
     var cvUri by remember { mutableStateOf<Uri?>(null) }
+    val focusManager = LocalFocusManager.current
+
 
     val context = LocalContext.current
     val viewModel = remember {
@@ -113,13 +118,17 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                     password = it.password.orEmpty()
                     apellido = it.apellido.orEmpty()
                     telefono = it.telefono.orEmpty()
-                    correoElectronico = it.correoElectronico.orEmpty()
+                    println("Correo electrónico desde backend: '${it.correoElectronico}'")
+                    println(Gson().toJson(alumno))
+                    correoElectronico = it.correoElectronico.orEmpty().trim()
                     ciudad = it.ciudad.orEmpty()
                     direccion = it.direccion.orEmpty()
                     nombreCentro = it.centro.orEmpty()
                     tituloCurso = it.titulacion.orEmpty()
                     descripcion = it.descripcion.orEmpty()
                     imageUri = it.imagen?.let { uri -> Uri.parse(uri) }
+                    cvUri = it.cvUri?.let { uri -> Uri.parse(uri) }
+                    docUri = it.docUri?.let { uri -> Uri.parse(uri) }
                     listaHabilidades.clear()
                     listaHabilidades.addAll(it.habilidades.orEmpty().split(",").filter { h -> h.isNotBlank() })
                 }
@@ -316,10 +325,18 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                     titulacion = tituloCurso,
                     descripcion = descripcion,
                     habilidades = habilidadesTexto,
+                    cvUri = cvUri?.toString(),
+                    docUri = docUri?.toString(),
                     imagen = imageUri?.toString()
                 )
                 viewModel.guardarDatos(nuevoAlumno)
+
+                // Quitar el foco para que se cierre el teclado y desaparezca el cursor
+                focusManager.clearFocus()
+
+                if (!esEdicion) {
                 navController.navigate("HomeScreen?isEmpresa=false")
+                }
             },
             modifier = Modifier
                 .width(300.dp)

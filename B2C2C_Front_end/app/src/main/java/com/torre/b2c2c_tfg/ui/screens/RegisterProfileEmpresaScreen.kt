@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.gson.Gson
 import com.torre.b2c2c_tfg.data.model.Empresa
 import com.torre.b2c2c_tfg.data.model.Oferta
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
@@ -59,6 +60,8 @@ import java.util.Locale
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
+import androidx.compose.ui.platform.LocalFocusManager
+
 
 
 data class OfferCardData(
@@ -85,6 +88,8 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
     var descripcion by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val offerCards = remember { mutableStateListOf<OfferCardData>() }
+    val focusManager = LocalFocusManager.current
+
 
     val context = LocalContext.current
     val viewModel = remember {
@@ -132,7 +137,9 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 sector = it.sector.orEmpty()
                 ciudad = it.ciudad.orEmpty()
                 telefono = it.telefono.orEmpty()
-                correo = it.correoElectronico.orEmpty()
+                println("Correo electrónico desde backend: '${it.correoElectronico}'")
+                println(Gson().toJson(empresa))
+                correo = it.correoElectronico.orEmpty().trim()
                 descripcion = it.descripcion.orEmpty()
                 imageUri = it.imagen?.let { uri -> Uri.parse(uri) }
             }
@@ -325,6 +332,9 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 )
                 viewModel.guardarDatos(nuevaEmpresa)
 
+                // Quitar el foco para que se cierre el teclado y desaparezca el cursor
+                focusManager.clearFocus()
+
                 val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
 
@@ -345,7 +355,9 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 }
 
                 // 3. Navegar a la pantalla principal
+                if (!esEdicion) {
                 navController.navigate("HomeScreen?isEmpresa=true")
+                }
             },
             modifier = Modifier
                 .width(300.dp)

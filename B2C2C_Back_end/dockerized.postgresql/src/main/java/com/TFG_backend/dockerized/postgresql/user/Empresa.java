@@ -66,11 +66,12 @@ public class Empresa {
 	public void setTelefono(int telefono) {
 		this.telefono = telefono;
 	}
-	public String getcorreoElectronico() {
-		return correoElectronico;
+	public String getCorreoElectronico() {
+	    return correoElectronico;
 	}
-	public void setcorreoElectronico(String correoElectronico) {
-		this.correoElectronico = correoElectronico;
+	
+	public void setCorreoElectronico(String correoElectronico) {
+	    this.correoElectronico = correoElectronico;
 	}
 	public String getDescripcion() {
 		return descripcion;
