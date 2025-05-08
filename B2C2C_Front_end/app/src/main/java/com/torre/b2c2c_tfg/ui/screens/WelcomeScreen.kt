@@ -49,22 +49,21 @@ fun WelcomeScreen(navController: NavController) {
 
     val loginResult by loginViewModel.loginResult.collectAsState()
 
-        LaunchedEffect(loginResult) {
+    val userId = loginViewModel.loggedUserId.collectAsState().value
+    val userType = loginViewModel.loggedUserType.collectAsState().value
 
-            if (loginResult.isNotEmpty()) {
-                println("Resultado login: $loginResult")
+    LaunchedEffect(loginResult) {
+        if (loginResult.contains("exitoso") && userId != null && userType != null) {
+            showLoginDialog = false
 
-                if (loginResult.contains("exitoso")) {
-                    showLoginDialog = false
-
-                    // Lógica temporal para distinguir empresa vs alumno
-                    val isEmpresa = username.contains("empresa", ignoreCase = true)
-
-                    // Navegar con el parámetro isEmpresa
-                    navController.navigate("HomeScreen?isEmpresa=$isEmpresa")
-                }
+            val route = when (userType) {
+                "alumno" -> ScreenRoutes.HomeScreen + "?isEmpresa=false"
+                "empresa" -> ScreenRoutes.HomeScreen + "?isEmpresa=true"
+                else -> ScreenRoutes.WelcomeScreen
             }
+            navController.navigate(route)
         }
+    }
 
 
     Column(
@@ -124,7 +123,13 @@ fun WelcomeScreen(navController: NavController) {
             onPasswordChange = { password = it },
             onDismiss = { showLoginDialog = false },
             onLoginClick = {
-                loginViewModel.login(username, "", password)
+                //loginViewModel.login(username, "", password)
+                val isEmail = username.contains("@")
+                loginViewModel.login(
+                    username = if (!isEmail) username else null,
+                    email = if (isEmail) username else null,
+                    password = password
+                )
             },
         )
     }

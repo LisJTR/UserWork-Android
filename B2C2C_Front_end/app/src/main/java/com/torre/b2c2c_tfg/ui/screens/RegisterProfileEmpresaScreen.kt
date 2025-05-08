@@ -73,7 +73,7 @@ data class OfferCardData(
 @Composable
 fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false) {
 
-    var empresaId by remember { mutableStateOf<Int?>(null) }
+    var idEmpresaForm by remember { mutableStateOf<Int?>(null) }
     var nombreEmpresa by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -105,10 +105,9 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
         )
     }
 
-
+    val empresa by viewModel.empresa.collectAsState()
     // Obtiene el alumno actual desde el ViewModel
     if (esEdicion) {
-        val empresa by viewModel.empresa.collectAsState()
         val ofertas by ofertaViewModel.ofertas.collectAsState()
 
         // Cargar los datos
@@ -120,16 +119,16 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
         // Cuando llega la empresa, actualizar campos
         LaunchedEffect(empresa) {
             empresa?.let {
-                empresaId = it.id
-                nombreEmpresa = it.nombre
-                username = it.username
-                password = it.password
-                sector = it.sector
-                ciudad = it.ciudad
-                telefono = it.telefono
-                correo = it.correoElectronico
-                descripcion = it.descripcion
-                imageUri = Uri.parse(it.imagen ?: "")
+                idEmpresaForm = it.id
+                nombreEmpresa = it.nombre.orEmpty()
+                username = it.username.orEmpty()
+                password = it.password.orEmpty()
+                sector = it.sector.orEmpty()
+                ciudad = it.ciudad.orEmpty()
+                telefono = it.telefono.orEmpty()
+                correo = it.correoElectronico.orEmpty()
+                descripcion = it.descripcion.orEmpty()
+                imageUri = it.imagen?.let { uri -> Uri.parse(uri) }
             }
         }
 
@@ -192,15 +191,15 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
                 .height(60.dp)
         )
         OutlinedInputTextField(
-            value = nombreEmpresa,
-            onValueChange = { nombreEmpresa = it },
+            value = username,
+            onValueChange = { username = it },
             label = "User Name*",
             modifier = Modifier
                 .height(60.dp)
         )
         OutlinedInputTextField(
-            value = nombreEmpresa,
-            onValueChange = { nombreEmpresa = it },
+            value = password,
+            onValueChange = { password = it },
             label = "Contraseña*",
             modifier = Modifier
                 .height(60.dp)
@@ -238,8 +237,8 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
         )
 
         OutlinedInputTextField(
-            value = correo,
-            onValueChange = { correo = it },
+            value =  descripcion,
+            onValueChange = {  descripcion = it },
             label = "Breve descripción*",
             modifier = Modifier
                 .height(60.dp)
@@ -307,7 +306,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
             onClick = {
                 // 1. Guardar empresa
                 val nuevaEmpresa = Empresa(
-                    id = empresaId,
+                    id = idEmpresaForm,
                     nombre = nombreEmpresa,
                     username = username,
                     password = password,
@@ -317,7 +316,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
                     correoElectronico = correo,
                     descripcion = descripcion,
                     imagen = imageUri?.toString()
-                    // Si tienes un campo ID al editar, podrías incluirlo también: id = empresa?.id ?: 0
                 )
                 viewModel.guardarDatos(nuevaEmpresa)
 
@@ -333,7 +331,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
                         aptitudes = card.aptitudes,
                         queSeOfrece = card.queSeOfrece,
                         // CAMBIAR CUANDO TENGAS BACKEND:
-                        empresaId = 1,  //  empresa?.id ?: 0 cuando tengas backend real
+                        empresaId = empresa?.id ?: 0, //empresaId = 1,   cuando tengas backend real
                         publicada = card.isPublic,
                         fechaPublicacion = fechaActual
                     )
