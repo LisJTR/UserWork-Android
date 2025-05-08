@@ -17,10 +17,13 @@ class RegisterAlumnoViewModel(
     private val _alumno = MutableStateFlow<Alumno?>(null)
     val alumno: StateFlow<Alumno?> = _alumno
 
-    fun cargarDatos() {
+    fun cargarDatos(id: Long) {
         viewModelScope.launch {
-            val datos = getAlumnoUseCase()
-            _alumno.value = datos
+            try {
+            _alumno.value = getAlumnoUseCase(id)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

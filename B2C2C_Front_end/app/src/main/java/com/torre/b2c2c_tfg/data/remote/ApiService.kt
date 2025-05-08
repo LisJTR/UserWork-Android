@@ -29,6 +29,9 @@ interface ApiService {
     @PUT("api/empresa/perfil")
     suspend fun updateEmpresa(@Body empresa: Empresa): Response<Unit>
 
+    @GET("api/empresa/{id}")
+    suspend fun getEmpresaById(@Path("id") id: Long): Empresa
+
     @POST("api/empresa")
     suspend fun crearEmpresa(@Body empresa: Empresa): Response<Unit>
 
@@ -41,6 +44,8 @@ interface ApiService {
     @GET("api/alumno/perfil")
     suspend fun getAlumno(): Alumno
 
+    @GET("api/alumno/{id}")
+    suspend fun getAlumnoById(@Path("id") id: Long): Alumno
 
     @PUT("api/alumno/perfil")
     suspend fun updateAlumno(@Body alumno: Alumno): Response<Unit>

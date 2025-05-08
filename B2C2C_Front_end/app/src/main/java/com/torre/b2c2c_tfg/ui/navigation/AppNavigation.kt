@@ -14,6 +14,7 @@ import com.torre.b2c2c_tfg.ui.screens.WelcomeScreen
 import com.torre.b2c2c_tfg.ui.screens.RegisterProfileAlumnoScreen
 import com.torre.b2c2c_tfg.ui.screens.HomeScreen
 import com.torre.b2c2c_tfg.ui.util.UserType
+import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 
 // Definir las rutas de navegación de las pantallas
 object ScreenRoutes {
@@ -26,17 +27,20 @@ object ScreenRoutes {
     const val AlumnoPerfil = "AlumnoPerfil/{alumnoId}"
     const val EmpresaPerfil = "EmpresaPerfil/{empresaId}"
 
+    fun alumnoPerfilRoute(id: Long) = "AlumnoPerfil/$id"
+    fun empresaPerfilRoute(id: Long) = "EmpresaPerfil/$id"
+
 }
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AppNavigation(navController: NavHostController = rememberNavController()) {
+fun AppNavigation(navController: NavHostController = rememberNavController(), sessionViewModel: SessionViewModel) {
 
     NavHost(navController = navController, startDestination = ScreenRoutes.WelcomeScreen) {
 
         composable(ScreenRoutes.WelcomeScreen) {
-            WelcomeScreen(navController)
+            WelcomeScreen(navController = navController, sessionViewModel = sessionViewModel)
         }
 
         composable(
@@ -54,7 +58,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
             if (fromRegistro) {
 
-                RegisterProfileAlumnoScreen(navController, esEdicion = false, alumnoId = 0)
+                RegisterProfileAlumnoScreen(navController, sessionViewModel = sessionViewModel, esEdicion = false)
             } else {
 
                 Scaffold(bottomBar = {
@@ -63,8 +67,9 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                 ){ paddingValues ->
                     RegisterProfileAlumnoScreen(
                         navController = navController,
+                        sessionViewModel = sessionViewModel,
                         contentPadding = paddingValues,
-                        esEdicion = true, alumnoId = 0
+                        esEdicion = true
                     )
                 }
             }
@@ -82,7 +87,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             val fromRegistro = backStackEntry.arguments?.getString("fromRegistro")?.toBoolean() ?: false
 
             if (fromRegistro) {
-                RegisterProfileEmpresaScreen(navController, esEdicion = false)
+                RegisterProfileEmpresaScreen(navController, sessionViewModel = sessionViewModel, esEdicion = false)
 
             } else {
                 Scaffold(bottomBar = {
@@ -92,6 +97,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
                     RegisterProfileEmpresaScreen(
                         navController = navController,
+                        sessionViewModel = sessionViewModel,
                         contentPadding = paddingValues,
                         esEdicion = true
                     )
@@ -119,12 +125,12 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
         composable(ScreenRoutes.AlumnoPerfil) { backStackEntry ->
             val alumnoId = backStackEntry.arguments?.getString("alumnoId")?.toLongOrNull() ?: 0L
-            RegisterProfileAlumnoScreen(navController, esEdicion = true, alumnoId = alumnoId)
+            RegisterProfileAlumnoScreen(navController, sessionViewModel = sessionViewModel, esEdicion = true)
         }
 
         composable(ScreenRoutes.EmpresaPerfil) { backStackEntry ->
             val empresaId = backStackEntry.arguments?.getString("empresaId")?.toLongOrNull() ?: 0L
-            RegisterProfileEmpresaScreen(navController, esEdicion = true /* puedes pasar empresaId si lo necesitas */)
+            RegisterProfileEmpresaScreen(navController, sessionViewModel = sessionViewModel, esEdicion = true)
         }
 
 

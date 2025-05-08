@@ -25,13 +25,13 @@ import com.torre.b2c2c_tfg.ui.components.RegisterTypeDialog
 import com.torre.b2c2c_tfg.ui.components.TextTitle
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.LoginViewModel
-
+import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 
 
 // UI principal
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun WelcomeScreen(navController: NavController) {
+fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewModel) {
 
     // Estados para controlar el diálogo y los inputs
     var showLoginDialog by remember { mutableStateOf(false) }
@@ -56,11 +56,15 @@ fun WelcomeScreen(navController: NavController) {
         if (loginResult.contains("exitoso") && userId != null && userType != null) {
             showLoginDialog = false
 
+            // Guardar la sesión
+            sessionViewModel.setSession(userId, userType)
+
             val route = when (userType) {
                 "alumno" -> ScreenRoutes.HomeScreen + "?isEmpresa=false"
                 "empresa" -> ScreenRoutes.HomeScreen + "?isEmpresa=true"
                 else -> ScreenRoutes.WelcomeScreen
             }
+
             navController.navigate(route)
         }
     }
@@ -161,7 +165,7 @@ fun WelcomeScreen(navController: NavController) {
 fun WelcomeScreenPreview() {
     B2C2C_TFGTheme {
         Scaffold {
-            WelcomeScreen(navController = rememberNavController())
+            WelcomeScreen(navController = rememberNavController(), sessionViewModel = SessionViewModel())
         }
     }
 }

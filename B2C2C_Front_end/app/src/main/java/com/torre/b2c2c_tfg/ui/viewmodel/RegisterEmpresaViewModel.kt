@@ -17,9 +17,13 @@ class RegisterEmpresaViewModel(
     private val _empresa = MutableStateFlow<Empresa?>(null)
     val empresa: StateFlow<Empresa?> = _empresa
 
-    fun cargarDatos() {
+    fun cargarDatos(id: Long) {
         viewModelScope.launch {
-            _empresa.value = getEmpresaUseCase()
+            try {
+            _empresa.value = getEmpresaUseCase(id)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
