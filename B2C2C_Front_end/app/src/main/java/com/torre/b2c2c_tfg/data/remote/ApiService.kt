@@ -18,7 +18,7 @@ import retrofit2.http.Path
 interface ApiService {
 
     // Peticiones HTTP de Login
-    @POST("/api/login") // Ajustar el endpoint según el backend
+    @POST("/api/auth/login") // Ajustar el endpoint según el backend
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
     // -------------------------------------------------------------------

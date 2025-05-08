@@ -18,9 +18,14 @@ import com.torre.b2c2c_tfg.ui.util.UserType
 // Definir las rutas de navegación de las pantallas
 object ScreenRoutes {
     const val WelcomeScreen = "Welcome"
+    // Ruta para reutilizar la misma pantalla: Registro/Edicion
     const val AlumnoWithParam = "Register/ProfileAlumno?fromRegistro={fromRegistro}"
+    // Ruta para reutilizar la misma pantalla: Registro/Edicion
     const val EmpresaWithParam = "Register/ProfileEmpresa?fromRegistro={fromRegistro}"
     const val HomeScreen = "HomeScreen"
+    const val AlumnoPerfil = "AlumnoPerfil/{alumnoId}"
+    const val EmpresaPerfil = "EmpresaPerfil/{empresaId}"
+
 }
 
 
@@ -49,7 +54,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
             if (fromRegistro) {
 
-                RegisterProfileAlumnoScreen(navController, esEdicion = false)
+                RegisterProfileAlumnoScreen(navController, esEdicion = false, alumnoId = 0)
             } else {
 
                 Scaffold(bottomBar = {
@@ -59,7 +64,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                     RegisterProfileAlumnoScreen(
                         navController = navController,
                         contentPadding = paddingValues,
-                        esEdicion = true
+                        esEdicion = true, alumnoId = 0
                     )
                 }
             }
@@ -111,6 +116,17 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                 )
             }
         }
+
+        composable(ScreenRoutes.AlumnoPerfil) { backStackEntry ->
+            val alumnoId = backStackEntry.arguments?.getString("alumnoId")?.toLongOrNull() ?: 0L
+            RegisterProfileAlumnoScreen(navController, esEdicion = true, alumnoId = alumnoId)
+        }
+
+        composable(ScreenRoutes.EmpresaPerfil) { backStackEntry ->
+            val empresaId = backStackEntry.arguments?.getString("empresaId")?.toLongOrNull() ?: 0L
+            RegisterProfileEmpresaScreen(navController, esEdicion = true /* puedes pasar empresaId si lo necesitas */)
+        }
+
 
     }
 }

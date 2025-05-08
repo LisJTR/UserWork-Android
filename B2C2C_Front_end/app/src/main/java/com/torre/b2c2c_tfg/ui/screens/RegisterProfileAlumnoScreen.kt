@@ -53,9 +53,9 @@ import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false) {
+fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false, alumnoId: Long) {
 
-    var alumnoId by remember { mutableStateOf<Int?>(null) }
+    var idAlumnoForm by remember { mutableStateOf<Int?>(null) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var nombre by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -64,7 +64,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: P
     var telefono by remember { mutableStateOf("") }
     var correoElectronico by remember { mutableStateOf("") }
     var ciudad by remember { mutableStateOf("") }
-    var dirrecion by remember { mutableStateOf("") }
+    var direccion by remember { mutableStateOf("") }
     var nombreCentro by remember { mutableStateOf("") }
     var tituloCurso by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
@@ -101,24 +101,25 @@ fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: P
         // Actualiza los campos cuando llegue el alumno
         LaunchedEffect(alumno) {
             alumno?.let {
-                alumnoId = it.id
-                nombre = it.nombre
-                username = it.username
-                password = it.password
-                apellido = it.apellido
-                telefono = it.telefono
-                correoElectronico = it.correoElectronico
-                ciudad = it.ciudad
-                dirrecion = it.direccion
-                nombreCentro = it.centro
-                tituloCurso = it.titulacion
-                descripcion = it.descripcion
-                imageUri = Uri.parse(it.imagen ?: "")
-                listaHabilidades.clear()
-                listaHabilidades.addAll(it.habilidades.split(",").filter { it.isNotBlank() })
+                alumno?.let {
+                    idAlumnoForm = it.id ?: 0
+                    nombre = it.nombre.orEmpty()
+                    username = it.username.orEmpty()
+                    password = it.password.orEmpty()
+                    apellido = it.apellido.orEmpty()
+                    telefono = it.telefono.orEmpty()
+                    correoElectronico = it.correoElectronico.orEmpty()
+                    ciudad = it.ciudad.orEmpty()
+                    direccion = it.direccion.orEmpty()
+                    nombreCentro = it.centro.orEmpty()
+                    tituloCurso = it.titulacion.orEmpty()
+                    descripcion = it.descripcion.orEmpty()
+                    imageUri = it.imagen?.let { uri -> Uri.parse(uri) }
+                    listaHabilidades.clear()
+                    listaHabilidades.addAll(it.habilidades.orEmpty().split(",").filter { h -> h.isNotBlank() })
+                }
             }
         }
-    }
 
 
     Column(
@@ -200,8 +201,8 @@ fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: P
                 .height(60.dp)
         )
         OutlinedInputTextField(
-            value = dirrecion,
-            onValueChange = { dirrecion = it },
+            value = direccion,
+            onValueChange = { direccion = it },
             label = "Dirección",
             modifier = Modifier
                 .height(60.dp)
@@ -297,7 +298,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: P
                 val habilidadesTexto = listaHabilidades.joinToString(",") // Convierte la lista en una cadena separada por comas
 
                 val nuevoAlumno = Alumno(
-                    id = alumnoId,
+                    id = idAlumnoForm,
                     nombre = nombre,
                     username = username,
                     apellido = apellido,
@@ -305,33 +306,22 @@ fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: P
                     telefono = telefono,
                     correoElectronico = correoElectronico,
                     ciudad = ciudad,
-                    direccion = dirrecion,
+                    direccion = direccion,
                     centro = nombreCentro,
                     titulacion = tituloCurso,
                     descripcion = descripcion,
                     habilidades = habilidadesTexto,
                     imagen = imageUri?.toString()
-                    // Aquí podrías meter también los archivos si tienes lógica para subirlos
                 )
                 viewModel.guardarDatos(nuevoAlumno)
-
-
-                // Aquí llamarías al ViewModel para guardar el alumno
-                // alumnoViewModel.guardarDatos(nuevoAlumno)
-
                 navController.navigate("HomeScreen?isEmpresa=false")
             },
             modifier = Modifier
                 .width(300.dp)
                 .padding(top = 90.dp)
         )
-
-
-
-
-
     }
-
+    }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -345,7 +335,7 @@ fun LoginAlumnoScreenPreview() {
             BottomBar(navController = navController, userType = UserType.ALUMNO)
         }
     ) {
-        RegisterProfileAlumnoScreen(navController = navController)
+        RegisterProfileAlumnoScreen(navController = navController,  contentPadding = PaddingValues(), esEdicion = true, alumnoId = 1)
     }
 }
 

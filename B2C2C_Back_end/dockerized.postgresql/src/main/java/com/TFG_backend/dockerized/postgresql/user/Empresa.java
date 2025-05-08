@@ -1,5 +1,6 @@
 package com.TFG_backend.dockerized.postgresql.user;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,7 +20,8 @@ public class Empresa {
 	 private String sector;
 	 private String ciudad;
 	 private int telefono;
-	 private String correo_electronico;
+	 @Column(name = "correo_electronico")
+	 private String correoElectronico;
 	 private String descripcion;
 	 private String logo;
 	public Long getId() {
@@ -64,11 +66,11 @@ public class Empresa {
 	public void setTelefono(int telefono) {
 		this.telefono = telefono;
 	}
-	public String getCorreo_electronico() {
-		return correo_electronico;
+	public String getcorreoElectronico() {
+		return correoElectronico;
 	}
-	public void setCorreo_electronico(String correo_electronico) {
-		this.correo_electronico = correo_electronico;
+	public void setcorreoElectronico(String correoElectronico) {
+		this.correoElectronico = correoElectronico;
 	}
 	public String getDescripcion() {
 		return descripcion;
@@ -86,7 +88,7 @@ public class Empresa {
 	public String toString() {
 		return "Empresa [id=" + id + ", nombre=" + nombre + ", username=" + username + ", password=" + password
 				+ ", sector=" + sector + ", ciudad=" + ciudad + ", telefono=" + telefono + ", correo_electronico="
-				+ correo_electronico + ", descripcion=" + descripcion + ", logo=" + logo + "]";
+				+ correoElectronico + ", descripcion=" + descripcion + ", logo=" + logo + "]";
 	}
 	 
 	 

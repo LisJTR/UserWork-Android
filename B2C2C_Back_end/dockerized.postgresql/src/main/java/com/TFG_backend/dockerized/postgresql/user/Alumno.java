@@ -1,5 +1,6 @@
 package com.TFG_backend.dockerized.postgresql.user;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,7 +24,8 @@ public class Alumno {
     private String direccion;
     private String ciudad;
     private String telefono;
-    private String correo_electronico;
+    @Column(name = "correo_electronico")
+    private String correoElectronico;
     private String centro;
     private String descripcion;
     private String aptitudes;
@@ -108,12 +110,12 @@ public class Alumno {
 		this.telefono = telefono;
 	}
 	
-	public String getCorreo_electronico() {
-		return correo_electronico;
+	public String getcorreoElectronico() {
+		return correoElectronico;
 	}
 	
-	public void setCorreo_electronico(String correo_electronico) {
-		this.correo_electronico = correo_electronico;
+	public void setcorreoElectronico(String correoElectronico) {
+		this.correoElectronico = correoElectronico;
 	}
 	
 	public String getCentro() {
@@ -168,7 +170,7 @@ public class Alumno {
 	public String toString() {
 		return "Alumno [id=" + id + ", nombre=" + nombre + ", apellido=" + apellido + ", username=" + username
 				+ ", password=" + password + ", titulacion=" + titulacion + ", direccion=" + direccion + ", ciudad="
-				+ ciudad + ", telefono=" + telefono + ", correo_electronico=" + correo_electronico + ", centro="
+				+ ciudad + ", telefono=" + telefono + ", correo_electronico=" + correoElectronico + ", centro="
 				+ centro + ", descripcion=" + descripcion + ", aptitudes=" + aptitudes + ", foto=" + foto
 				+ ", curriculum=" + curriculum + ", verificacion_titulacion=" + verificacion_titulacion + "]";
 	}
