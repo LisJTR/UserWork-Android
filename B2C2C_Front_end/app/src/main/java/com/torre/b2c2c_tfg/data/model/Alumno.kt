@@ -15,8 +15,8 @@ data class Alumno(
     val apellido: String,
     @SerializedName("telefono")
     val telefono: String,
-    @SerializedName("correo_electronico")
-    val correoElectronico: String,
+    @SerializedName("correoElectronico")
+    val correoElectronico: String? = null,
     @SerializedName("ciudad")
     val ciudad: String,
     @SerializedName("direccion")
