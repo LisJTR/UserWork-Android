@@ -15,6 +15,10 @@ class EmpresaRepositoryImpl(
     override suspend fun updateEmpresa(empresa: Empresa): Boolean {
         return apiService.updateEmpresa(empresa).isSuccessful
     }
+
+    override suspend fun getEmpresaById(id: Long): Empresa {
+        return apiService.getEmpresaById(id)
+    }
 }
 
 // Clase fake para pruebas

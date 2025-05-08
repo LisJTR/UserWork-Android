@@ -58,6 +58,7 @@ import java.util.Date
 import java.util.Locale
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.ui.util.UserType
+import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 
 
 data class OfferCardData(
@@ -71,7 +72,7 @@ data class OfferCardData(
 
 
 @Composable
-fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false) {
+fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel: SessionViewModel, contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false) {
 
     var idEmpresaForm by remember { mutableStateOf<Int?>(null) }
     var nombreEmpresa by remember { mutableStateOf("") }
@@ -105,14 +106,19 @@ fun RegisterProfileEmpresaScreen(navController: NavController, contentPadding: P
         )
     }
 
+    val empresaId = sessionViewModel.userId.collectAsState().value ?: 0L
+
     val empresa by viewModel.empresa.collectAsState()
     // Obtiene el alumno actual desde el ViewModel
     if (esEdicion) {
         val ofertas by ofertaViewModel.ofertas.collectAsState()
 
         // Cargar los datos
-        LaunchedEffect(Unit) {
-            viewModel.cargarDatos()               // carga empresa
+        LaunchedEffect(empresaId) {
+            println("Alumno ID recibido: $empresaId")
+            if (empresaId > 0) {
+            viewModel.cargarDatos(empresaId)             // carga empresa
+            }
             ofertaViewModel.cargarOfertas()       // carga ofertas
         }
 
@@ -365,7 +371,7 @@ fun RegisterProfileEmpresaScreenPreview() {
                 BottomBar(navController = navController, userType = UserType.EMPRESA)
             }
         ) {
-            RegisterProfileEmpresaScreen(navController = navController)
+            RegisterProfileEmpresaScreen(navController = navController, sessionViewModel = SessionViewModel())
         }
     }
 }

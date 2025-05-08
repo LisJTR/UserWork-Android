@@ -17,6 +17,10 @@ class AlumnoRepositoryImpl(
         override suspend fun updateAlumno(alumno: Alumno): Boolean {
           return apiService.updateAlumno(alumno).isSuccessful
         }
+
+        override suspend fun getAlumnoById(id: Long): Alumno {
+            return apiService.getAlumnoById(id)
+        }
 }
 
 // Clase fake para pruebas

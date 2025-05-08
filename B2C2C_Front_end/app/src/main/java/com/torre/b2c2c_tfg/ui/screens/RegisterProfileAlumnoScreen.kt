@@ -49,11 +49,12 @@ import com.torre.b2c2c_tfg.ui.components.UserSelectedImage
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.RegisterAlumnoViewModel
 import androidx.compose.ui.platform.LocalContext
+import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false, alumnoId: Long) {
+fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: SessionViewModel, contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false) {
 
     var idAlumnoForm by remember { mutableStateOf<Int?>(null) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -83,12 +84,16 @@ fun RegisterProfileAlumnoScreen(navController: NavController , contentPadding: P
         )
     }
 
+    val alumnoId = sessionViewModel.userId.collectAsState().value ?: 0L
     // Obtiene el alumno actual desde el ViewModel
     if (esEdicion) {
         val alumno by viewModel.alumno.collectAsState()
 
-        LaunchedEffect(Unit) {
-            viewModel.cargarDatos()
+        LaunchedEffect(alumnoId) {
+            println("Alumno ID recibido: $alumnoId")
+            if (alumnoId > 0) {
+            viewModel.cargarDatos(alumnoId)
+            }
         }
 
         LaunchedEffect(alumno) {
@@ -335,7 +340,7 @@ fun LoginAlumnoScreenPreview() {
             BottomBar(navController = navController, userType = UserType.ALUMNO)
         }
     ) {
-        RegisterProfileAlumnoScreen(navController = navController,  contentPadding = PaddingValues(), esEdicion = true, alumnoId = 1)
+        RegisterProfileAlumnoScreen(navController = navController,sessionViewModel = SessionViewModel())
     }
 }
 

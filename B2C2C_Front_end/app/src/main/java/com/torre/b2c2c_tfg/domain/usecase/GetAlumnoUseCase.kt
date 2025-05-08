@@ -6,8 +6,13 @@ import com.torre.b2c2c_tfg.domain.repository.AlumnoRepository
 import com.torre.b2c2c_tfg.domain.repository.EmpresaRepository
 
 
-class GetAlumnoUseCase(private val repository: AlumnoRepository) {
+//class GetAlumnoUseCase(private val repository: AlumnoRepository) {
 
-    suspend operator fun invoke(): Alumno = repository.getAlumno()
+// suspend operator fun invoke(): Alumno = repository.getAlumno()
+//}
+
+class GetAlumnoUseCase(private val alumnoRepository: AlumnoRepository) {
+    suspend operator fun invoke(id: Long): Alumno? {
+        return alumnoRepository.getAlumnoById(id)
+    }
 }
-
