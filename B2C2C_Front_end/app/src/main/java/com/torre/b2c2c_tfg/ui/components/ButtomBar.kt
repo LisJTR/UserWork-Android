@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
+import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.util.UserType
 
 data class BottomNavItem( val name:String, val route:String, val icon:ImageVector, )
@@ -29,16 +30,16 @@ fun BottomBar(
     // Lista de ítems de navegación, dependiendo del tipo de usuario
     val bottomNavItems = when (userType) {
         UserType.EMPRESA -> listOf(
-            BottomNavItem("Ofertas", "HomeScreen?isEmpresa=true", Icons.Filled.Home),
-            BottomNavItem("Mis Ofertas", "HomeScreen?isEmpresa=true", Icons.Default.AccountBox),
-            BottomNavItem("Perfil", "Register/ProfileEmpresa?fromRegistro=false", Icons.Default.Person),
-            BottomNavItem("Ajustes", "settingsEmpresa", Icons.Default.Settings)
+            BottomNavItem("Ofertas", ScreenRoutes.home(isEmpresa = true), Icons.Filled.Home),
+            BottomNavItem("Mis Ofertas",  ScreenRoutes.misOfertasRoute(isEmpresa = true), Icons.Default.AccountBox),
+            BottomNavItem("Perfil", ScreenRoutes.empresaProfile(fromRegistro = false), Icons.Default.Person),
+            BottomNavItem("Ajustes", ScreenRoutes.Settings, Icons.Default.Settings)
         )
         UserType.ALUMNO -> listOf(
-            BottomNavItem("Ofertas", "HomeScreen?isEmpresa=false", Icons.Filled.Home),
-            BottomNavItem("Mis Ofertas", "HomeScreen?isEmpresa=false", Icons.Default.AccountBox),
-            BottomNavItem("Perfil", "Register/ProfileAlumno?fromRegistro=false", Icons.Default.Person),
-            BottomNavItem("Ajustes", "settingsAlumno", Icons.Default.Settings)
+            BottomNavItem("Ofertas", ScreenRoutes.home(isEmpresa = false), Icons.Filled.Home),
+            BottomNavItem("Mis Ofertas", ScreenRoutes.misOfertasRoute(isEmpresa = false), Icons.Default.AccountBox),
+            BottomNavItem("Perfil", ScreenRoutes.alumnoProfile(fromRegistro = false), Icons.Default.Person),
+            BottomNavItem("Ajustes", ScreenRoutes.Settings, Icons.Default.Settings)
         )
     }
 

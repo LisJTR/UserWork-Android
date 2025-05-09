@@ -3,6 +3,7 @@ package com.torre.b2c2c_tfg.ui.navigation
 import android.annotation.SuppressLint
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,128 +14,122 @@ import com.torre.b2c2c_tfg.ui.screens.RegisterProfileEmpresaScreen
 import com.torre.b2c2c_tfg.ui.screens.WelcomeScreen
 import com.torre.b2c2c_tfg.ui.screens.RegisterProfileAlumnoScreen
 import com.torre.b2c2c_tfg.ui.screens.HomeScreen
+import com.torre.b2c2c_tfg.ui.screens.MisOfertasScreen
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
+import com.torre.b2c2c_tfg.ui.screens.SettingsScreen
 
-// Definir las rutas de navegación de las pantallas
+
+
+
+// RUTAS
 object ScreenRoutes {
-    const val WelcomeScreen = "Welcome"
-    // Ruta para reutilizar la misma pantalla: Registro/Edicion
-    const val AlumnoWithParam = "Register/ProfileAlumno?fromRegistro={fromRegistro}"
-    // Ruta para reutilizar la misma pantalla: Registro/Edicion
-    const val EmpresaWithParam = "Register/ProfileEmpresa?fromRegistro={fromRegistro}"
-    const val HomeScreen = "HomeScreen"
-    const val AlumnoPerfil = "AlumnoPerfil/{alumnoId}"
-    const val EmpresaPerfil = "EmpresaPerfil/{empresaId}"
+    const val Welcome = "Welcome"
+    const val Home = "HomeScreen"
+    const val AlumnoProfile = "Register/ProfileAlumno"
+    const val EmpresaProfile = "Register/ProfileEmpresa"
+    const val MisOfertas = "MisOfertas"
+    const val Settings = "SettingsScreen"
 
-    fun alumnoPerfilRoute(id: Long) = "AlumnoPerfil/$id"
-    fun empresaPerfilRoute(id: Long) = "EmpresaPerfil/$id"
-
+    // rutas con parámetros
+    fun home(isEmpresa: Boolean) = "$Home?isEmpresa=$isEmpresa"
+    fun alumnoProfile(fromRegistro: Boolean) = "$AlumnoProfile?fromRegistro=$fromRegistro"
+    fun empresaProfile(fromRegistro: Boolean) = "$EmpresaProfile?fromRegistro=$fromRegistro"
+    fun misOfertasRoute(isEmpresa: Boolean) = "$MisOfertas?isEmpresa=$isEmpresa"
 }
-
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AppNavigation(navController: NavHostController = rememberNavController(), sessionViewModel: SessionViewModel) {
+fun AppNavigation(
+    navController: NavHostController = rememberNavController(),
+    sessionViewModel: SessionViewModel
+) {
+    NavHost(navController = navController, startDestination = ScreenRoutes.Welcome) {
 
-    NavHost(navController = navController, startDestination = ScreenRoutes.WelcomeScreen) {
-
-        composable(ScreenRoutes.WelcomeScreen) {
+        composable(ScreenRoutes.Welcome) {
             WelcomeScreen(navController = navController, sessionViewModel = sessionViewModel)
         }
 
+        // AlumnoProfile con parámetro
         composable(
-
-                route = ScreenRoutes.AlumnoWithParam,
-                arguments = listOf(navArgument("fromRegistro") {
-                    defaultValue = "false"
-                })
-
-                // backStackEntry representa la entrada en la pila de navegación
-                // y se utiliza para acceder a los argumentos pasados a la pantalla
-            ) { backStackEntry ->
-
+            route = "${ScreenRoutes.AlumnoProfile}?fromRegistro={fromRegistro}",
+            arguments = listOf(navArgument("fromRegistro") { defaultValue = "false" })
+        ) { backStackEntry ->
             val fromRegistro = backStackEntry.arguments?.getString("fromRegistro")?.toBoolean() ?: false
-
             if (fromRegistro) {
-
                 RegisterProfileAlumnoScreen(navController, sessionViewModel = sessionViewModel, esEdicion = false)
             } else {
-
                 Scaffold(bottomBar = {
                     BottomBar(navController, userType = UserType.ALUMNO)
-                }
-                ){ paddingValues ->
+                }) { padding ->
                     RegisterProfileAlumnoScreen(
                         navController = navController,
                         sessionViewModel = sessionViewModel,
-                        contentPadding = paddingValues,
+                        contentPadding = padding,
                         esEdicion = true
                     )
                 }
             }
         }
 
+        // EmpresaProfile con parámetro
         composable(
-
-                route = ScreenRoutes.EmpresaWithParam,
-                arguments = listOf(navArgument("fromRegistro") {
-                    defaultValue = "false"
-                })
-
-            ) { backStackEntry ->
-
+            route = "${ScreenRoutes.EmpresaProfile}?fromRegistro={fromRegistro}",
+            arguments = listOf(navArgument("fromRegistro") { defaultValue = "false" })
+        ) { backStackEntry ->
             val fromRegistro = backStackEntry.arguments?.getString("fromRegistro")?.toBoolean() ?: false
-
             if (fromRegistro) {
                 RegisterProfileEmpresaScreen(navController, sessionViewModel = sessionViewModel, esEdicion = false)
-
             } else {
                 Scaffold(bottomBar = {
                     BottomBar(navController, userType = UserType.EMPRESA)
-                })
-                { paddingValues ->
-
+                }) { padding ->
                     RegisterProfileEmpresaScreen(
                         navController = navController,
                         sessionViewModel = sessionViewModel,
-                        contentPadding = paddingValues,
+                        contentPadding = padding,
                         esEdicion = true
                     )
                 }
             }
         }
 
-        composable(ScreenRoutes.HomeScreen + "?isEmpresa={isEmpresa}") {
-                backStackEntry ->
-
+        // Home con parámetro isEmpresa
+        composable(
+            route = "${ScreenRoutes.Home}?isEmpresa={isEmpresa}",
+            arguments = listOf(navArgument("isEmpresa") { defaultValue = "false" })
+        ) { backStackEntry ->
             val isEmpresa = backStackEntry.arguments?.getString("isEmpresa")?.toBoolean() ?: false
+            val userType = if (isEmpresa) UserType.EMPRESA else UserType.ALUMNO
 
-            Scaffold(bottomBar = {
-                BottomBar(
-                    navController,
-                    userType = if (isEmpresa) UserType.EMPRESA else UserType.ALUMNO
-                )
-            }) {
-                HomeScreen(
-                    navController = navController,
-                    isUserEmpresa = isEmpresa
-                )
+            Scaffold(bottomBar = { BottomBar(navController, userType) }) {
+                HomeScreen(navController, isUserEmpresa = isEmpresa)
             }
         }
 
-        composable(ScreenRoutes.AlumnoPerfil) { backStackEntry ->
-            val alumnoId = backStackEntry.arguments?.getString("alumnoId")?.toLongOrNull() ?: 0L
-            RegisterProfileAlumnoScreen(navController, sessionViewModel = sessionViewModel, esEdicion = true)
+        //  MisOfertas con parámetro isEmpresa
+        composable(
+            route = "${ScreenRoutes.MisOfertas}?isEmpresa={isEmpresa}",
+            arguments = listOf(navArgument("isEmpresa") { defaultValue = "false" })
+        ) { backStackEntry ->
+            val isEmpresa = backStackEntry.arguments?.getString("isEmpresa")?.toBoolean() ?: false
+            val userType = if (isEmpresa) UserType.EMPRESA else UserType.ALUMNO
+
+            Scaffold(bottomBar = { BottomBar(navController, userType) }) {
+                MisOfertasScreen(navController = navController, isUserEmpresa = isEmpresa)
+            }
         }
 
-        composable(ScreenRoutes.EmpresaPerfil) { backStackEntry ->
-            val empresaId = backStackEntry.arguments?.getString("empresaId")?.toLongOrNull() ?: 0L
-            RegisterProfileEmpresaScreen(navController, sessionViewModel = sessionViewModel, esEdicion = true)
+        composable(ScreenRoutes.Settings) {
+            val userType = when (sessionViewModel.userType.collectAsState().value) {
+                "empresa" -> UserType.EMPRESA
+                "alumno" -> UserType.ALUMNO
+                else -> UserType.ALUMNO
+            }
+
+            Scaffold(bottomBar = { BottomBar(navController, userType) }) {
+                SettingsScreen( navController = navController)
+            }
         }
-
-
     }
 }
-
-
