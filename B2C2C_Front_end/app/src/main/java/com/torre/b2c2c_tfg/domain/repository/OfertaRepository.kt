@@ -6,4 +6,6 @@ import retrofit2.Response
 interface OfertaRepository {
     suspend fun crearOferta(oferta: Oferta): Boolean
     suspend fun getOfertas(): List<Oferta>
+    suspend fun getOfertasByEmpresaId(empresaId: Long): List<Oferta>
+
 }

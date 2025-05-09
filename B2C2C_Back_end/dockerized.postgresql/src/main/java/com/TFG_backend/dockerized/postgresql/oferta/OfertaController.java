@@ -44,4 +44,10 @@ public class OfertaController {
     public Oferta getPerfilEjemplo() {
         return ofertaRepository.findAll().get(0); //  esto es solo de prueba
     }
+    
+    @GetMapping("/empresa/{id}")
+    public List<Oferta> getOfertasByEmpresaId(@PathVariable Long id) {
+        return ofertaRepository.findByEmpresaId(id);
+    }
+
 }

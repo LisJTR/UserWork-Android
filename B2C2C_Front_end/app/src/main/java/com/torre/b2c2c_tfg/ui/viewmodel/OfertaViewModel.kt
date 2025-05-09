@@ -28,10 +28,10 @@ class OfertaViewModel(
         }
     }
 
-    fun cargarOfertas() {
+    fun cargarOfertas(empresaId: Long) {
         viewModelScope.launch {
             try {
-                val lista = getOfertasUseCase()
+                val lista = getOfertasUseCase(empresaId)
                 _ofertas.value = lista
             } catch (e: Exception) {
                 println("Error al cargar ofertas: ${e.message}")

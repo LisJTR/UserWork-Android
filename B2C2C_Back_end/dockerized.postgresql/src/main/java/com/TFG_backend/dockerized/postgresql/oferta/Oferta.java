@@ -1,5 +1,6 @@
 package com.TFG_backend.dockerized.postgresql.oferta;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,7 +18,8 @@ public class Oferta {
 	private String descripcion;
 	private String aptitudes;
 	private String que_se_ofrece;
-	private Long empresa_id;
+	@Column(name = "empresa_id")
+	private Long empresaId;
 	private boolean publicidad;
 	private String fecha_publicacion;
 	public Long getId() {
@@ -50,11 +52,11 @@ public class Oferta {
 	public void setQue_se_ofrece(String que_se_ofrece) {
 		this.que_se_ofrece = que_se_ofrece;
 	}
-	public Long getEmpresa_id() {
-		return empresa_id;
+	public Long getEmpresaId() {
+		return empresaId;
 	}
-	public void setEmpresa_id(Long empresa_id) {
-		this.empresa_id = empresa_id;
+	public void setEmpresa_id(Long empresaId) {
+		this.empresaId = empresaId;
 	}
 	public boolean isPublicidd() {
 		return publicidad;
@@ -71,7 +73,7 @@ public class Oferta {
 	@Override
 	public String toString() {
 		return "Oferta [id=" + id + ", titulo=" + titulo + ", descripcion=" + descripcion + ", aptitudes=" + aptitudes
-				+ ", que_se_ofrece=" + que_se_ofrece + ", empresa_id=" + empresa_id + ", publicidd=" + publicidad
+				+ ", que_se_ofrece=" + que_se_ofrece + ", empresa_id=" + empresaId + ", publicidd=" + publicidad
 				+ ", fecha_publicacion=" + fecha_publicacion + "]";
 	}
 	
