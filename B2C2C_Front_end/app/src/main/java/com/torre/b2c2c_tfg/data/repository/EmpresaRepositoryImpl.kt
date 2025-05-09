@@ -19,6 +19,11 @@ class EmpresaRepositoryImpl(
     override suspend fun getEmpresaById(id: Long): Empresa {
         return apiService.getEmpresaById(id)
     }
+
+    override suspend fun createEmpresa(empresa: Empresa): Empresa? {
+        val response = apiService.crearEmpresa(empresa)
+        return if (response.isSuccessful) response.body() else null
+    }
 }
 
 // Clase fake para pruebas

@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 @Composable
 fun ButtonGeneric(
     text: String,
-    onClick: () -> Unit,
+    onClick:() -> Unit,
     modifier: Modifier = Modifier
 ) {
     ElevatedButton(

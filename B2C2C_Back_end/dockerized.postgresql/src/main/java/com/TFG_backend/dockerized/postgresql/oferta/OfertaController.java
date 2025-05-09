@@ -31,6 +31,7 @@ public class OfertaController {
 
     @PostMapping
     public Oferta createOferta(@RequestBody Oferta oferta) {
+    	  System.out.println("Recibida oferta: " + oferta);
         return ofertaRepository.save(oferta);
     }
 

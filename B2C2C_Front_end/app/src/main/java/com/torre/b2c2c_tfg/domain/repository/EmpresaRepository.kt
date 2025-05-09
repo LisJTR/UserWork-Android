@@ -6,4 +6,5 @@ interface EmpresaRepository {
     suspend fun getEmpresa(): Empresa
     suspend fun getEmpresaById(id: Long): Empresa
     suspend fun updateEmpresa(empresa: Empresa): Boolean
+    suspend fun createEmpresa(empresa: Empresa): Empresa?
 }

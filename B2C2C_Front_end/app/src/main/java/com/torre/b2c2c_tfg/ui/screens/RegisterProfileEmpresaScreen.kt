@@ -61,7 +61,7 @@ import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.ui.platform.LocalFocusManager
-
+import com.torre.b2c2c_tfg.domain.usecase.CreateEmpresaUseCase
 
 
 data class OfferCardData(
@@ -97,7 +97,8 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             //GetEmpresaUseCase(FakeEmpresaRepository()),
             GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
             //UpdateEmpresaUseCase(FakeEmpresaRepository())
-            UpdateEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context)))
+            UpdateEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            CreateEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context)))
 
         )
     }
@@ -112,6 +113,16 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
     }
 
     val empresaId = sessionViewModel.userId.collectAsState().value ?: 0L
+
+    // Si no es edición, guarda sesión y navega una vez se obtenga el ID
+    if (!esEdicion) {
+        LaunchedEffect(viewModel.empresaId) {
+            viewModel.empresaId?.let { newEmpresaId ->
+                sessionViewModel.setSession(newEmpresaId, "empresa")
+                navController.navigate("HomeScreen?isEmpresa=true")
+            }
+        }
+    }
 
     val empresa by viewModel.empresa.collectAsState()
     // Obtiene el alumno actual desde el ViewModel
@@ -317,7 +328,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
         ButtonGeneric(
             text = "GUARDAR",
             onClick = {
-                // 1. Guardar empresa
                 val nuevaEmpresa = Empresa(
                     id = idEmpresaForm,
                     nombre = nombreEmpresa,
@@ -330,33 +340,56 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                     descripcion = descripcion,
                     imagen = imageUri?.toString()
                 )
-                viewModel.guardarDatos(nuevaEmpresa)
-
-                // Quitar el foco para que se cierre el teclado y desaparezca el cursor
-                focusManager.clearFocus()
 
                 val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
+                focusManager.clearFocus()
 
-                // 2. Guardar ofertas
-                offerCards.forEach { card ->
-                    val nuevaOferta = Oferta(
-                        id = card.id,
-                        titulo = card.title,
-                        descripcion = card.description,
-                        aptitudes = card.aptitudes,
-                        queSeOfrece = card.queSeOfrece,
-                        // CAMBIAR CUANDO TENGAS BACKEND:
-                        empresaId = empresa?.id ?: 0, //empresaId = 1,   cuando tengas backend real
-                        publicada = card.isPublic,
-                        fechaPublicacion = fechaActual
-                    )
-                    ofertaViewModel.guardarOferta(nuevaOferta)
-                }
+                if (esEdicion) {
+                    // Actualiza empresa existente
+                    viewModel.guardarDatos(nuevaEmpresa)
+                    empresa?.id?.let { idEmpresa ->
+                        offerCards.forEach { card ->
+                            val nuevaOferta = Oferta(
+                                id = card.id,
+                                titulo = card.title,
+                                descripcion = card.description,
+                                aptitudes = card.aptitudes,
+                                queSeOfrece = card.queSeOfrece,
+                                empresaId = idEmpresa.toInt(),
+                                publicada = card.isPublic,
+                                fechaPublicacion = fechaActual
+                            )
+                            ofertaViewModel.guardarOferta(nuevaOferta)
+                        }
+                    }
+                } else {
+                    // Crea nueva empresa y luego ofertas
+                    viewModel.crearEmpresa(nuevaEmpresa) { empresaCreada ->
+                        val empresaIdValido = empresaCreada.id
 
-                // 3. Navegar a la pantalla principal
-                if (!esEdicion) {
-                navController.navigate("HomeScreen?isEmpresa=true")
+                        if (empresaIdValido != null && empresaIdValido > 0) {
+
+                            sessionViewModel.setSession(empresaIdValido.toLong(), "empresa")
+
+                            offerCards.forEach { card ->
+                                val nuevaOferta = Oferta(
+                                    id = card.id,
+                                    titulo = card.title,
+                                    descripcion = card.description,
+                                    aptitudes = card.aptitudes,
+                                    queSeOfrece = card.queSeOfrece,
+                                    empresaId = empresaIdValido.toInt(), // Utilizamos la ID de la empresa creada
+                                    publicada = card.isPublic,
+                                    fechaPublicacion = fechaActual
+                                )
+                                ofertaViewModel.guardarOferta(nuevaOferta)
+                            }
+                            navController.navigate("HomeScreen?isEmpresa=true")
+                        } else {
+                            println("ERROR: empresaCreada.id no es válido. No se guardan ofertas.")
+                        }
+                    }
                 }
             },
             modifier = Modifier

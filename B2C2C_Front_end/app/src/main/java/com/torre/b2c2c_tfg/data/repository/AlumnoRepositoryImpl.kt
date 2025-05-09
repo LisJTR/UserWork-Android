@@ -10,17 +10,33 @@ import kotlinx.coroutines.delay
 class AlumnoRepositoryImpl(
     private val apiService: ApiService
         ) : AlumnoRepository {
-          override suspend fun getAlumno(): Alumno {
-            return apiService.getAlumno()
-        }
 
-        override suspend fun updateAlumno(alumno: Alumno): Boolean {
-          return apiService.updateAlumno(alumno).isSuccessful
-        }
+     override suspend fun getAlumno(): Alumno {
+         return apiService.getAlumno()
+     }
 
-        override suspend fun getAlumnoById(id: Long): Alumno {
-            return apiService.getAlumnoById(id)
+    override suspend fun updateAlumno(alumno: Alumno): Alumno {
+        val response = apiService.updateAlumno(alumno)
+        if (response.isSuccessful) {
+            return response.body() ?: throw Exception("Alumno nulo en la respuesta")
+        } else {
+            throw Exception("Error al actualizar alumno: ${response.errorBody()?.string()}")
         }
+    }
+
+     override suspend fun createAlumno(alumno: Alumno): Alumno {
+        val response = apiService.crearAlumno(alumno)
+           if (response.isSuccessful) {
+                return response.body() ?: throw Exception("Alumno nulo en la respuesta")
+            } else {
+                throw Exception("Error al crear alumno: ${response.errorBody()?.string()}")
+        }
+     }
+
+     override suspend fun getAlumnoById(id: Long): Alumno {
+        return apiService.getAlumnoById(id)
+     }
+
 }
 
 // Clase fake para pruebas

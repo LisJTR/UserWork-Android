@@ -33,13 +33,13 @@ interface ApiService {
     suspend fun getEmpresaById(@Path("id") id: Long): Empresa
 
     @POST("api/empresa")
-    suspend fun crearEmpresa(@Body empresa: Empresa): Response<Unit>
+    suspend fun crearEmpresa(@Body empresa: Empresa): Response<Empresa>
 
     // -------------------------------------------------------------------
     // Peticiones HTTP de Alumno
 
     @POST("api/alumno")
-    suspend fun crearAlumno(@Body alumno: Alumno): Response<Unit>
+    suspend fun crearAlumno(@Body alumno: Alumno): Response<Alumno>
 
     @GET("api/alumno/perfil")
     suspend fun getAlumno(): Alumno
@@ -48,7 +48,7 @@ interface ApiService {
     suspend fun getAlumnoById(@Path("id") id: Long): Alumno
 
     @PUT("api/alumno/perfil")
-    suspend fun updateAlumno(@Body alumno: Alumno): Response<Unit>
+    suspend fun updateAlumno(@Body alumno: Alumno): Response<Alumno>
 
 
     // -------------------------------------------------------------------
