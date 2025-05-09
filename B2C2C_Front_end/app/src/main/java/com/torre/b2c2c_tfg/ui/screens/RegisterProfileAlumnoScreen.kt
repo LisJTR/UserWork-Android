@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +53,9 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.gson.Gson
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.ui.platform.LocalFocusManager
-
+import com.torre.b2c2c_tfg.domain.usecase.CreateAlumnoUseCase
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -77,6 +80,8 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     var docUri by remember { mutableStateOf<Uri?>(null) }
     var cvUri by remember { mutableStateOf<Uri?>(null) }
     val focusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
+
 
 
     val context = LocalContext.current
@@ -85,28 +90,23 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
             //GetAlumnoUseCase(FakeAlumnoRepository()),
             GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
             //UpdateAlumnoUserCase(FakeAlumnoRepository())
-            UpdateAlumnoUserCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)))
+            UpdateAlumnoUserCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
+            CreateAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
 
+    val alumno by viewModel.alumno.collectAsState()
     val alumnoId = sessionViewModel.userId.collectAsState().value ?: 0L
-    // Obtiene el alumno actual desde el ViewModel
+
+    // Si es edición, carga los datos del alumno
     if (esEdicion) {
-        val alumno by viewModel.alumno.collectAsState()
 
         LaunchedEffect(alumnoId) {
             println("Alumno ID recibido: $alumnoId")
             if (alumnoId > 0) {
-            viewModel.cargarDatos(alumnoId)
+                viewModel.cargarDatos(alumnoId)
             }
         }
-
-        LaunchedEffect(alumno) {
-            alumno?.let {
-                // Aquí actualizas los campos con sus datos
-            }
-        }
-
 
         // Actualiza los campos cuando llegue el alumno
         LaunchedEffect(alumno) {
@@ -130,11 +130,22 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                     cvUri = it.cvUri?.let { uri -> Uri.parse(uri) }
                     docUri = it.docUri?.let { uri -> Uri.parse(uri) }
                     listaHabilidades.clear()
-                    listaHabilidades.addAll(it.habilidades.orEmpty().split(",").filter { h -> h.isNotBlank() })
+                    listaHabilidades.addAll(
+                        it.habilidades.orEmpty().split(",").filter { h -> h.isNotBlank() })
                 }
             }
         }
+    }
 
+    // Si no es edición, guarda sesión y navega una vez se obtenga el ID
+    if (!esEdicion) {
+        LaunchedEffect(viewModel.alumnoId) {
+            viewModel.alumnoId?.let { newUserId ->
+                sessionViewModel.setSession(newUserId, "alumno")
+                navController.navigate("HomeScreen?isEmpresa=false")
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -306,6 +317,8 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
 
 
         )
+
+        // --- BOTÓN GUARDAR ---
         ButtonGeneric(
             text = "GUARDAR",
             onClick = {
@@ -329,21 +342,29 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                     docUri = docUri?.toString(),
                     imagen = imageUri?.toString()
                 )
-                viewModel.guardarDatos(nuevoAlumno)
+                viewModel.guardarDatos(nuevoAlumno , esEdicion)
 
                 // Quitar el foco para que se cierre el teclado y desaparezca el cursor
                 focusManager.clearFocus()
 
                 if (!esEdicion) {
-                navController.navigate("HomeScreen?isEmpresa=false")
+                    // Esperamos brevemente y navegamos
+                    coroutineScope.launch {
+                        delay(500)
+                        viewModel.alumnoId?.let { newUserId ->
+                            sessionViewModel.setSession(newUserId, "alumno")
+                            navController.navigate("HomeScreen?isEmpresa=false")
+                        }
+                    }
                 }
+
             },
             modifier = Modifier
                 .width(300.dp)
                 .padding(top = 90.dp)
         )
     }
-    }
+
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

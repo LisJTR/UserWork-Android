@@ -60,9 +60,9 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             sessionViewModel.setSession(userId, userType)
 
             val route = when (userType) {
-                "alumno" -> ScreenRoutes.HomeScreen + "?isEmpresa=false"
-                "empresa" -> ScreenRoutes.HomeScreen + "?isEmpresa=true"
-                else -> ScreenRoutes.WelcomeScreen
+                "alumno" -> ScreenRoutes.home(isEmpresa = false)
+                "empresa" -> ScreenRoutes.home(isEmpresa = true)
+                else -> ScreenRoutes.Welcome
             }
 
             navController.navigate(route)
@@ -145,12 +145,14 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             onAlumnoClick = {
                 showRegisterDialog = false
                 navController.navigate(
-                    ScreenRoutes.AlumnoWithParam.replace("{fromRegistro}", "true"))
+                    ScreenRoutes.alumnoProfile(true)
+                )
             },
+
             onEmpresaClick = {
                 showRegisterDialog = false
                 navController.navigate(
-                    ScreenRoutes.EmpresaWithParam.replace("{fromRegistro}", "true")
+                    ScreenRoutes.empresaProfile(true)
                 )
             }
         )

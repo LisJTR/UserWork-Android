@@ -19,9 +19,12 @@ class OfertaViewModel(
 
     fun guardarOferta(oferta: Oferta) {
         viewModelScope.launch {
-            val resultado = crearOfertaUseCase(oferta)
-            println("Resultado guardar oferta: $resultado")
-            // Puedes actualizar la lista si quieres aquí también
+            try {
+                val resultado = crearOfertaUseCase(oferta)
+                println("Resultado guardar oferta: $resultado")
+            } catch (e: Exception) {
+                println("Error guardando oferta: ${e.message}")
+            }
         }
     }
 

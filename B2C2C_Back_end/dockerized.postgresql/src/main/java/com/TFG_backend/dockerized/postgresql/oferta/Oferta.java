@@ -17,7 +17,7 @@ public class Oferta {
 	private String descripcion;
 	private String aptitudes;
 	private String que_se_ofrece;
-	private Long empresa_Id;
+	private Long empresa_id;
 	private boolean publicidad;
 	private String fecha_publicacion;
 	public Long getId() {
@@ -50,11 +50,11 @@ public class Oferta {
 	public void setQue_se_ofrece(String que_se_ofrece) {
 		this.que_se_ofrece = que_se_ofrece;
 	}
-	public Long getEmpresa_Id() {
-		return empresa_Id;
+	public Long getEmpresa_id() {
+		return empresa_id;
 	}
-	public void setEmpresa_Id(Long empresa_Id) {
-		this.empresa_Id = empresa_Id;
+	public void setEmpresa_id(Long empresa_id) {
+		this.empresa_id = empresa_id;
 	}
 	public boolean isPublicidd() {
 		return publicidad;
@@ -71,7 +71,7 @@ public class Oferta {
 	@Override
 	public String toString() {
 		return "Oferta [id=" + id + ", titulo=" + titulo + ", descripcion=" + descripcion + ", aptitudes=" + aptitudes
-				+ ", que_se_ofrece=" + que_se_ofrece + ", empresa_Id=" + empresa_Id + ", publicidd=" + publicidad
+				+ ", que_se_ofrece=" + que_se_ofrece + ", empresa_id=" + empresa_id + ", publicidd=" + publicidad
 				+ ", fecha_publicacion=" + fecha_publicacion + "]";
 	}
 	
