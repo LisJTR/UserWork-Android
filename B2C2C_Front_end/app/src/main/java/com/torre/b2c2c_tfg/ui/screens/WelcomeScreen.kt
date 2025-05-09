@@ -145,7 +145,7 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             onAlumnoClick = {
                 showRegisterDialog = false
                 navController.navigate(
-                    ScreenRoutes.empresaProfile(true)
+                    ScreenRoutes.alumnoProfile(true)
                 )
             },
 

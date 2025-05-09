@@ -6,5 +6,5 @@ import com.torre.b2c2c_tfg.domain.repository.AlumnoRepository
 
 class UpdateAlumnoUserCase(private val repository: AlumnoRepository) {
 
-    suspend operator fun invoke(alumno: Alumno): Boolean = repository.updateAlumno(alumno)
+    suspend operator fun invoke(alumno: Alumno): Alumno = repository.updateAlumno(alumno)
 }

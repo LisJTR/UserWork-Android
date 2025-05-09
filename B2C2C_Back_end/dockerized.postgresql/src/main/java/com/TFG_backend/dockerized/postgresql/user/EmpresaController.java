@@ -3,6 +3,7 @@ package com.TFG_backend.dockerized.postgresql.user;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,10 +29,12 @@ public class EmpresaController {
         return empresaRepository.findById(id).orElse(null);
     }
 
-    @PostMapping
-    public Empresa createEmpresa(@RequestBody Empresa empresa) {
-        return empresaRepository.save(empresa);
-    }
+
+	@PostMapping
+	public ResponseEntity<Empresa> createEmpresa(@RequestBody Empresa empresa) {
+	    Empresa empresaGuardada = empresaRepository.save(empresa);
+	    return ResponseEntity.ok(empresaGuardada); // ✅ El ID generado ya estará presente aquí
+	}
 
     @PutMapping("/perfil")
     public Empresa updateEmpresa(@RequestBody Empresa empresa) {
