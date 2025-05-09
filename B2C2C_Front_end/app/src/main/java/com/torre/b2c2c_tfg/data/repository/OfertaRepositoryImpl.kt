@@ -9,15 +9,24 @@ import kotlinx.coroutines.delay
 class OfertaRepositoryImpl(
   private val api: ApiService
 ) : OfertaRepository {
+
    override suspend fun crearOferta(oferta: Oferta): Boolean {
      return api.crearOferta(oferta).isSuccessful
+    }
+
+    override suspend fun getOfertasByEmpresaId(empresaId: Long): List<Oferta> {
+        return try {
+            api.getOfertasByEmpresaId(empresaId)
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     override suspend fun getOfertas(): List<Oferta> {
         return try {
             api.getOfertas()
         } catch (e: Exception) {
-        emptyList() // Manejo simple por ahora
+            emptyList()
         }
     }
 }

@@ -135,7 +135,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             if (empresaId > 0) {
             viewModel.cargarDatos(empresaId)             // carga empresa
             }
-            ofertaViewModel.cargarOfertas()       // carga ofertas
+            ofertaViewModel.cargarOfertas(empresaId) // carga ofertas
         }
 
         // Cuando llega la empresa, actualizar campos

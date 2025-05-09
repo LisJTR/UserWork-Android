@@ -70,6 +70,10 @@ interface ApiService {
         @Path("id") id: Int
     ): Response<Unit>
 
+    @GET("api/oferta/empresa/{id}")
+    suspend fun getOfertasByEmpresaId(@Path("id") empresaId: Long): List<Oferta>
+
+
     // -------------------------------------------------------------------
 
 
