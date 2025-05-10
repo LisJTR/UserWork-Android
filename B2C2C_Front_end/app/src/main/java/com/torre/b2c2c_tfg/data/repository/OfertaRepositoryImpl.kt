@@ -29,6 +29,15 @@ class OfertaRepositoryImpl(
             emptyList()
         }
     }
+
+    override suspend fun deleteOferta(id: Int): Boolean {
+        return try {
+            api.deleteOfertasDesdePerfil(id).isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 }
 
 //class FakeOfertaRepository : OfertaRepository {

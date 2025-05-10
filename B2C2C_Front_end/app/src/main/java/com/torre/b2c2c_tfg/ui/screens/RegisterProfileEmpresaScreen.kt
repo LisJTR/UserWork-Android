@@ -62,6 +62,7 @@ import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.ui.platform.LocalFocusManager
 import com.torre.b2c2c_tfg.domain.usecase.CreateEmpresaUseCase
+import com.torre.b2c2c_tfg.domain.usecase.DeleteOfertaUseCase
 
 
 data class OfferCardData(
@@ -70,7 +71,10 @@ data class OfferCardData(
     var description: String = "",
     var aptitudes: String = "",
     var queSeOfrece: String = "",
-    var isPublic: Boolean = true
+    var isPublic: Boolean = true,
+    var isSaved: Boolean = false,
+    var isMarkedForDeletion: Boolean = false
+
 )
 
 
@@ -88,6 +92,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
     var descripcion by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val offerCards = remember { mutableStateListOf<OfferCardData>() }
+    val originalCards = remember { mutableStateListOf<OfferCardData>() } // Guarda el estado original
     val focusManager = LocalFocusManager.current
 
 
@@ -108,7 +113,8 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             //crearOfertaUseCase = CrearOfertaUseCase(FakeOfertaRepository()),
             CrearOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
             //getOfertasUseCase = GetOfertasUseCase(FakeOfertaRepository())
-            GetOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
+            GetOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            DeleteOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
 
@@ -159,16 +165,20 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
         // Cuando llegan las ofertas, actualiza tus cards:
         LaunchedEffect(ofertas) {
             offerCards.clear()
-            offerCards.addAll(ofertas.map {
+            originalCards.clear()
+            val loadedCards = ofertas.map {
                 OfferCardData(
                     id = it.id,
                     title = it.titulo,
                     description = it.descripcion,
                     aptitudes = it.aptitudes,
                     queSeOfrece = it.queSeOfrece,
-                    isPublic = it.publicada
+                    isPublic = it.publicada,
+                    isSaved = true
                 )
-            })
+            }
+            offerCards.addAll(loadedCards)
+            originalCards.addAll(loadedCards)
         }
     }
 
@@ -281,7 +291,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             )
 
             IconButton(onClick = {
-                offerCards.add(OfferCardData()) // Añadir nueva card vacía
+                offerCards.add(OfferCardData(isSaved = false)) // Añadir nueva card vacía
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Añadir oferta")
             }
@@ -291,7 +301,9 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
         Spacer(modifier = Modifier.height(12.dp))
 
         // Mostrar la tarjeta si el botón se ha pulsado
-        offerCards.forEachIndexed { index, card ->
+        offerCards
+            .filter { !it.isMarkedForDeletion }
+            .forEachIndexed { index, card ->
             OfferCardForm(
                 id = card.id,
                 title = card.title,
@@ -299,6 +311,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 aptitudes = card.aptitudes,
                 queSeOfrece = card.queSeOfrece,
                 isPublic = card.isPublic,
+                isSaved = card.isSaved,
                 onTitleChange = { newTitle ->
                     offerCards[index] = card.copy(title = newTitle)
                 },
@@ -312,7 +325,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                     offerCards[index] = card.copy(queSeOfrece = newValue)
                 },
                 onDelete = {
-                    offerCards.removeAt(index)
+                    offerCards[index] = card.copy(isMarkedForDeletion = true)
                 },
                 onView = {
                     offerCards[index] = card.copy(isPublic = true)
@@ -348,8 +361,32 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 if (esEdicion) {
                     // Actualiza empresa existente
                     viewModel.guardarDatos(nuevaEmpresa)
+                    // Primero elimina las cards marcadas
+                    val eliminadas = offerCards.filter { it.isMarkedForDeletion && it.id != null }
+                    eliminadas.forEach { card ->
+                        ofertaViewModel.eliminarOferta(card.id!!) {
+                            println("Oferta eliminada backend: ${card.id}")
+                        }
+                    }
+                    // Luego quítalas de la UI
+                    offerCards.removeAll { it.isMarkedForDeletion }
+
                     empresa?.id?.let { idEmpresa ->
-                        offerCards.forEach { card ->
+                        val idsActuales = offerCards.mapNotNull { it.id }
+                        val idsOriginales = originalCards.mapNotNull { it.id }
+
+                        // Borrados
+                        val eliminadas = idsOriginales.filter { it !in idsActuales }
+                        eliminadas.forEach { id ->
+                            ofertaViewModel.eliminarOferta(id) {
+                                println("Oferta eliminada backend: $id")
+                            }
+                        }
+
+
+                        offerCards.forEachIndexed { index, card ->
+                            // Oculta las que están marcadas para borrar
+                            if (card.isMarkedForDeletion) return@forEachIndexed
                             val nuevaOferta = Oferta(
                                 id = card.id,
                                 titulo = card.title,
@@ -360,8 +397,29 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                                 publicada = card.isPublic,
                                 fechaPublicacion = fechaActual
                             )
-                            ofertaViewModel.guardarOferta(nuevaOferta)
+                            ofertaViewModel.guardarOferta(nuevaOferta) { ofertaGuardada ->
+                                if (ofertaGuardada?.id != null) {
+                                    val updatedCard = card.copy(id = ofertaGuardada.id, isSaved = true)
+                                    offerCards[index] = updatedCard
+
+                                    // AÑADE aquí para que también se registre en originalCards
+                                    if (originalCards.none { it.id == ofertaGuardada.id }) {
+                                        originalCards.add(updatedCard)
+                                    }
+
+                                } else {
+                                    offerCards[index] = card.copy(isSaved = true)
+                                }
+
+                                // Recarga datos
+                                viewModel.cargarDatos(empresaId)
+                                ofertaViewModel.cargarOfertas(empresaId)
+                            }
                         }
+                        // Actualiza originalCards después de guardar todas
+                        originalCards.clear()
+                        originalCards.addAll(offerCards.map { it.copy() })
+
                     }
                 } else {
                     // Crea nueva empresa y luego ofertas
@@ -385,6 +443,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                                 )
                                 ofertaViewModel.guardarOferta(nuevaOferta)
                             }
+
                             navController.navigate("HomeScreen?isEmpresa=true")
                         } else {
                             println("ERROR: empresaCreada.id no es válido. No se guardan ofertas.")
@@ -396,7 +455,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 .width(300.dp)
                 .padding(top = 90.dp)
         )
-
 
     }
 }

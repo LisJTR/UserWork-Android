@@ -39,6 +39,7 @@ fun OfferCardForm(
     aptitudes: String,
     queSeOfrece: String,
     isPublic: Boolean, // variable para controlar la visibilidad
+    isSaved: Boolean, // variable para controlar si se ha guardado
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onAptitudesChange: (String) -> Unit,
@@ -47,15 +48,17 @@ fun OfferCardForm(
     onView: () -> Unit,
     onHide: () -> Unit
 ) {
-
+    val backgroundColor = when {
+        !isSaved -> MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.4f) // NUEVA (más oscura)
+        isPublic -> MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 1f)   // GUARDADA y pública
+        else -> MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.8f)     // GUARDADA pero privada
+    }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = if (isPublic) 1f else 0.4f)
-        )
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(Modifier.padding(16.dp)) {
             id?.let {
@@ -69,25 +72,24 @@ fun OfferCardForm(
                 value = title,
                 onValueChange = onTitleChange,
                 label = "Título oferta",
-                enabled = isPublic
             )
             OutlinedInputTextField(
                 value = description,
                 onValueChange = onDescriptionChange,
                 label = "Descripción de la oferta",
-                enabled = isPublic
+
             )
             OutlinedInputTextField(
                 value = aptitudes,
                 onValueChange = onAptitudesChange,
                 label = "Aptitudes",
-                enabled = isPublic
+
             )
             OutlinedInputTextField(
                 value = queSeOfrece,
                 onValueChange = onQueSeOfreceChange,
                 label = "¿Qué se ofrece?",
-                enabled = isPublic
+
             )
 
             Row(
