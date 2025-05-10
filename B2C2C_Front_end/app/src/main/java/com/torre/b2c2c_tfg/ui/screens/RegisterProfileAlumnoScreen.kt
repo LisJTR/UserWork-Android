@@ -159,6 +159,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     ) {
         UploadFileComponent(
             onFileSelected = { uri -> imageUri = uri },
+            mimeType = "image/*",
             modifier = Modifier
                 .width(200.dp)
                 .height(200.dp)
@@ -166,14 +167,6 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
 
         )
 
-        UserSelectedImage(
-            imageUri = imageUri,
-            modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
-
-
-        )
 
         OutlinedInputTextField(
             value = nombre,
@@ -299,6 +292,8 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
         )
         UploadFileComponent(
             onFileSelected = { uri -> docUri = uri },
+            //mimeType = "*/*",
+            mimeType = "application/*",
             modifier = Modifier
                 .width(200.dp)
                 .height(200.dp)
@@ -311,6 +306,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
         )
         UploadFileComponent(
             onFileSelected = { uri -> cvUri = uri },
+            mimeType = "application/*",
             modifier = Modifier
                 .width(200.dp)
                 .height(200.dp)
