@@ -124,7 +124,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
         LaunchedEffect(viewModel.empresaId) {
             viewModel.empresaId?.let { newEmpresaId ->
                 sessionViewModel.setSession(newEmpresaId, "empresa")
-                navController.navigate("OfertaScreen?isEmpresa=true")
+                navController.navigate("OfertasScreen?isEmpresa=true")
             }
         }
     }
@@ -416,7 +416,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                                 ofertaViewModel.guardarOferta(nuevaOferta)
                             }
 
-                            navController.navigate("OfertaScreen?isEmpresa=true")
+                            navController.navigate("OfertasScreen?isEmpresa=true")
                         } else {
                             println("ERROR: empresaCreada.id no es válido. No se guardan ofertas.")
                         }

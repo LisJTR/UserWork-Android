@@ -60,8 +60,8 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             sessionViewModel.setSession(userId, userType)
 
             val route = when (userType) {
-                "alumno" -> ScreenRoutes.oferta(isEmpresa = false)
-                "empresa" -> ScreenRoutes.oferta(isEmpresa = true)
+                "alumno" -> ScreenRoutes.ofertas(isEmpresa = false)
+                "empresa" -> ScreenRoutes.ofertas(isEmpresa = true)
                 else -> ScreenRoutes.Welcome
             }
 
