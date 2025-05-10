@@ -142,7 +142,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             }
             ofertaViewModel.cargarOfertas(empresaId) // carga ofertas
         }
-
         // Cuando llega la empresa, actualizar campos
         LaunchedEffect(empresa) {
             empresa?.let {
@@ -180,11 +179,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             originalCards.addAll(loadedCards)
         }
     }
-
-
-
-
-    // Contenedor principal en Row para poner campos a la izquierda e imagen a la derecha
 
     //Campos a la izquierda
     Column(
@@ -273,7 +267,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 .height(60.dp)
         )
 
-
         // Título + botón "+"
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -355,15 +348,17 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 if (esEdicion) {
                     // Actualiza empresa existente
                     viewModel.guardarDatos(nuevaEmpresa)
-                    // Primero elimina las cards marcadas
-                    val eliminadas = offerCards.filter { it.isMarkedForDeletion && it.id != null }
-                    eliminadas.forEach { card ->
-                        ofertaViewModel.eliminarOferta(card.id!!) {
-                            println("Oferta eliminada backend: ${card.id}")
+
+                    // Luego quítalas de la UI
+                    offerCards.removeAll { card ->
+                        if (card.isMarkedForDeletion && card.id != null) {
+                            ofertaViewModel.eliminarOferta(card.id!!)
+                            true // se elimina de la lista
+                        } else {
+                            false
                         }
                     }
-                    // Luego quítalas de la UI
-                    offerCards.removeAll { it.isMarkedForDeletion }
+
 
                     empresa?.id?.let { idEmpresa ->
 
@@ -385,11 +380,9 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                                     val updatedCard = card.copy(id = ofertaGuardada.id, isSaved = true)
                                     offerCards[index] = updatedCard
 
-
                                 } else {
                                     offerCards[index] = card.copy(isSaved = true)
                                 }
-
                                 // Recarga datos
                                 viewModel.cargarDatos(empresaId)
                                 ofertaViewModel.cargarOfertas(empresaId)
@@ -437,7 +430,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
 
     }
 }
-
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
