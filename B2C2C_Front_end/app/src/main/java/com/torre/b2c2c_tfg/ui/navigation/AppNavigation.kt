@@ -13,8 +13,9 @@ import com.torre.b2c2c_tfg.ui.components.BottomBar
 import com.torre.b2c2c_tfg.ui.screens.RegisterProfileEmpresaScreen
 import com.torre.b2c2c_tfg.ui.screens.WelcomeScreen
 import com.torre.b2c2c_tfg.ui.screens.RegisterProfileAlumnoScreen
-import com.torre.b2c2c_tfg.ui.screens.HomeScreen
 import com.torre.b2c2c_tfg.ui.screens.MisOfertasScreen
+import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
+import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.screens.SettingsScreen
@@ -25,14 +26,14 @@ import com.torre.b2c2c_tfg.ui.screens.SettingsScreen
 // RUTAS
 object ScreenRoutes {
     const val Welcome = "Welcome"
-    const val Home = "HomeScreen"
+    const val Ofertas = "OfertasScreen"
     const val AlumnoProfile = "Register/ProfileAlumno"
     const val EmpresaProfile = "Register/ProfileEmpresa"
     const val MisOfertas = "MisOfertas"
     const val Settings = "SettingsScreen"
 
     // rutas con parámetros
-    fun home(isEmpresa: Boolean) = "$Home?isEmpresa=$isEmpresa"
+    fun ofertas(isEmpresa: Boolean) = "$Ofertas?isEmpresa=$isEmpresa"
     fun alumnoProfile(fromRegistro: Boolean) = "$AlumnoProfile?fromRegistro=$fromRegistro"
     fun empresaProfile(fromRegistro: Boolean) = "$EmpresaProfile?fromRegistro=$fromRegistro"
     fun misOfertasRoute(isEmpresa: Boolean) = "$MisOfertas?isEmpresa=$isEmpresa"
@@ -96,14 +97,14 @@ fun AppNavigation(
 
         // Home con parámetro isEmpresa
         composable(
-            route = "${ScreenRoutes.Home}?isEmpresa={isEmpresa}",
+            route = "${ScreenRoutes.Ofertas}?isEmpresa={isEmpresa}",
             arguments = listOf(navArgument("isEmpresa") { defaultValue = "false" })
         ) { backStackEntry ->
             val isEmpresa = backStackEntry.arguments?.getString("isEmpresa")?.toBoolean() ?: false
             val userType = if (isEmpresa) UserType.EMPRESA else UserType.ALUMNO
 
             Scaffold(bottomBar = { BottomBar(navController, userType) }) {
-                HomeScreen(navController, isUserEmpresa = isEmpresa)
+                OfertasScreen(navController, isUserEmpresa = isEmpresa, sessionViewModel = sessionViewModel)
             }
         }
 

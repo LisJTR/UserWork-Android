@@ -30,13 +30,13 @@ fun BottomBar(
     // Lista de ítems de navegación, dependiendo del tipo de usuario
     val bottomNavItems = when (userType) {
         UserType.EMPRESA -> listOf(
-            BottomNavItem("Ofertas", ScreenRoutes.home(isEmpresa = true), Icons.Filled.Home),
+            BottomNavItem("Ofertas", ScreenRoutes.ofertas(isEmpresa = true), Icons.Filled.Home),
             BottomNavItem("Mis Ofertas",  ScreenRoutes.misOfertasRoute(isEmpresa = true), Icons.Default.AccountBox),
             BottomNavItem("Perfil", ScreenRoutes.empresaProfile(fromRegistro = false), Icons.Default.Person),
             BottomNavItem("Ajustes", ScreenRoutes.Settings, Icons.Default.Settings)
         )
         UserType.ALUMNO -> listOf(
-            BottomNavItem("Ofertas", ScreenRoutes.home(isEmpresa = false), Icons.Filled.Home),
+            BottomNavItem("Ofertas", ScreenRoutes.ofertas(isEmpresa = false), Icons.Filled.Home),
             BottomNavItem("Mis Ofertas", ScreenRoutes.misOfertasRoute(isEmpresa = false), Icons.Default.AccountBox),
             BottomNavItem("Perfil", ScreenRoutes.alumnoProfile(fromRegistro = false), Icons.Default.Person),
             BottomNavItem("Ajustes", ScreenRoutes.Settings, Icons.Default.Settings)
