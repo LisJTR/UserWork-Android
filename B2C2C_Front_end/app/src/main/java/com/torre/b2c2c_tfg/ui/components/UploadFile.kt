@@ -18,13 +18,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import android.provider.OpenableColumns
+
 
 @Composable
 fun UploadFileComponent(
     onFileSelected: (Uri) -> Unit,
+    mimeType: String = "*/*",
     modifier: Modifier = Modifier
 ) {
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
+    var fileName by remember { mutableStateOf<String?>(null) }
+
+    val context = LocalContext.current
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -32,41 +38,65 @@ fun UploadFileComponent(
         uri?.let {
             selectedFileUri = it
             onFileSelected(it)
+
+            // Aquí obtenemos el nombre real del archivo
+            val cursor = context.contentResolver.query(it, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex != -1) {
+                        fileName = it.getString(nameIndex)
+                    }
+                }
+            }
         }
     }
 
-    //Se tiene que especificar Style para el OutlinedButton No toma el color por defecto
-    OutlinedButton(
-        onClick = { filePickerLauncher.launch("*/*") }, // Se podría limitar el tipo de archivo seleccionable: "application/pdf"
-        modifier = modifier,
-        border = BorderStroke(2.dp,  MaterialTheme.colorScheme.primary),
-        shape = RoundedCornerShape(8.dp),
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+    if (selectedFileUri == null) {
+        OutlinedButton(
+            onClick = { filePickerLauncher.launch(mimeType) },
+            modifier = modifier,
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+            shape = RoundedCornerShape(8.dp),
         ) {
-            Icon(Icons.Default.UploadFile, contentDescription = null)
-            Text(text = "Arrastra el archivo",
-                style =
-                    MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(text = "Seleccione archivo",
-                style =
-                    MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(Icons.Default.UploadFile, contentDescription = null)
+                Text("Arrastra el archivo", style = MaterialTheme.typography.bodyMedium)
+                Text("Seleccione archivo", style = MaterialTheme.typography.bodySmall)
+            }
         }
-    }
-
-    selectedFileUri?.let {
-        Text(
-            text = "Archivo seleccionado: ${it.lastPathSegment}",
-            modifier = Modifier.padding(top = 8.dp)
-        )
+    } else {
+        if (mimeType.startsWith("image/")) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(selectedFileUri)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "Imagen seleccionada",
+                modifier = modifier
+            )
+        } else {
+            Column(
+                modifier = modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(Icons.Default.UploadFile, contentDescription = null)
+                Text(
+                    text = "Archivo seleccionado: ${fileName ?: "Nombre no disponible"}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        }
     }
 }
+
+
+
 
 
 @Composable

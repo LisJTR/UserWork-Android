@@ -194,17 +194,12 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
 
         UploadFileComponent(
             onFileSelected = { uri -> imageUri = uri },
+            mimeType = "image/*",
             modifier = Modifier
                 .width(200.dp)
                 .height(200.dp)
         )
 
-        UserSelectedImage(
-            imageUri = imageUri,
-            modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
-        )
 
         OutlinedInputTextField(
             value = nombreEmpresa,
