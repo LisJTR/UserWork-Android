@@ -94,8 +94,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
     val offerCards = remember { mutableStateListOf<OfferCardData>() }
     val originalCards = remember { mutableStateListOf<OfferCardData>() } // Guarda el estado original
     val focusManager = LocalFocusManager.current
-
-
+    
     val context = LocalContext.current
     val viewModel = remember {
         RegisterEmpresaViewModel(
@@ -148,16 +147,16 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
         LaunchedEffect(empresa) {
             empresa?.let {
                 idEmpresaForm = it.id
-                nombreEmpresa = it.nombre.orEmpty()
-                username = it.username.orEmpty()
-                password = it.password.orEmpty()
-                sector = it.sector.orEmpty()
-                ciudad = it.ciudad.orEmpty()
-                telefono = it.telefono.orEmpty()
+                nombreEmpresa = it.nombre
+                username = it.username
+                password = it.password
+                sector = it.sector
+                ciudad = it.ciudad
+                telefono = it.telefono
                 println("Correo electrónico desde backend: '${it.correoElectronico}'")
                 println(Gson().toJson(empresa))
                 correo = it.correoElectronico.orEmpty().trim()
-                descripcion = it.descripcion.orEmpty()
+                descripcion = it.descripcion
                 imageUri = it.imagen?.let { uri -> Uri.parse(uri) }
             }
         }
@@ -204,8 +203,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             modifier = Modifier
                 .width(200.dp)
                 .height(200.dp)
-
-
         )
 
         UserSelectedImage(
@@ -213,8 +210,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             modifier = Modifier
                 .width(200.dp)
                 .height(200.dp)
-
-
         )
 
         OutlinedInputTextField(
@@ -334,7 +329,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                     offerCards[index] = card.copy(isPublic = false)
                 }
             )
-
         }
 
         // Botón de Guardar
@@ -372,17 +366,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                     offerCards.removeAll { it.isMarkedForDeletion }
 
                     empresa?.id?.let { idEmpresa ->
-                        val idsActuales = offerCards.mapNotNull { it.id }
-                        val idsOriginales = originalCards.mapNotNull { it.id }
-
-                        // Borrados
-                        val eliminadas = idsOriginales.filter { it !in idsActuales }
-                        eliminadas.forEach { id ->
-                            ofertaViewModel.eliminarOferta(id) {
-                                println("Oferta eliminada backend: $id")
-                            }
-                        }
-
 
                         offerCards.forEachIndexed { index, card ->
                             // Oculta las que están marcadas para borrar
@@ -402,10 +385,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                                     val updatedCard = card.copy(id = ofertaGuardada.id, isSaved = true)
                                     offerCards[index] = updatedCard
 
-                                    // AÑADE aquí para que también se registre en originalCards
-                                    if (originalCards.none { it.id == ofertaGuardada.id }) {
-                                        originalCards.add(updatedCard)
-                                    }
 
                                 } else {
                                     offerCards[index] = card.copy(isSaved = true)
