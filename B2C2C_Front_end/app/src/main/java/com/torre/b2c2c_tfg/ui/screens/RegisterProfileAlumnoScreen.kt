@@ -142,7 +142,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
         LaunchedEffect(viewModel.alumnoId) {
             viewModel.alumnoId?.let { newUserId ->
                 sessionViewModel.setSession(newUserId, "alumno")
-                navController.navigate("OfertaScreen?isEmpresa=false")
+                navController.navigate("OfertasScreen?isEmpresa=false")
             }
         }
     }
@@ -353,7 +353,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                         delay(500)
                         viewModel.alumnoId?.let { newUserId ->
                             sessionViewModel.setSession(newUserId, "alumno")
-                            navController.navigate("OfertaScreen?isEmpresa=false")
+                            navController.navigate("OfertasScreen?isEmpresa=false")
                         }
                     }
                 }

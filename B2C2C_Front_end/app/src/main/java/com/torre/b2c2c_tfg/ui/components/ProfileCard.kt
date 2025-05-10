@@ -1,11 +1,15 @@
 package com.torre.b2c2c_tfg.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,11 +23,12 @@ import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun ProfileCard(
-    imageUrl: String,           // Imagen del alumno o empresa
-    name: String,              //Nombre empresa o alumno
-    sector: String,            //Sector / Título
-    description: String,       //descripción
-    modifier: Modifier = Modifier
+    imageUrl: String,
+    name: String,
+    subtitle: String = "", // sector o cualquier texto secundario
+    description: String = "", // descripción breve
+    modifier: Modifier = Modifier,
+    trailingContent: @Composable (() -> Unit)? = null // por ejemplo, el botón con la letra "J"
 ) {
     val imagePainter = rememberAsyncImagePainter(imageUrl)
 
@@ -33,28 +38,39 @@ fun ProfileCard(
             .padding(8.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.secondary
         )
     ) {
-        Row(
+        Box(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
         ) {
+            // Imagen a la izquierda
             Image(
                 painter = imagePainter,
                 contentDescription = "Foto de perfil",
                 modifier = Modifier
                     .size(64.dp)
-                    .padding(end = 16.dp)
+                    .align(Alignment.CenterStart)
             )
 
-            Column {
+            // Texto centrado
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(text = name, style = MaterialTheme.typography.titleMedium)
-                Text(text = sector, style = MaterialTheme.typography.bodySmall)
-                Text(text = description, style = MaterialTheme.typography.bodySmall)
+                if (subtitle.isNotEmpty()) {
+                    Text(text = subtitle, style = MaterialTheme.typography.bodySmall)
+                }
+                if (description.isNotEmpty()) {
+                    Text(text = description, style = MaterialTheme.typography.bodySmall)
+                }
             }
+
+            trailingContent?.invoke()
+           
         }
     }
 }
