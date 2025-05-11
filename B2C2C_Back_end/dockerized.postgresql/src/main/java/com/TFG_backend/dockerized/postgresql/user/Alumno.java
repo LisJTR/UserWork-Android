@@ -1,5 +1,7 @@
 package com.TFG_backend.dockerized.postgresql.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,9 +33,20 @@ public class Alumno {
     private String aptitudes;
     private String foto;
     private String curriculum;
-    private String verificacion_titulacion;
+    @JsonProperty("nombreDoc")
+    private String nombreDoc;
     
     
+	
+
+	public String getNombreDoc() {
+		return nombreDoc;
+	}
+
+	public void setNombreDoc(String nombreDoc) {
+		this.nombreDoc = nombreDoc;
+	}
+
 	public Long getId() {
 		
 		return id;
@@ -158,23 +171,18 @@ public class Alumno {
 		this.curriculum = curriculum;
 	}
 
-	public String getVerificacion_titulacion() {
-		return verificacion_titulacion;
-	}
-
-	public void setVerificacion_titulacion(String verificacion_titulacion) {
-		this.verificacion_titulacion = verificacion_titulacion;
-	}
 
 	@Override
 	public String toString() {
 		return "Alumno [id=" + id + ", nombre=" + nombre + ", apellido=" + apellido + ", username=" + username
 				+ ", password=" + password + ", titulacion=" + titulacion + ", direccion=" + direccion + ", ciudad="
-				+ ciudad + ", telefono=" + telefono + ", correo_electronico=" + correoElectronico + ", centro="
-				+ centro + ", descripcion=" + descripcion + ", aptitudes=" + aptitudes + ", foto=" + foto
-				+ ", curriculum=" + curriculum + ", verificacion_titulacion=" + verificacion_titulacion + "]";
+				+ ciudad + ", telefono=" + telefono + ", correoElectronico=" + correoElectronico + ", centro=" + centro
+				+ ", descripcion=" + descripcion + ", aptitudes=" + aptitudes + ", foto=" + foto + ", curriculum="
+				+ curriculum + ", verificacion_titulacion=" + ", nombreDoc=" + nombreDoc
+				+ "]";
 	}
-	
+
+
 	
     
     

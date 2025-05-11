@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,6 +29,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +47,6 @@ import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
 import com.torre.b2c2c_tfg.ui.components.HabilidadChip
 import com.torre.b2c2c_tfg.ui.components.OutlinedInputTextField
 import com.torre.b2c2c_tfg.ui.components.TextTitle
-import com.torre.b2c2c_tfg.ui.components.UploadFileComponent
 import com.torre.b2c2c_tfg.ui.components.UserSelectedImage
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.RegisterAlumnoViewModel
@@ -56,6 +57,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import com.torre.b2c2c_tfg.domain.usecase.CreateAlumnoUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
+import com.torre.b2c2c_tfg.ui.components.UploadFileImageComponent
+import com.torre.b2c2c_tfg.ui.components.UploadDocComponent
+
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -77,8 +82,9 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     var descripcion by remember { mutableStateOf("") }
     var nuevaHabilidad by remember { mutableStateOf("") }
     val listaHabilidades = remember { mutableStateListOf<String>() }
-    var docUri by remember { mutableStateOf<Uri?>(null) }
+    var nombreDoc by rememberSaveable { mutableStateOf<String?>(null) }
     var cvUri by remember { mutableStateOf<Uri?>(null) }
+
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -124,11 +130,10 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                     ciudad = it.ciudad.orEmpty()
                     direccion = it.direccion.orEmpty()
                     nombreCentro = it.centro.orEmpty()
-                    tituloCurso = it.titulacion.orEmpty()
                     descripcion = it.descripcion.orEmpty()
-                    imageUri = it.imagen?.let { uri -> Uri.parse(uri) }
-                    cvUri = it.cvUri?.let { uri -> Uri.parse(uri) }
-                    docUri = it.docUri?.let { uri -> Uri.parse(uri) }
+                    imageUri = it.imagen?.let { uri -> uri.toUri() }
+                    cvUri = it.cvUri?.let { uri -> uri.toUri() }
+                    nombreDoc = it.nombreDoc.orEmpty()
                     listaHabilidades.clear()
                     listaHabilidades.addAll(
                         it.habilidades.orEmpty().split(",").filter { h -> h.isNotBlank() })
@@ -157,23 +162,19 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        UploadFileComponent(
+        UploadFileImageComponent(
             onFileSelected = { uri -> imageUri = uri },
+            mimeType = "image/*",
+            initialUri = imageUri,
             modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
+                .width(100.dp)
+                .height(50.dp),
+            esEdicion = esEdicion
 
 
         )
 
-        UserSelectedImage(
-            imageUri = imageUri,
-            modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
-
-
-        )
+        UserSelectedImage(imageUri)
 
         OutlinedInputTextField(
             value = nombre,
@@ -293,29 +294,24 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
             modifier = Modifier
                 .height(60.dp)
         )
-        TextTitle(
-            text = "Matrícula título cursando (verificacion de titulacion)*",
-            style = MaterialTheme.typography.titleSmall
+        UploadDocComponent(
+            label = "Subir CV",
+            storageKey = "doc_titulacion_uri",
+            initialUri = cvUri,
+            onFileSelected = { uri, name ->
+                println("DEBUG: Doc seleccionado - URI: $uri, Nombre: $name")
+                cvUri = uri
+                nombreDoc = name
+            },
+            modifier = Modifier.fillMaxWidth()
         )
-        UploadFileComponent(
-            onFileSelected = { uri -> docUri = uri },
-            modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
 
-
-        )
-        TextTitle(
-            text = "Subir CV",
-            style = MaterialTheme.typography.titleSmall
-        )
-        UploadFileComponent(
-            onFileSelected = { uri -> cvUri = uri },
-            modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
-
-
+        OutlinedInputTextField(
+            value = nombreDoc ?: "",
+            onValueChange = {},
+            label = "Nombre del documento",
+            modifier = Modifier.fillMaxWidth(),
+            enabled = false // Solo lectura
         )
 
         // --- BOTÓN GUARDAR ---
@@ -339,9 +335,12 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                     descripcion = descripcion,
                     habilidades = habilidadesTexto,
                     cvUri = cvUri?.toString(),
-                    docUri = docUri?.toString(),
+                    nombreDoc = nombreDoc,
                     imagen = imageUri?.toString()
                 )
+                println("DEBUG: nombreDoc actual antes de guardar: $nombreDoc")
+                println("DEBUG FINAL ANTES DE GUARDAR: " + Gson().toJson(nuevoAlumno))
+
                 viewModel.guardarDatos(nuevoAlumno , esEdicion)
 
                 // Quitar el foco para que se cierre el teclado y desaparezca el cursor

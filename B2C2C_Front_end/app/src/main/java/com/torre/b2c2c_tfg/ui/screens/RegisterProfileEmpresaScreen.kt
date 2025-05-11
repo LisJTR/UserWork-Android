@@ -48,7 +48,6 @@ import com.torre.b2c2c_tfg.ui.components.BottomBar
 import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
 import com.torre.b2c2c_tfg.ui.components.OutlinedInputTextField
 import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
-import com.torre.b2c2c_tfg.ui.components.UploadFileComponent
 import com.torre.b2c2c_tfg.ui.components.UserSelectedImage
 import com.torre.b2c2c_tfg.ui.components.OfferCardForm
 import com.torre.b2c2c_tfg.ui.components.TextTitle
@@ -63,6 +62,7 @@ import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.ui.platform.LocalFocusManager
 import com.torre.b2c2c_tfg.domain.usecase.CreateEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.DeleteOfertaUseCase
+import com.torre.b2c2c_tfg.ui.components.UploadFileImageComponent
 
 
 data class OfferCardData(
@@ -192,19 +192,17 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        UploadFileComponent(
+        UploadFileImageComponent(
             onFileSelected = { uri -> imageUri = uri },
+            mimeType = "image/*",
+            initialUri = imageUri,
             modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
+                .width(100.dp)
+                .height(50.dp),
+            esEdicion = esEdicion
         )
 
-        UserSelectedImage(
-            imageUri = imageUri,
-            modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
-        )
+        UserSelectedImage(imageUri)
 
         OutlinedInputTextField(
             value = nombreEmpresa,
