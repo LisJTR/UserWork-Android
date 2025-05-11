@@ -34,5 +34,7 @@ data class Alumno(
     @SerializedName("curriculum")
     val cvUri: String? = null,
     @SerializedName("verificacion_titulacion")
-    val docUri: String? = null
+    val docUri: String? = null,
+    @SerializedName("nombreDoc")
+    val nombreDoc: String? = null
 )

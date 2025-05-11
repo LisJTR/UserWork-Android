@@ -30,6 +30,7 @@ public class AlumnoController {
 
     @PostMapping
     public Alumno createAlumno(@RequestBody Alumno alumno) {
+    	 System.out.println("nombreDoc recibido: " + alumno.getNombreDoc());
         return alumnoRepository.save(alumno);
     }
 
