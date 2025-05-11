@@ -168,7 +168,8 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
             initialUri = imageUri,
             modifier = Modifier
                 .width(100.dp)
-                .height(50.dp)
+                .height(50.dp),
+            esEdicion = esEdicion
 
 
         )
