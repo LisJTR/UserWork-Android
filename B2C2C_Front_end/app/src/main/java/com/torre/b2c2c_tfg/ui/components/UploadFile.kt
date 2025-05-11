@@ -28,14 +28,14 @@ fun UploadFileImageComponent(
     mimeType: String = "*/*",
     initialUri: Uri? = null,
     modifier: Modifier = Modifier,
-    esEdicion: Boolean = false // 👈 Añadido
+    esEdicion: Boolean = false // edición o registro
 ) {
     var selectedFileUri by remember { mutableStateOf<Uri?>(initialUri) }
     var fileName by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
 
-    // ✅ Sincroniza selectedFileUri cuando cambia initialUri desde afuera
+    // Sincroniza selectedFileUri cuando cambia initialUri desde afuera
     LaunchedEffect(Unit) {
         if (selectedFileUri == null && esEdicion ) {
             val prefs = context.getSharedPreferences("my_prefs", android.content.Context.MODE_PRIVATE)
@@ -73,7 +73,7 @@ fun UploadFileImageComponent(
             selectedFileUri = it
             onFileSelected(it)
 
-            // 👉 TOMA PERMISOS PERSISTENTES
+            //PERMISOS PERSISTENTES
             try {
                 context.contentResolver.takePersistableUriPermission(
                     it,
@@ -83,7 +83,7 @@ fun UploadFileImageComponent(
                 e.printStackTrace()
             }
 
-            // 👉 GUARDA LA URI EN SharedPreferences
+            // GUARDA LA URI EN SharedPreferences
             val prefs = context.getSharedPreferences("my_prefs", android.content.Context.MODE_PRIVATE)
             prefs.edit().putString("saved_file_uri", it.toString()).apply()
 
@@ -160,7 +160,7 @@ fun UploadDocComponent(
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
-            // 👉 Aquí sí: try-catch alrededor del permiso
+            //try-catch alrededor del permiso para que no se crashee 
             try {
                 context.contentResolver.takePersistableUriPermission(
                     it,
