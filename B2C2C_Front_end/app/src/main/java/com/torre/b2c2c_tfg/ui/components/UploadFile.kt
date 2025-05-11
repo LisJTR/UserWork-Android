@@ -27,7 +27,8 @@ fun UploadFileImageComponent(
     onFileSelected: (Uri) -> Unit,
     mimeType: String = "*/*",
     initialUri: Uri? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    esEdicion: Boolean = false // 👈 Añadido
 ) {
     var selectedFileUri by remember { mutableStateOf<Uri?>(initialUri) }
     var fileName by remember { mutableStateOf<String?>(null) }
@@ -36,7 +37,7 @@ fun UploadFileImageComponent(
 
     // ✅ Sincroniza selectedFileUri cuando cambia initialUri desde afuera
     LaunchedEffect(Unit) {
-        if (selectedFileUri == null) {
+        if (selectedFileUri == null && esEdicion ) {
             val prefs = context.getSharedPreferences("my_prefs", android.content.Context.MODE_PRIVATE)
             val uriString = prefs.getString("saved_file_uri", null)
             val uri = uriString?.let { Uri.parse(it) }
