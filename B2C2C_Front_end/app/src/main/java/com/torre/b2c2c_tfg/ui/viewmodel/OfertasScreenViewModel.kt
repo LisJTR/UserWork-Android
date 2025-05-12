@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.torre.b2c2c_tfg.data.model.Alumno
 import com.torre.b2c2c_tfg.data.model.Empresa
+import com.torre.b2c2c_tfg.data.model.Oferta
 import com.torre.b2c2c_tfg.domain.repository.AlumnoRepository
 import com.torre.b2c2c_tfg.domain.repository.EmpresaRepository
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
@@ -13,6 +14,9 @@ import com.torre.b2c2c_tfg.domain.usecase.GetTitulacionesUnicasUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import com.torre.b2c2c_tfg.domain.repository.OfertaRepository
+import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetTodasLasOfertasUseCase
 
 class OfertasScreenViewModel (
     private val getAlumnoUseCase: GetAlumnoUseCase,
@@ -20,7 +24,8 @@ class OfertasScreenViewModel (
     private val getSectoresUnicosUseCase: GetSectoresUnicosUseCase,
     private val getTitulacionesUnicasUseCase: GetTitulacionesUnicasUseCase,
     private val alumnoRepository: AlumnoRepository,
-    private val empresaRepository: EmpresaRepository
+    private val empresaRepository: EmpresaRepository,
+    private val getTodasLasOfertasUseCase: GetTodasLasOfertasUseCase
 ) : ViewModel() {
 
     private val _alumno = MutableStateFlow<Alumno?>(null)
@@ -32,6 +37,9 @@ class OfertasScreenViewModel (
     val titulacionesUnicas = MutableStateFlow<List<String>>(emptyList())
     val empresas = MutableStateFlow<List<Empresa>>(emptyList())
     val alumnos = MutableStateFlow<List<Alumno>>(emptyList())
+    val ofertas = MutableStateFlow<List<Oferta>>(emptyList())
+
+
 
 
     fun cargarAlumno(id: Long) {
@@ -68,7 +76,9 @@ class OfertasScreenViewModel (
     fun cargarEmpresas() {
         viewModelScope.launch {
             try {
+                val lista = empresaRepository.getAllEmpresas()
                 empresas.value = empresaRepository.getAllEmpresas()
+                lista.forEach { println("🧾 Empresa: ${it.id} - ${it.nombre}") }
             } catch (e: Exception) {
                 println("Error cargando empresas: ${e.message}")
             }
@@ -85,7 +95,22 @@ class OfertasScreenViewModel (
         }
     }
 
-
-
-
+    fun cargarTodasLasOfertas() {
+        viewModelScope.launch {
+            try {
+                val lista = getTodasLasOfertasUseCase()
+                ofertas.value = lista
+                lista.forEach {
+                    println("🎯 Oferta: ${it.titulo} - Empresa ID: ${it.empresaId}")
+                }
+            } catch (e: Exception) {
+                println("Error al cargar ofertas: ${e.message}")
+            }
+        }
+    }
 }
+
+
+
+
+

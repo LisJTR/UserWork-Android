@@ -55,5 +55,10 @@ public class OfertaController {
     public void deleteOferta(@PathVariable Long id) {
         ofertaRepository.deleteById(id);
     }
+    
+    @GetMapping("/todas")
+    public List<Oferta> getTodasLasOfertas() {
+        return ofertaRepository.findAll();
+    }
 
 }
