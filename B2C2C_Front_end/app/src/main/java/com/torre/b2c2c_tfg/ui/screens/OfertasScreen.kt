@@ -16,10 +16,13 @@ import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.data.repository.AlumnoRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.EmpresaRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetSectoresUnicosUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTitulacionesUnicasUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetTodasLasOfertasUseCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
 import com.torre.b2c2c_tfg.ui.components.HeaderContentofScreens
 import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
@@ -28,8 +31,7 @@ import com.torre.b2c2c_tfg.ui.viewmodel.OfertasScreenViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.components.EmpresaCard
 import com.torre.b2c2c_tfg.ui.components.AlumnoCard
-
-
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -44,7 +46,8 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
             getSectoresUnicosUseCase = GetSectoresUnicosUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
             getTitulacionesUnicasUseCase = GetTitulacionesUnicasUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
             alumnoRepository = AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)),
-            empresaRepository = EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))
+            empresaRepository = EmpresaRepositoryImpl(RetrofitInstance.getInstance(context)),
+            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
 
@@ -52,15 +55,22 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
     val userType = sessionViewModel.userType.collectAsState().value
     val empresas by viewModel.empresas.collectAsState()
     val alumnos by viewModel.alumnos.collectAsState()
+    val ofertas by viewModel.ofertas.collectAsState()
 
 
     LaunchedEffect(userType) {
         if (userType == "alumno") {
-            viewModel.cargarEmpresas()  // el alumno ve todas las empresas
+            viewModel.cargarEmpresas()
+            viewModel.cargarTodasLasOfertas()
         } else if (userType == "empresa") {
-            viewModel.cargarAlumnos()   // la empresa ve todos los alumnos
+            viewModel.cargarAlumnos()
         }
     }
+
+
+    println("📦 Empresas: ${empresas.size}")
+    println("📦 Ofertas: ${ofertas.size}")
+
 
     LazyColumn {
         item {
@@ -74,13 +84,22 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
         }
 
         if (userType == "alumno") {
-            items(empresas) { empresa ->
-                EmpresaCard(
-                    nombre = empresa.nombre,
-                    sector = empresa.sector,
-                    descripcion = empresa.descripcion,
-                    imagenUrl = empresa.imagen
-                )
+            items(ofertas) { oferta ->
+
+                println("🧩 Oferta: ${oferta.titulo} | empresaId: ${oferta.empresaId}")
+                val empresa = empresas.find { it.id?.toLong() == oferta.empresaId.toLong() }
+                println("🔍 Empresa encontrada: ${empresa?.nombre ?: "❌ NO ENCONTRADA"}")
+
+                empresa?.let {
+                    EmpresaCard(
+                        nombre = it.nombre,
+                        sector = it.sector,
+                        descripcion = oferta.titulo,
+                        imagenUrl = it.imagen
+                    )
+                }
+                println("🧩 Oferta: ${oferta.titulo} | empresaId: ${oferta.empresaId}")
+
             }
         }
 

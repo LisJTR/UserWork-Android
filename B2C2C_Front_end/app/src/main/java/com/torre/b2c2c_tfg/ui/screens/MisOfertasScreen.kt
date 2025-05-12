@@ -11,10 +11,12 @@ import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.data.repository.AlumnoRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.EmpresaRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetSectoresUnicosUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTitulacionesUnicasUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetTodasLasOfertasUseCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
 import com.torre.b2c2c_tfg.ui.components.HeaderContentofScreens
 import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
@@ -34,7 +36,8 @@ fun MisOfertasScreen(navController: NavController, isUserEmpresa: Boolean, sessi
             getSectoresUnicosUseCase = GetSectoresUnicosUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
             getTitulacionesUnicasUseCase = GetTitulacionesUnicasUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
             alumnoRepository = AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)),
-            empresaRepository = EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))
+            empresaRepository = EmpresaRepositoryImpl(RetrofitInstance.getInstance(context)),
+            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
 
         )
     }

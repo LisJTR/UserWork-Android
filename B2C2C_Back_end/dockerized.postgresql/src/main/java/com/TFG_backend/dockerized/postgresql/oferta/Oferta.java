@@ -1,5 +1,7 @@
 package com.TFG_backend.dockerized.postgresql.oferta;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +20,7 @@ public class Oferta {
 	private String descripcion;
 	private String aptitudes;
 	private String que_se_ofrece;
+	@JsonProperty("empresa_id")
 	@Column(name = "empresa_id")
 	private Long empresaId;
 	private boolean publicidad;
@@ -52,10 +55,11 @@ public class Oferta {
 	public void setQue_se_ofrece(String que_se_ofrece) {
 		this.que_se_ofrece = que_se_ofrece;
 	}
+
 	public Long getEmpresaId() {
 		return empresaId;
 	}
-	public void setEmpresa_id(Long empresaId) {
+	public void setEmpresaId(Long empresaId) {
 		this.empresaId = empresaId;
 	}
 	public boolean isPublicidd() {
