@@ -1,25 +1,11 @@
 package com.torre.b2c2c_tfg.ui.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
@@ -30,12 +16,10 @@ import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetSectoresUnicosUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTitulacionesUnicasUseCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
-import com.torre.b2c2c_tfg.ui.components.IconFilter
-import com.torre.b2c2c_tfg.ui.components.IconMessage
-import com.torre.b2c2c_tfg.ui.components.ProfileCard
+import com.torre.b2c2c_tfg.ui.components.HeaderContentofScreens
 import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
 import com.torre.b2c2c_tfg.ui.util.UserType
-import com.torre.b2c2c_tfg.ui.viewmodel.OfertasViewModel
+import com.torre.b2c2c_tfg.ui.viewmodel.OfertasScreenViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 
 
@@ -44,65 +28,24 @@ fun MisOfertasScreen(navController: NavController, isUserEmpresa: Boolean, sessi
 
     val context = LocalContext.current
     val viewModel = remember {
-        OfertasViewModel(
+        OfertasScreenViewModel(
             getAlumnoUseCase = GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
             getEmpresaUseCase = GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
             getSectoresUnicosUseCase = GetSectoresUnicosUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
-            getTitulacionesUnicasUseCase = GetTitulacionesUnicasUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)))
+            getTitulacionesUnicasUseCase = GetTitulacionesUnicasUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
+            alumnoRepository = AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)),
+            empresaRepository = EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))
 
         )
     }
 
-    val userId = sessionViewModel.userId.collectAsState().value ?: 0L
-    val userType = sessionViewModel.userType.collectAsState().value
-    val alumno by viewModel.alumno.collectAsState()
-    val empresa by viewModel.empresa.collectAsState()
-
-
-    LaunchedEffect(userId, userType) {
-        if (userType == "alumno") viewModel.cargarAlumno(userId)
-        else if (userType == "empresa") viewModel.cargarEmpresa(userId)
-    }
-
-
-    Column {
-        Spacer(modifier = Modifier.height(30.dp)) // espacio superior
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 16.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            IconMessage(
-                onClick = { /* TODO */ }
-            )
+    HeaderContentofScreens(
+        sessionViewModel = sessionViewModel,
+        viewModel = viewModel,
+        onFiltroSeleccionado = { seleccion ->
+            println("Filtro seleccionado en pantalla: $seleccion")
         }
-
-        if (userType == "alumno" && alumno != null) {
-            ProfileCard(
-                imageUrl = alumno!!.imagen ?: "",
-                name = "${alumno!!.nombre} ${alumno!!.apellido}"
-            )
-            IconFilter( onClick = { /* TODO */ })
-        }
-
-        if (userType == "empresa" && empresa != null) {
-            ProfileCard(
-                imageUrl = empresa!!.imagen ?: "",
-                name = empresa!!.nombre ?: ""
-            )
-            IconFilter( onClick = { /* TODO */ })
-        }
-    }
-
-    if (isUserEmpresa) {
-        Text("Mis Ofertas - Empresa")
-        // Mostrar ofertas de empresa
-    } else {
-        Text("Mis Ofertas - Alumno")
-        // Mostrar ofertas del alumno
-    }
+    )
 }
 
 

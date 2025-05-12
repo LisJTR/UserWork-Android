@@ -42,6 +42,10 @@ class AlumnoRepositoryImpl(
         return apiService.getTitulacionesUnicas()
     }
 
+    override suspend fun getAllAlumnos(): List<Alumno> {
+        return apiService.getAllAlumnos()
+    }
+
 
 }
 

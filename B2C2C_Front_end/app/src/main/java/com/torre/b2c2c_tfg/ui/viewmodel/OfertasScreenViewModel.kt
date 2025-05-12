@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.torre.b2c2c_tfg.data.model.Alumno
 import com.torre.b2c2c_tfg.data.model.Empresa
-import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
+import com.torre.b2c2c_tfg.domain.repository.AlumnoRepository
+import com.torre.b2c2c_tfg.domain.repository.EmpresaRepository
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetSectoresUnicosUseCase
@@ -13,11 +14,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class OfertasViewModel (
+class OfertasScreenViewModel (
     private val getAlumnoUseCase: GetAlumnoUseCase,
     private val getEmpresaUseCase: GetEmpresaUseCase,
     private val getSectoresUnicosUseCase: GetSectoresUnicosUseCase,
-    private val getTitulacionesUnicasUseCase: GetTitulacionesUnicasUseCase
+    private val getTitulacionesUnicasUseCase: GetTitulacionesUnicasUseCase,
+    private val alumnoRepository: AlumnoRepository,
+    private val empresaRepository: EmpresaRepository
 ) : ViewModel() {
 
     private val _alumno = MutableStateFlow<Alumno?>(null)
@@ -25,6 +28,11 @@ class OfertasViewModel (
 
     private val _empresa = MutableStateFlow<Empresa?>(null)
     val empresa: StateFlow<Empresa?> = _empresa
+    val sectoresUnicos = MutableStateFlow<List<String>>(emptyList())
+    val titulacionesUnicas = MutableStateFlow<List<String>>(emptyList())
+    val empresas = MutableStateFlow<List<Empresa>>(emptyList())
+    val alumnos = MutableStateFlow<List<Alumno>>(emptyList())
+
 
     fun cargarAlumno(id: Long) {
         viewModelScope.launch {
@@ -37,9 +45,6 @@ class OfertasViewModel (
             _empresa.value = getEmpresaUseCase(id)
         }
     }
-
-    val sectoresUnicos = MutableStateFlow<List<String>>(emptyList())
-    val titulacionesUnicas = MutableStateFlow<List<String>>(emptyList())
 
     fun cargarFiltros(userType: String) {
         viewModelScope.launch {
@@ -59,4 +64,28 @@ class OfertasViewModel (
             }
         }
     }
+
+    fun cargarEmpresas() {
+        viewModelScope.launch {
+            try {
+                empresas.value = empresaRepository.getAllEmpresas()
+            } catch (e: Exception) {
+                println("Error cargando empresas: ${e.message}")
+            }
+        }
+    }
+
+    fun cargarAlumnos() {
+        viewModelScope.launch {
+            try {
+                alumnos.value = alumnoRepository.getAllAlumnos()
+            } catch (e: Exception) {
+                println("Error cargando alumnos: ${e.message}")
+            }
+        }
+    }
+
+
+
+
 }

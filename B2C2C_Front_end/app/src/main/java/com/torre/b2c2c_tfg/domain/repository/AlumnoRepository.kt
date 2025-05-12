@@ -8,5 +8,6 @@ interface AlumnoRepository {
     suspend fun updateAlumno(alumno: Alumno): Alumno
     suspend fun createAlumno(alumno: Alumno): Alumno
     suspend fun getTitulacionesUnicas() : List<String>
+    suspend fun getAllAlumnos(): List<Alumno>
 
 }
