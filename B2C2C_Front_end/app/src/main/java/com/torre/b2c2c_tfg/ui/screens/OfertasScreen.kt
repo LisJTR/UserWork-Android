@@ -54,9 +54,10 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
     val userId = sessionViewModel.userId.collectAsState().value ?: 0L
     val userType = sessionViewModel.userType.collectAsState().value
     val empresas by viewModel.empresas.collectAsState()
-    val alumnos by viewModel.alumnos.collectAsState()
-    val ofertas by viewModel.ofertas.collectAsState()
-
+   // val alumnos by viewModel.alumnos.collectAsState()
+    //val ofertas by viewModel.ofertas.collectAsState()
+    val ofertas by viewModel.ofertasFiltradas.collectAsState(initial = emptyList())
+    val alumnos by viewModel.alumnosFiltrados.collectAsState(initial = emptyList())
 
     LaunchedEffect(userType) {
         if (userType == "alumno") {
@@ -79,6 +80,7 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
                 viewModel = viewModel,
                 onFiltroSeleccionado = { seleccion ->
                     println("Filtro seleccionado en pantalla: $seleccion")
+                    viewModel.filtroSeleccionado.value = seleccion
                 }
             )
         }

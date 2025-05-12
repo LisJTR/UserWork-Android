@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import com.torre.b2c2c_tfg.domain.repository.OfertaRepository
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTodasLasOfertasUseCase
+import kotlinx.coroutines.flow.combine
 
 class OfertasScreenViewModel (
     private val getAlumnoUseCase: GetAlumnoUseCase,
@@ -38,7 +39,7 @@ class OfertasScreenViewModel (
     val empresas = MutableStateFlow<List<Empresa>>(emptyList())
     val alumnos = MutableStateFlow<List<Alumno>>(emptyList())
     val ofertas = MutableStateFlow<List<Oferta>>(emptyList())
-
+    val filtroSeleccionado = MutableStateFlow<String?>(null)
 
 
 
@@ -106,6 +107,26 @@ class OfertasScreenViewModel (
             } catch (e: Exception) {
                 println("Error al cargar ofertas: ${e.message}")
             }
+        }
+    }
+
+    val ofertasFiltradas = ofertas.combine(filtroSeleccionado) { listaOfertas, filtro ->
+        if (filtro.isNullOrBlank()) {
+            listaOfertas
+        } else {
+            // Solo incluye ofertas cuya empresa coincida con el filtro
+            listaOfertas.filter { oferta ->
+                val empresa = empresas.value.find { it.id?.toLong() == oferta.empresaId.toLong() }
+                empresa?.sector == filtro
+            }
+        }
+    }
+
+    val alumnosFiltrados = alumnos.combine(filtroSeleccionado) { listaAlumnos, filtro ->
+        if (filtro.isNullOrBlank()) {
+            listaAlumnos
+        } else {
+            listaAlumnos.filter { it.titulacion == filtro }
         }
     }
 }
