@@ -1,6 +1,8 @@
 package com.TFG_backend.dockerized.postgresql.user;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +35,7 @@ public class EmpresaController {
 	@PostMapping
 	public ResponseEntity<Empresa> createEmpresa(@RequestBody Empresa empresa) {
 	    Empresa empresaGuardada = empresaRepository.save(empresa);
-	    return ResponseEntity.ok(empresaGuardada); // ✅ El ID generado ya estará presente aquí
+	    return ResponseEntity.ok(empresaGuardada); //El ID generado ya estará presente aquí
 	}
 
     @PutMapping("/perfil")
@@ -43,6 +45,20 @@ public class EmpresaController {
 
     @GetMapping("/perfil")
     public Empresa getPerfilEjemplo() {
-        return empresaRepository.findAll().get(0); // solo para pruebas
+        return empresaRepository.findAll().get(0);
     }
+    
+    @GetMapping("/sectores")
+    public List<String> getSectoresUnicos() {
+        return empresaRepository.findAll()
+            .stream()
+            .map(Empresa::getSector)
+            .filter(Objects::nonNull)
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .distinct()
+            .collect(Collectors.toList());
+    }
+
+
 }

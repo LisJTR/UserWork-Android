@@ -18,9 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,7 +44,6 @@ import com.torre.b2c2c_tfg.ui.components.BottomBar
 import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
 import com.torre.b2c2c_tfg.ui.components.HabilidadChip
 import com.torre.b2c2c_tfg.ui.components.OutlinedInputTextField
-import com.torre.b2c2c_tfg.ui.components.TextTitle
 import com.torre.b2c2c_tfg.ui.components.UserSelectedImage
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.RegisterAlumnoViewModel

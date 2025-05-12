@@ -35,6 +35,12 @@ interface ApiService {
     @POST("api/empresa")
     suspend fun crearEmpresa(@Body empresa: Empresa): Response<Empresa>
 
+    @GET("api/empresa/sectores")
+    suspend fun getSectoresUnicos(): List<String>
+
+    @GET("api/empresa")
+    suspend fun getAllEmpresas(): List<Empresa>
+
     // -------------------------------------------------------------------
     // Peticiones HTTP de Alumno
 
@@ -50,14 +56,20 @@ interface ApiService {
     @PUT("api/alumno/perfil")
     suspend fun updateAlumno(@Body alumno: Alumno): Response<Alumno>
 
+    @GET("api/alumno/titulaciones")
+    suspend fun getTitulacionesUnicas(): List<String>
+
+    @GET("api/alumno")
+    suspend fun getAllAlumnos(): List<Alumno>
+
 
     // -------------------------------------------------------------------
     // Peticiones HTTP de Ofertas (Empresa)
     @POST("api/oferta")
     suspend fun crearOferta(@Body oferta: Oferta): Response<Unit>
 
-    @GET("api/oferta/perfil")
-    suspend fun getOfertas(): List<Oferta>
+    //@GET("api/oferta/perfil")
+    //suspend fun getOfertas(): List<Oferta>
 
     @PUT("api/oferta/{id}")
     suspend fun updateOferta(
@@ -73,6 +85,8 @@ interface ApiService {
     @GET("api/oferta/empresa/{id}")
     suspend fun getOfertasByEmpresaId(@Path("id") empresaId: Long): List<Oferta>
 
+    @GET("api/oferta/todas")
+    suspend fun getOfertas(): List<Oferta>
 
     // -------------------------------------------------------------------
 

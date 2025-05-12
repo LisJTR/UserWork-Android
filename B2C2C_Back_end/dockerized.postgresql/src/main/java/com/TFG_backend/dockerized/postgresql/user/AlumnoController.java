@@ -1,6 +1,8 @@
 package com.TFG_backend.dockerized.postgresql.user;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,5 +44,17 @@ public class AlumnoController {
     @GetMapping("/perfil")
     public Alumno getPerfilEjemplo() {
         return alumnoRepository.findAll().get(0); //  esto es solo de prueba
+    }
+    
+    @GetMapping("/titulaciones")
+    public List<String> getTitulacionesUnicas() {
+        return alumnoRepository.findAll()
+            .stream()
+            .map(Alumno::getTitulacion)
+            .filter(Objects::nonNull)
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .distinct()
+            .collect(Collectors.toList());
     }
 }

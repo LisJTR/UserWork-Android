@@ -24,6 +24,13 @@ class EmpresaRepositoryImpl(
         val response = apiService.crearEmpresa(empresa)
         return if (response.isSuccessful) response.body() else null
     }
+    override suspend fun getSectoresUnicos(): List<String> {
+        return apiService.getSectoresUnicos()
+    }
+    override suspend fun getAllEmpresas(): List<Empresa> {
+        return apiService.getAllEmpresas()
+    }
+
 }
 
 // Clase fake para pruebas
