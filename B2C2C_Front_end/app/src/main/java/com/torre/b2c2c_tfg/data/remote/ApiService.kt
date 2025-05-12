@@ -35,6 +35,9 @@ interface ApiService {
     @POST("api/empresa")
     suspend fun crearEmpresa(@Body empresa: Empresa): Response<Empresa>
 
+    @GET("api/empresa/sectores")
+    suspend fun getSectoresUnicos(): List<String>
+
     // -------------------------------------------------------------------
     // Peticiones HTTP de Alumno
 
@@ -49,6 +52,9 @@ interface ApiService {
 
     @PUT("api/alumno/perfil")
     suspend fun updateAlumno(@Body alumno: Alumno): Response<Alumno>
+
+    @GET("api/alumno/titulaciones")
+    suspend fun getTitulacionesUnicas(): List<String>
 
 
     // -------------------------------------------------------------------

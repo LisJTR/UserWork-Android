@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,7 +27,11 @@ import com.torre.b2c2c_tfg.data.repository.AlumnoRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.EmpresaRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetSectoresUnicosUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetTitulacionesUnicasUseCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
+import com.torre.b2c2c_tfg.ui.components.FiltroDropdown
+import com.torre.b2c2c_tfg.ui.components.IconFilter
 import com.torre.b2c2c_tfg.ui.components.IconMessage
 import com.torre.b2c2c_tfg.ui.components.ProfileCard
 import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
@@ -38,34 +43,37 @@ import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 @Composable
 fun OfertasScreen(navController: NavController, sessionViewModel: SessionViewModel, isUserEmpresa: Boolean) {
     val context = LocalContext.current
+
     val viewModel = remember {
         OfertasViewModel(
-            getAlumnoUseCase = GetAlumnoUseCase(
-                AlumnoRepositoryImpl(
-                    RetrofitInstance.getInstance(
-                        context
-                    )
-                )
-            ),
-            getEmpresaUseCase = GetEmpresaUseCase(
-                EmpresaRepositoryImpl(
-                    RetrofitInstance.getInstance(
-                        context
-                    )
-                )
-            )
+            getAlumnoUseCase = GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getEmpresaUseCase = GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getSectoresUnicosUseCase = GetSectoresUnicosUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getTitulacionesUnicasUseCase = GetTitulacionesUnicasUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)))
+
         )
     }
 
     val userId = sessionViewModel.userId.collectAsState().value ?: 0L
     val userType = sessionViewModel.userType.collectAsState().value
-
     val alumno by viewModel.alumno.collectAsState()
     val empresa by viewModel.empresa.collectAsState()
 
-    LaunchedEffect(userId, userType) {
-        if (userType == "alumno") viewModel.cargarAlumno(userId)
-        else if (userType == "empresa") viewModel.cargarEmpresa(userId)
+    val mostrarDropdown = remember { mutableStateOf(false) }
+    // Estados para controlar el filtro desplegable
+    val dropdownAlumnoVisible = remember { mutableStateOf(false) }
+    val dropdownEmpresaVisible = remember { mutableStateOf(false) }
+    val selectedOption = remember { mutableStateOf("") }
+
+    // Cargar filtros desde ViewModel
+    LaunchedEffect(userType) {
+        if (userType == "alumno") {
+            viewModel.cargarAlumno(userId)
+            viewModel.cargarFiltros("alumno")
+        } else if (userType == "empresa") {
+            viewModel.cargarEmpresa(userId)
+            viewModel.cargarFiltros("empresa")
+        }
     }
 
 
@@ -79,22 +87,52 @@ fun OfertasScreen(navController: NavController, sessionViewModel: SessionViewMod
             horizontalArrangement = Arrangement.End
         ) {
             IconMessage(
-                onClick = { /* TODO */ }
+                onClick = { /* mensajes implementar despues */ }
             )
         }
 
+        // --- ALUMNO ---
         if (userType == "alumno" && alumno != null) {
             ProfileCard(
                 imageUrl = alumno!!.imagen ?: "",
                 name = "${alumno!!.nombre} ${alumno!!.apellido}"
             )
+            IconFilter(onClick = { dropdownAlumnoVisible.value = true })
+
+            if (dropdownAlumnoVisible.value) {
+                FiltroDropdown(
+                    expanded = true,
+                    onDismissRequest = { dropdownAlumnoVisible.value = false },
+                    opciones = viewModel.sectoresUnicos.collectAsState().value,
+                    onSeleccion = { seleccion ->
+                        selectedOption.value = seleccion
+                        println("Filtrando por sector: $seleccion")
+                        dropdownAlumnoVisible.value = false
+                    }
+                )
+            }
         }
 
+        // --- EMPRESA ---
         if (userType == "empresa" && empresa != null) {
             ProfileCard(
                 imageUrl = empresa!!.imagen ?: "",
                 name = empresa!!.nombre ?: ""
             )
+            IconFilter(onClick = { dropdownEmpresaVisible.value = true })
+
+            if (dropdownEmpresaVisible.value) {
+                FiltroDropdown(
+                    expanded = true,
+                    onDismissRequest = { dropdownEmpresaVisible.value = false },
+                    opciones = viewModel.titulacionesUnicas.collectAsState().value,
+                    onSeleccion = { seleccion ->
+                        selectedOption.value = seleccion
+                        println("Filtrando por titulación: $seleccion")
+                        dropdownEmpresaVisible.value = false
+                    }
+                )
+            }
         }
     }
 }

@@ -117,7 +117,7 @@ fun AppNavigation(
             val userType = if (isEmpresa) UserType.EMPRESA else UserType.ALUMNO
 
             Scaffold(bottomBar = { BottomBar(navController, userType) }) {
-                MisOfertasScreen(navController = navController, isUserEmpresa = isEmpresa)
+                MisOfertasScreen(navController = navController, isUserEmpresa = isEmpresa, sessionViewModel = sessionViewModel)
             }
         }
 

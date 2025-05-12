@@ -38,6 +38,10 @@ class AlumnoRepositoryImpl(
      override suspend fun getAlumnoById(id: Long): Alumno {
         return apiService.getAlumnoById(id)
      }
+    override suspend fun getTitulacionesUnicas(): List<String> {
+        return apiService.getTitulacionesUnicas()
+    }
+
 
 }
 
