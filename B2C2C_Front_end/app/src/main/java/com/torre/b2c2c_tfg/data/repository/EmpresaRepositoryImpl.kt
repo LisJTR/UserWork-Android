@@ -27,6 +27,10 @@ class EmpresaRepositoryImpl(
     override suspend fun getSectoresUnicos(): List<String> {
         return apiService.getSectoresUnicos()
     }
+    override suspend fun getAllEmpresas(): List<Empresa> {
+        return apiService.getAllEmpresas()
+    }
+
 }
 
 // Clase fake para pruebas

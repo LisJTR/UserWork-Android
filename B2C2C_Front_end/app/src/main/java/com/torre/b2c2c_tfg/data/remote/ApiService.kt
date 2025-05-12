@@ -38,6 +38,9 @@ interface ApiService {
     @GET("api/empresa/sectores")
     suspend fun getSectoresUnicos(): List<String>
 
+    @GET("api/empresa")
+    suspend fun getAllEmpresas(): List<Empresa>
+
     // -------------------------------------------------------------------
     // Peticiones HTTP de Alumno
 
@@ -55,6 +58,9 @@ interface ApiService {
 
     @GET("api/alumno/titulaciones")
     suspend fun getTitulacionesUnicas(): List<String>
+
+    @GET("api/alumno")
+    suspend fun getAllAlumnos(): List<Alumno>
 
 
     // -------------------------------------------------------------------

@@ -3,6 +3,7 @@ package com.torre.b2c2c_tfg.data.remote
 import android.content.Context
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.coroutines.CoroutineContext
 
 // Clase que crea una instancia de Retrofit, se configura para saber a que servidor llamar
 // Centralizamos la configuracion, para usarla en toda la app

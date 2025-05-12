@@ -8,4 +8,6 @@ interface EmpresaRepository {
     suspend fun updateEmpresa(empresa: Empresa): Boolean
     suspend fun createEmpresa(empresa: Empresa): Empresa?
     suspend fun getSectoresUnicos(): List<String>
+    suspend fun getAllEmpresas(): List<Empresa>
+
 }
