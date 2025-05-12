@@ -67,26 +67,5 @@ fun IconFilter(
     }
 }
 
-@Composable
-fun FiltroDropdown(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    opciones: List<String>,
-    onSeleccion: (String) -> Unit
-) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest
-    ) {
-        opciones.forEach { opcion ->
-            DropdownMenuItem(
-                text = { Text(opcion) },
-                onClick = {
-                    onSeleccion(opcion)
-                    onDismissRequest()
-                }
-            )
-        }
-    }
-}
+
 
