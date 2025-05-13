@@ -38,6 +38,14 @@ class OfertaRepositoryImpl(
         }
     }
 
+    override suspend fun getOfertaById(id: Long): Oferta? {
+        return try {
+            api.getOfertaById(id)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 }
 
 //class FakeOfertaRepository : OfertaRepository {

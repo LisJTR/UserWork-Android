@@ -22,7 +22,7 @@ val tertiaryContainerL= Color(0xFFe2d7e0)
 val onTertiaryContainerL= Color(0xFF645d64)
 val errorContainerL= Color(0xFFffdad6)
 val onErrorContainerL= Color(0xFF93000a)
-val surfaceDimL= Color(0xFFdad9df)
+val surfaceDimL= Color(0x79BCB1C4)
 val surfaceL= Color(0xFF7399BE)
 val surfaceBrightL = Color(0xFFf9f9ff)
 val inverseSurfaceL= Color(0xFF2f3035)
@@ -39,7 +39,7 @@ val outlineL = Color(0xB272727E)
 val outlineVariantL = Color(0xFFc3c6d2)
 val scrimL = Color(0xFF000000)
 val shadowL = Color(0xFF000000)
-
+val surfaceVariantL = Color(0xFFE7E0EC)
 
 //val background= Color(0xFFCBD9E1)
 //val onBackground= Color(0xFFffffff)
@@ -79,7 +79,7 @@ val outlineD = Color(0xFF8d909b)
 val outlineVariantD = Color(0xFF434750)
 val scrimD = Color(0xFF000000)
 val shadowD= Color(0xFF000000)
-
+val surfaceVariantD = Color(0xFF49454F)
 
 //Color Palette
 
