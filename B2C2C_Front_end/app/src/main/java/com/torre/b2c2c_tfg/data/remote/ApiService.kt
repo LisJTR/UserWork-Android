@@ -1,7 +1,9 @@
 package com.torre.b2c2c_tfg.data.remote
 
 import com.torre.b2c2c_tfg.data.model.Alumno
+import com.torre.b2c2c_tfg.data.model.AplicacionOferta
 import com.torre.b2c2c_tfg.data.model.Empresa
+import com.torre.b2c2c_tfg.data.model.Invitacion
 import com.torre.b2c2c_tfg.data.model.LoginRequest
 import com.torre.b2c2c_tfg.data.model.LoginResponse
 import com.torre.b2c2c_tfg.data.model.Oferta
@@ -88,7 +90,27 @@ interface ApiService {
     @GET("api/oferta/todas")
     suspend fun getOfertas(): List<Oferta>
 
+    @GET("api/oferta/{id}")
+    suspend fun getOfertaById(@Path("id") id: Long): Oferta
+
     // -------------------------------------------------------------------
+    // Peticiones HTTP de Aplicaciones (Alumno)
+
+    @POST("api/aplicacion")
+    suspend fun crearAplicacion(@Body aplicacion: AplicacionOferta): Response<Unit>
+
+
+    @GET("api/aplicacion/alumno/{alumnoId}")
+    suspend fun getAplicacionesPorAlumnoId(@Path("alumnoId") alumnoId: Long): List<AplicacionOferta>
+
+    // -------------------------------------------------------------------
+    // Peticiones HTTP de Invitaciones (Empresa)
+
+    @POST("api/invitacion")
+    suspend fun crearInvitacion(@Body invitacion: Invitacion): Response<Unit>
+
+    @GET("api/invitacion/empresa/{empresaId}")
+    suspend fun getInvitacionesByEmpresaId(@Path("empresaId") empresaId: Long): List<Invitacion>
 
 
 }

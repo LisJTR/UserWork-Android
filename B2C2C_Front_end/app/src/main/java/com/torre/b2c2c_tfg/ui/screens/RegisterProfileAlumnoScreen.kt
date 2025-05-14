@@ -271,7 +271,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
         }
 
         // Mostrar habilidades añadidas
-        FlowRow( // necesitas importar androidx.compose.foundation.layout.FlowRow
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start
         ) {

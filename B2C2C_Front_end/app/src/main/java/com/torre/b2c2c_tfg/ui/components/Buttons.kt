@@ -11,11 +11,13 @@ import androidx.compose.ui.Modifier
 fun ButtonGeneric(
     text: String,
     onClick:() -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     ElevatedButton(
         onClick = onClick,
         modifier = modifier,
+        enabled = enabled,
         colors = ButtonDefaults.elevatedButtonColors(
             //Especificamos el stylo porque el boton Elevated coge directamente el color primary
             //sino el surface

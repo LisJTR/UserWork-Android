@@ -31,6 +31,7 @@ import com.torre.b2c2c_tfg.ui.viewmodel.OfertasScreenViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.components.EmpresaCard
 import com.torre.b2c2c_tfg.ui.components.AlumnoCard
+import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import kotlinx.coroutines.delay
 
 
@@ -69,8 +70,8 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
     }
 
 
-    println("📦 Empresas: ${empresas.size}")
-    println("📦 Ofertas: ${ofertas.size}")
+    println("Empresas: ${empresas.size}")
+    println("Ofertas: ${ofertas.size}")
 
 
     LazyColumn {
@@ -88,19 +89,22 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
         if (userType == "alumno") {
             items(ofertas) { oferta ->
 
-                println("🧩 Oferta: ${oferta.titulo} | empresaId: ${oferta.empresaId}")
+                println("Oferta: ${oferta.titulo} | empresaId: ${oferta.empresaId}")
                 val empresa = empresas.find { it.id?.toLong() == oferta.empresaId.toLong() }
-                println("🔍 Empresa encontrada: ${empresa?.nombre ?: "❌ NO ENCONTRADA"}")
+                println("Empresa encontrada: ${empresa?.nombre ?: "NO ENCONTRADA"}")
 
                 empresa?.let {
                     EmpresaCard(
                         nombre = it.nombre,
                         sector = it.sector,
                         descripcion = oferta.titulo,
-                        imagenUrl = it.imagen
+                        imagenUrl = it.imagen,
+                        onClick = {
+                            navController.navigate(ScreenRoutes.ofertaDetalle(oferta.id?.toLong() ?: 0L))
+                        }
                     )
                 }
-                println("🧩 Oferta: ${oferta.titulo} | empresaId: ${oferta.empresaId}")
+                println("Oferta: ${oferta.titulo} | empresaId: ${oferta.empresaId}")
 
             }
         }
@@ -112,7 +116,10 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
                     apellido = alumno.apellido,
                     titulacion = alumno.titulacion,
                     ciudad = alumno.ciudad,
-                    imagenUrl = alumno.imagen
+                    imagenUrl = alumno.imagen,
+                    onClick = {
+                        navController.navigate(ScreenRoutes.perfilDetalle(alumno.id?.toLong() ?: 0L))
+                    }
                 )
             }
         }

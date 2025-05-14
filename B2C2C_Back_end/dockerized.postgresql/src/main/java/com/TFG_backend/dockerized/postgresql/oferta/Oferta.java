@@ -23,7 +23,8 @@ public class Oferta {
 	@JsonProperty("empresa_id")
 	@Column(name = "empresa_id")
 	private Long empresaId;
-	private boolean publicidad;
+	@Column(name = "publicada")
+	private boolean publicada;
 	private String fecha_publicacion;
 	public Long getId() {
 		return id;
@@ -62,11 +63,12 @@ public class Oferta {
 	public void setEmpresaId(Long empresaId) {
 		this.empresaId = empresaId;
 	}
-	public boolean isPublicidd() {
-		return publicidad;
+	public boolean isPublicada() {
+	    return publicada;
 	}
-	public void setPublicidd(boolean publicidd) {
-		this.publicidad = publicidd;
+
+	public void setPublicada(boolean publicada) {
+	    this.publicada = publicada;
 	}
 	public String getFecha_publicacion() {
 		return fecha_publicacion;
@@ -77,9 +79,10 @@ public class Oferta {
 	@Override
 	public String toString() {
 		return "Oferta [id=" + id + ", titulo=" + titulo + ", descripcion=" + descripcion + ", aptitudes=" + aptitudes
-				+ ", que_se_ofrece=" + que_se_ofrece + ", empresa_id=" + empresaId + ", publicidd=" + publicidad
+				+ ", que_se_ofrece=" + que_se_ofrece + ", empresaId=" + empresaId + ", publicada=" + publicada
 				+ ", fecha_publicacion=" + fecha_publicacion + "]";
 	}
+	
 	
 	
 	

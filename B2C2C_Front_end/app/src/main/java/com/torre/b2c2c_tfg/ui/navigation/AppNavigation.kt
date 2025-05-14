@@ -5,6 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,8 +15,10 @@ import com.torre.b2c2c_tfg.ui.screens.RegisterProfileEmpresaScreen
 import com.torre.b2c2c_tfg.ui.screens.WelcomeScreen
 import com.torre.b2c2c_tfg.ui.screens.RegisterProfileAlumnoScreen
 import com.torre.b2c2c_tfg.ui.screens.MisOfertasScreen
+import com.torre.b2c2c_tfg.ui.screens.OfertaDetalleScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
+import com.torre.b2c2c_tfg.ui.screens.PerfilDetalleScreen
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.screens.SettingsScreen
@@ -31,12 +34,16 @@ object ScreenRoutes {
     const val EmpresaProfile = "Register/ProfileEmpresa"
     const val MisOfertas = "MisOfertas"
     const val Settings = "SettingsScreen"
+    const val OfertaDetalle = "OfertaDetalleScreen"
+    const val PerfilDetalle = "PerfilDetalleScreen"
 
     // rutas con parámetros
     fun ofertas(isEmpresa: Boolean) = "$Ofertas?isEmpresa=$isEmpresa"
     fun alumnoProfile(fromRegistro: Boolean) = "$AlumnoProfile?fromRegistro=$fromRegistro"
     fun empresaProfile(fromRegistro: Boolean) = "$EmpresaProfile?fromRegistro=$fromRegistro"
     fun misOfertasRoute(isEmpresa: Boolean) = "$MisOfertas?isEmpresa=$isEmpresa"
+    fun ofertaDetalle(idOferta: Long) = "$OfertaDetalle/$idOferta"
+    fun perfilDetalle(idAlumno: Long) = "PerfilDetalleScreen/$idAlumno"
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -45,6 +52,7 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController(),
     sessionViewModel: SessionViewModel
 ) {
+
     NavHost(navController = navController, startDestination = ScreenRoutes.Welcome) {
 
         composable(ScreenRoutes.Welcome) {
@@ -132,5 +140,30 @@ fun AppNavigation(
                 SettingsScreen( navController = navController)
             }
         }
+
+        composable(
+            route = "${ScreenRoutes.OfertaDetalle}/{idOferta}",
+            arguments = listOf(navArgument("idOferta") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val idOferta = backStackEntry.arguments?.getLong("idOferta") ?: 0L
+            OfertaDetalleScreen(
+                navController = navController,
+                sessionViewModel = sessionViewModel,
+                idOferta = idOferta
+            )
+        }
+
+        composable(
+            route = "PerfilDetalleScreen/{idAlumno}",
+            arguments = listOf(navArgument("idAlumno") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val idAlumno = backStackEntry.arguments?.getLong("idAlumno") ?: 0L
+            PerfilDetalleScreen(
+                navController = navController,
+                sessionViewModel = sessionViewModel,
+                idAlumno = idAlumno
+            )
+        }
+
     }
 }

@@ -49,6 +49,8 @@ private val DarkColorScheme = darkColorScheme(
     outline = outlineD,                        // Borde de componentes (inputs, cards)
     outlineVariant = outlineVariantD,          // Borde más suave o alternativo
     scrim = scrimD,                             // Efecto de desenfoque/fondo detrás de diálogos
+    onSurfaceVariant = onSurfaceVarD,          // Texto sobre outlineVariant
+    surfaceVariant = surfaceVariantD           // Fondo más suave o alternativo
 
 
 )
@@ -88,7 +90,8 @@ private val LightColorScheme = lightColorScheme(
     onSurface = onSurfaceL,
     outline = outlineL,
     outlineVariant = outlineVariantL,
-    scrim = scrimL
+    scrim = scrimL,
+    surfaceVariant = surfaceVariantL,
 
 
 

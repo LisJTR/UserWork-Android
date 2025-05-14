@@ -8,5 +8,6 @@ interface OfertaRepository {
     suspend fun getOfertas(): List<Oferta>
     suspend fun getOfertasByEmpresaId(empresaId: Long): List<Oferta>
     suspend fun deleteOferta(id: Int): Boolean
+    suspend fun getOfertaById(id: Long): Oferta?
 
 }
