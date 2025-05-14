@@ -2,8 +2,10 @@ package com.torre.b2c2c_tfg.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.torre.b2c2c_tfg.data.model.Invitacion
 import com.torre.b2c2c_tfg.data.model.Oferta
 import com.torre.b2c2c_tfg.domain.usecase.GetAplicacionesPorAlumnoUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTodasLasOfertasUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,11 +14,15 @@ import kotlinx.coroutines.launch
 
 class MisOfertasScreenViewModel(
     private val getAplicacionesUseCase: GetAplicacionesPorAlumnoUseCase,
-    private val getTodasLasOfertasUseCase: GetTodasLasOfertasUseCase
+    private val getTodasLasOfertasUseCase: GetTodasLasOfertasUseCase,
+    private val getInvitacionesPorEmpresaUseCase: GetInvitacionPorEmpresaUseCase
 ) : ViewModel() {
 
     private val _ofertasAplicadas = MutableStateFlow<List<Oferta>>(emptyList())
     val ofertasAplicadas: StateFlow<List<Oferta>> = _ofertasAplicadas
+    private val _invitacionesRecibidas = MutableStateFlow<List<Invitacion>>(emptyList())
+    val invitacionesRecibidas: StateFlow<List<Invitacion>> = _invitacionesRecibidas
+
 
     fun cargarOfertasAplicadas(alumnoId: Long) {
         viewModelScope.launch {
@@ -40,4 +46,16 @@ class MisOfertasScreenViewModel(
             }
         }
     }
+
+
+    fun cargarInvitaciones(empresaId: Long) {
+        viewModelScope.launch {
+            try {
+                _invitacionesRecibidas.value = getInvitacionesPorEmpresaUseCase(empresaId)
+            } catch (e: Exception) {
+                println("❌ Error al cargar invitaciones: ${e.message}")
+            }
+        }
+    }
+
 }
