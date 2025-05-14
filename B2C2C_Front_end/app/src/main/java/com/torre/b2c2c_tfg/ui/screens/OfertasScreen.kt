@@ -116,7 +116,10 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
                     apellido = alumno.apellido,
                     titulacion = alumno.titulacion,
                     ciudad = alumno.ciudad,
-                    imagenUrl = alumno.imagen
+                    imagenUrl = alumno.imagen,
+                    onClick = {
+                        navController.navigate(ScreenRoutes.perfilDetalle(alumno.id?.toLong() ?: 0L))
+                    }
                 )
             }
         }
