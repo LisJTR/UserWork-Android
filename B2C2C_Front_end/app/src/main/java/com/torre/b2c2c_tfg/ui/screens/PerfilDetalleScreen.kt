@@ -1,6 +1,7 @@
 package com.torre.b2c2c_tfg.ui.screens
 
 import android.graphics.drawable.Icon
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -28,6 +29,8 @@ import androidx.compose.material3.DropdownMenuItem
 import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.data.model.Oferta
+import com.torre.b2c2c_tfg.data.repository.InvitacionRepositoryImpl
+import com.torre.b2c2c_tfg.domain.usecase.CrearInvitacionUseCase
 import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
 import com.torre.b2c2c_tfg.ui.components.FiltroDropdown
 import com.torre.b2c2c_tfg.ui.components.OfertaSeleccionDialog
@@ -40,7 +43,8 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
     val empresaId = sessionViewModel.userId.collectAsState().value ?: 0L
     var listaOfertas by remember { mutableStateOf<List<Oferta>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
-    var ofertaSeleccionada by remember { mutableStateOf<String?>("OFERTAS") }
+    var ofertaSeleccionadaTitulo by remember { mutableStateOf("OFERTAS ACTIVAS") }
+    var ofertaSeleccionadaId by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(empresaId) {
         try {
@@ -54,7 +58,10 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
         }
     }
     val viewModel = remember {
-        PerfilDetalleViewModel(GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))))
+        PerfilDetalleViewModel(
+            getAlumnoUseCase = GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
+            crearInvitacionUseCase = CrearInvitacionUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context)))
+        )
     }
 
     val alumno by viewModel.alumno.collectAsState()
@@ -128,20 +135,37 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     ButtonGeneric(
-                         text = ofertaSeleccionada ?: "OFERTAS",
-                         onClick = { showDialog = true }
+                        text = ofertaSeleccionadaTitulo,
+                        onClick = { showDialog = true }
                     )
 
-                    ButtonGeneric(text = "INTERESADO", onClick = {
-                        // TODO: Acción para marcar como interesado
-                    })
+                    ButtonGeneric(
+                        text = "INTERESADO",
+                        onClick = {
+                            println("🟢 Botón INTERESADO pulsado con ID: $ofertaSeleccionadaId")
+
+                            if (ofertaSeleccionadaId != null) {
+                                viewModel.enviarInvitacion(
+                                    idEmpresa = empresaId,
+                                    idOferta = ofertaSeleccionadaId!!,
+                                    idAlumno = idAlumno
+                                )
+                                Toast.makeText(context, "Interesado a la oferta", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Selecciona una oferta válida antes de continuar", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        enabled = ofertaSeleccionadaId != null // desactivado si no hay selección
+                    )
                 }
                 OfertaSeleccionDialog(
                     showDialog = showDialog,
                     onDismiss = { showDialog = false },
                     ofertas = listaOfertas.map { it.titulo },
-                    onSeleccion = { seleccion ->
-                        ofertaSeleccionada = seleccion
+                    onSeleccion = { seleccionTitulo ->
+                        val ofertaSeleccionada = listaOfertas.find { it.titulo == seleccionTitulo }
+                        ofertaSeleccionadaTitulo = seleccionTitulo
+                        ofertaSeleccionadaId = ofertaSeleccionada?.id?.toLong()
                     }
                 )
 

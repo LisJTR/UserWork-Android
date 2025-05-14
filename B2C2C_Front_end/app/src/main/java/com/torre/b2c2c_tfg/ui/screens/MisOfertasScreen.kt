@@ -17,10 +17,12 @@ import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.data.repository.AlumnoRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.AplicacionOfertaRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.EmpresaRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.InvitacionRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetAplicacionesPorAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetSectoresUnicosUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTitulacionesUnicasUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTodasLasOfertasUseCase
@@ -44,12 +46,9 @@ fun MisOfertasScreen(
 
     val viewModel = remember {
         MisOfertasScreenViewModel(
-            getAplicacionesUseCase = GetAplicacionesPorAlumnoUseCase(
-                AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context))
-            ),
-            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(
-                OfertaRepositoryImpl(RetrofitInstance.getInstance(context))
-            )
+            getAplicacionesUseCase = GetAplicacionesPorAlumnoUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getInvitacionesPorEmpresaUseCase = GetInvitacionPorEmpresaUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
 
@@ -69,6 +68,9 @@ fun MisOfertasScreen(
     val userType = sessionViewModel.userType.collectAsState().value
     val ofertas by viewModel.ofertasAplicadas.collectAsState()
     val empresas by headerViewModel.empresas.collectAsState()
+    val invitaciones by viewModel.invitacionesRecibidas.collectAsState()
+    val ofertasFiltradas by headerViewModel.ofertasFiltradas.collectAsState(initial = emptyList())
+    val alumnosFiltrados by headerViewModel.alumnosFiltrados.collectAsState(initial = emptyList())
 
     LaunchedEffect(userType) {
         if (userType == "alumno") {
@@ -76,8 +78,12 @@ fun MisOfertasScreen(
             headerViewModel.cargarEmpresas()
         } else {
             headerViewModel.cargarEmpresa(userId)
+            viewModel.cargarOfertasAplicadas(userId)
+            viewModel.cargarInvitaciones(userId)
+            headerViewModel.cargarAlumnos()
+            headerViewModel.cargarTodasLasOfertas()
         }
-        viewModel.cargarOfertasAplicadas(userId)
+
     }
 
     LazyColumn {
@@ -106,7 +112,24 @@ fun MisOfertasScreen(
             }
         }
 
+        if (userType == "empresa") {
+            items(invitaciones) { invitacion ->
+                val oferta = ofertasFiltradas.find { it.id?.toLong() == invitacion.ofertaId }
+                val alumno = alumnosFiltrados.find { it.id?.toLong() == invitacion.alumnoId }
 
+                if (oferta != null && alumno != null) {
+                    EmpresaCard(
+                        nombre = "${alumno.nombre} ${alumno.apellido}",
+                        sector = alumno.titulacion,
+                        descripcion = oferta.titulo,
+                        imagenUrl = alumno.imagen,
+                        onClick = {
+                            navController.navigate(ScreenRoutes.perfilDetalle(alumno.id?.toLong() ?: 0L))
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
