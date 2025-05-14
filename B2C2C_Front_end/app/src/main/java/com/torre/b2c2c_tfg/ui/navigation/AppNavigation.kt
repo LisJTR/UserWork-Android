@@ -18,6 +18,7 @@ import com.torre.b2c2c_tfg.ui.screens.MisOfertasScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertaDetalleScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
+import com.torre.b2c2c_tfg.ui.screens.PerfilDetalleScreen
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.screens.SettingsScreen
@@ -34,6 +35,7 @@ object ScreenRoutes {
     const val MisOfertas = "MisOfertas"
     const val Settings = "SettingsScreen"
     const val OfertaDetalle = "OfertaDetalleScreen"
+    const val PerfilDetalle = "PerfilDetalleScreen"
 
     // rutas con parámetros
     fun ofertas(isEmpresa: Boolean) = "$Ofertas?isEmpresa=$isEmpresa"
@@ -41,6 +43,7 @@ object ScreenRoutes {
     fun empresaProfile(fromRegistro: Boolean) = "$EmpresaProfile?fromRegistro=$fromRegistro"
     fun misOfertasRoute(isEmpresa: Boolean) = "$MisOfertas?isEmpresa=$isEmpresa"
     fun ofertaDetalle(idOferta: Long) = "$OfertaDetalle/$idOferta"
+    fun perfilDetalle(idAlumno: Long) = "PerfilDetalleScreen/$idAlumno"
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -147,6 +150,18 @@ fun AppNavigation(
                 navController = navController,
                 sessionViewModel = sessionViewModel,
                 idOferta = idOferta
+            )
+        }
+
+        composable(
+            route = "PerfilDetalleScreen/{idAlumno}",
+            arguments = listOf(navArgument("idAlumno") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val idAlumno = backStackEntry.arguments?.getLong("idAlumno") ?: 0L
+            PerfilDetalleScreen(
+                navController = navController,
+                sessionViewModel = sessionViewModel,
+                idAlumno = idAlumno
             )
         }
 

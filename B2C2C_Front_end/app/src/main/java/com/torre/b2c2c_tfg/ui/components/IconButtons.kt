@@ -2,6 +2,7 @@ package com.torre.b2c2c_tfg.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddComment
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.FilterAlt
@@ -67,5 +68,20 @@ fun IconFilter(
     }
 }
 
-
+@Composable
+fun IconArrowBack(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Default.ArrowBack,
+            contentDescription = "Filtro",
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
 
