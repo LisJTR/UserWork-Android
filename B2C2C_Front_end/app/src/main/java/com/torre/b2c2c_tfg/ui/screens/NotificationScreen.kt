@@ -1,5 +1,6 @@
 package com.torre.b2c2c_tfg.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,7 +56,9 @@ fun NotificationScreen(
     val notificaciones by notificacionViewModel.notificaciones.collectAsState()
 
     LaunchedEffect(userId) {
+        Log.d("DEBUG", "Usuario actual ID: $userId")
         sessionViewModel.userType.value?.let { tipoUsuario ->
+            Log.d("DEBUG", "Tipo usuario: $tipoUsuario")
             notificacionViewModel.cargarNotificaciones(userId, tipoUsuario)
         }
     }
