@@ -77,11 +77,22 @@ fun NotificationScreen(
                     .fillMaxWidth()
                     .padding(8.dp)
                     .clickable {
-                        val idOferta = notificacion.ofertaId ?: return@clickable
-                        // Marcar como leída
                         notificacionViewModel.marcarComoLeida(notificacion)
-                        // Navegar a la oferta detalle
-                        navController.navigate(ScreenRoutes.ofertaDetalleDesdeNotificacion(idOferta))
+
+                        when (notificacion.destinatarioTipo) {
+                            "alumno" -> {
+                                // Si la notificación es para un alumno, navegar a la oferta
+                                val idOferta = notificacion.ofertaId ?: return@clickable
+                                navController.navigate(ScreenRoutes.ofertaDetalleDesdeNotificacion(idOferta))
+                            }
+                            "empresa" -> {
+                                // Si es para una empresa, navegar al perfil del alumno
+                                val idAlumno = notificacion.alumnoId ?: return@clickable
+                                val idOferta = notificacion.ofertaId ?: return@clickable
+
+                                navController.navigate(ScreenRoutes.perfilDetalleDesdeNotificacion(idAlumno, idOferta))
+                            }
+                        }
                     },
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
