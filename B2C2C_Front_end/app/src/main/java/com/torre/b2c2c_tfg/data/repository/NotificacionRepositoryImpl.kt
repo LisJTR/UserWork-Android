@@ -32,5 +32,14 @@ class NotificacionRepositoryImpl(private val api: ApiService) : NotificacionRepo
         }
     }
 
+    override suspend fun actualizarNotificacion(notificacion: Notificacion): Boolean {
+        return try {
+            api.actualizarNotificacion(notificacion)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 
 }

@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
+import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorEmpresaUseCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
@@ -50,6 +51,8 @@ object ScreenRoutes {
     fun misOfertasRoute(isEmpresa: Boolean) = "$MisOfertas?isEmpresa=$isEmpresa"
     fun ofertaDetalle(idOferta: Long) = "$OfertaDetalle/$idOferta"
     fun perfilDetalle(idAlumno: Long) = "PerfilDetalleScreen/$idAlumno"
+    fun ofertaDetalleDesdeNotificacion(idOferta: Long) = "$OfertaDetalle/$idOferta?modoNotificacion=true"
+
 
 }
 
@@ -149,14 +152,23 @@ fun AppNavigation(
         }
 
         composable(
-            route = "${ScreenRoutes.OfertaDetalle}/{idOferta}",
-            arguments = listOf(navArgument("idOferta") { type = NavType.LongType })
+            route = "${ScreenRoutes.OfertaDetalle}/{idOferta}?modoNotificacion={modoNotificacion}",
+            arguments = listOf(
+                navArgument("idOferta") { type = NavType.LongType },
+                navArgument("modoNotificacion") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
         ) { backStackEntry ->
             val idOferta = backStackEntry.arguments?.getLong("idOferta") ?: 0L
+            val modoNotificacion = backStackEntry.arguments?.getBoolean("modoNotificacion") ?: false
+
             OfertaDetalleScreen(
                 navController = navController,
                 sessionViewModel = sessionViewModel,
-                idOferta = idOferta
+                idOferta = idOferta,
+                modoNotificacion = modoNotificacion
             )
         }
 
@@ -176,14 +188,7 @@ fun AppNavigation(
             NotificationScreen(
                 sessionViewModel = sessionViewModel,
                 navController = navController,
-                notificacionViewModel = NotificationViewModel(
-                    getNotificacionesPorAlumnoUseCase = GetNotificacionesPorAlumnoUseCase(
-                        NotificacionRepositoryImpl(RetrofitInstance.getInstance(LocalContext.current))
-                    ),
-                    getNotificacionesPorEmpresaUseCase = GetNotificacionesPorEmpresaUseCase(
-                        NotificacionRepositoryImpl(RetrofitInstance.getInstance(LocalContext.current))
-                    )
-                )
+
             )
         }
 

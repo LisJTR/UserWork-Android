@@ -2,12 +2,15 @@ package com.torre.b2c2c_tfg.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -47,7 +50,8 @@ import com.torre.b2c2c_tfg.ui.components.TextTitle
 fun OfertaDetalleScreen(
     navController: NavController,
     sessionViewModel: SessionViewModel,
-    idOferta: Long
+    idOferta: Long,
+    modoNotificacion: Boolean = false // Parámetro para determinar el modo de la pantalla
 ) {
     val context = LocalContext.current
     val viewModel = remember {
@@ -128,7 +132,10 @@ fun OfertaDetalleScreen(
                     .background(MaterialTheme.colorScheme.surfaceDim)
                     .padding(16.dp)
             ) {
-                TextTitle(text = "Detalles de la oferta", style = MaterialTheme.typography.titleMedium)
+                TextTitle(
+                    text = "Detalles de la oferta",
+                    style = MaterialTheme.typography.titleMedium
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -159,30 +166,56 @@ fun OfertaDetalleScreen(
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        if (yaAplicada) {
-            Text(
-                text = "✅ Ya has aplicado a esta oferta.",
-                color = Color.Green,
-                style = MaterialTheme.typography.bodyMedium,
+        if (modoNotificacion) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                ButtonGeneric(
+                    text = "INTERÉS MUTUO",
+                    onClick = {
+                        // lógica para marcar como interés mutuo
+                        Toast.makeText(context, "Interés mutuo registrado", Toast.LENGTH_SHORT)
+                            .show()
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                ButtonGeneric(
+                    text = "NO INTERESADO",
+                    onClick = {
+                        // lógica para marcar como no interesado
+                        Toast.makeText(context, "No interesado", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        } else {
+            if (yaAplicada) {
+                Text(
+                    text = "Ya has aplicado a esta oferta.",
+                    color = Color.Green,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                )
+            }
+            ButtonGeneric(
+                text = "APLICAR",
+                onClick = {
+                    val alumnoId = sessionViewModel.userId.value ?: return@ButtonGeneric
+                    val ofertaId = oferta?.id?.toLong() ?: return@ButtonGeneric
+                    println("Aplicando a la oferta con ID: ${oferta?.id}")
+                    Toast.makeText(context, "Pulsado botón APLICAR", Toast.LENGTH_SHORT).show()
+                    viewModel.aplicarAOferta(alumnoId, ofertaId)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(horizontal = 32.dp),
+                enabled = !yaAplicada
             )
-        }
-        ButtonGeneric(
-            text = "APLICAR",
-            onClick = {
-                val alumnoId = sessionViewModel.userId.value ?: return@ButtonGeneric
-                val ofertaId = oferta?.id?.toLong() ?: return@ButtonGeneric
-                println("🧾 Aplicando a la oferta con ID: ${oferta?.id}")
-                Toast.makeText(context, "➡ Pulsado botón APLICAR", Toast.LENGTH_SHORT).show()
-                viewModel.aplicarAOferta(alumnoId, ofertaId)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp),
-            enabled = !yaAplicada
-        )
 
+        }
     }
 }
