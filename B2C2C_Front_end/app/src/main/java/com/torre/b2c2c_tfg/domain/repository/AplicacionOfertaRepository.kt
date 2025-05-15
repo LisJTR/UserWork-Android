@@ -5,4 +5,6 @@ import com.torre.b2c2c_tfg.data.model.AplicacionOferta
 interface AplicacionOfertaRepository {
     suspend fun crearAplicacion(aplicacion: AplicacionOferta): Boolean
     suspend fun getAplicacionesPorAlumnoId(alumnoId: Long): List<AplicacionOferta>
+    suspend fun existeAplicacion(alumnoId: Long, ofertaId: Long): Boolean
+
 }

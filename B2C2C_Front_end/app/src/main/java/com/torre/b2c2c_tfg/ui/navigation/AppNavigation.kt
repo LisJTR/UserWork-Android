@@ -4,17 +4,23 @@ import android.annotation.SuppressLint
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
+import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorAlumnoUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorEmpresaUseCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
 import com.torre.b2c2c_tfg.ui.screens.RegisterProfileEmpresaScreen
 import com.torre.b2c2c_tfg.ui.screens.WelcomeScreen
 import com.torre.b2c2c_tfg.ui.screens.RegisterProfileAlumnoScreen
 import com.torre.b2c2c_tfg.ui.screens.MisOfertasScreen
+import com.torre.b2c2c_tfg.ui.screens.NotificationScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertaDetalleScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
@@ -22,8 +28,7 @@ import com.torre.b2c2c_tfg.ui.screens.PerfilDetalleScreen
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.screens.SettingsScreen
-
-
+import com.torre.b2c2c_tfg.ui.viewmodel.NotificationViewModel
 
 
 // RUTAS
@@ -36,6 +41,7 @@ object ScreenRoutes {
     const val Settings = "SettingsScreen"
     const val OfertaDetalle = "OfertaDetalleScreen"
     const val PerfilDetalle = "PerfilDetalleScreen"
+    const val Notification = "NotificationScreen"
 
     // rutas con parámetros
     fun ofertas(isEmpresa: Boolean) = "$Ofertas?isEmpresa=$isEmpresa"
@@ -44,6 +50,7 @@ object ScreenRoutes {
     fun misOfertasRoute(isEmpresa: Boolean) = "$MisOfertas?isEmpresa=$isEmpresa"
     fun ofertaDetalle(idOferta: Long) = "$OfertaDetalle/$idOferta"
     fun perfilDetalle(idAlumno: Long) = "PerfilDetalleScreen/$idAlumno"
+
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -162,6 +169,21 @@ fun AppNavigation(
                 navController = navController,
                 sessionViewModel = sessionViewModel,
                 idAlumno = idAlumno
+            )
+        }
+
+        composable(ScreenRoutes.Notification) {
+            NotificationScreen(
+                sessionViewModel = sessionViewModel,
+                navController = navController,
+                notificacionViewModel = NotificationViewModel(
+                    getNotificacionesPorAlumnoUseCase = GetNotificacionesPorAlumnoUseCase(
+                        NotificacionRepositoryImpl(RetrofitInstance.getInstance(LocalContext.current))
+                    ),
+                    getNotificacionesPorEmpresaUseCase = GetNotificacionesPorEmpresaUseCase(
+                        NotificacionRepositoryImpl(RetrofitInstance.getInstance(LocalContext.current))
+                    )
+                )
             )
         }
 

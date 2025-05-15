@@ -72,7 +72,8 @@ data class OfferCardData(
     var queSeOfrece: String = "",
     var isPublic: Boolean = true,
     var isSaved: Boolean = false,
-    var isMarkedForDeletion: Boolean = false
+    var isMarkedForDeletion: Boolean = false,
+    val fechaPublicacion: String = ""
 
 )
 
@@ -166,10 +167,10 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             val loadedCards = ofertas.map {
                 OfferCardData(
                     id = it.id,
-                    title = it.titulo,
-                    description = it.descripcion,
-                    aptitudes = it.aptitudes,
-                    queSeOfrece = it.queSeOfrece,
+                    title = it.titulo ?: "",
+                    description = it.descripcion ?: "",
+                    aptitudes = it.aptitudes ?: "",
+                    queSeOfrece = it.queSeOfrece ?: "", // ← ESTA LÍNEA CORRIGE EL CRASH
                     isPublic = it.publicada,
                     isSaved = true
                 )

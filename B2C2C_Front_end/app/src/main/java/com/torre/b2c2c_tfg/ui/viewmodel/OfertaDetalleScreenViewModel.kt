@@ -11,12 +11,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.torre.b2c2c_tfg.data.model.AplicacionOferta
+import com.torre.b2c2c_tfg.data.model.Notificacion
+import com.torre.b2c2c_tfg.domain.usecase.ComprobarAplicacionExistenteUseCase
+import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
 
 
 class OfertaDetalleScreenViewModel(
     private val getOfertaByIdUseCase: GetOfertaByIdUseCase,
     private val getEmpresaUseCase: GetEmpresaUseCase,
-    private val crearAplicacionOfertaUseCase: CrearAplicacionOfertaUseCase
+    private val crearAplicacionOfertaUseCase: CrearAplicacionOfertaUseCase,
+    private val crearNotificacionUseCase: CrearNotificacionUseCase,
+    private val comprobarAplicacionExistenteUseCase: ComprobarAplicacionExistenteUseCase
 ) : ViewModel() {
 
     private val _oferta = MutableStateFlow<Oferta?>(null)
@@ -52,14 +57,40 @@ class OfertaDetalleScreenViewModel(
                 val aplicacion = AplicacionOferta(
                     alumnoId = alumnoId,
                     ofertaId = ofertaId,
-                    fechaAplicacion = null, // puedes usar una fecha actual aquí si lo deseas
+                    fechaAplicacion = null,
                     estado = "pendiente"
                 )
                 val exito = crearAplicacionOfertaUseCase(aplicacion)
                 _aplicacionExitosa.value = exito
+
+                if (exito) {
+                    // CREAR NOTIFICACIÓN PARA LA EMPRESA
+                    val result = crearNotificacionUseCase(
+                        Notificacion(
+                            tipo = "aplicacion",
+                            mensaje = "Un alumno ha aplicado a tu oferta.",
+                            alumnoId = alumnoId,
+                            ofertaId = ofertaId,
+                            empresaId = empresa.value?.id?.toLong(), // usa la empresa cargada
+                            destinatarioTipo = "empresa"
+                        )
+                    )
+                    println("✅ ¿Se creó la notificación? $result")
+                }
+
             } catch (e: Exception) {
                 _aplicacionExitosa.value = false
             }
         }
     }
+
+    private val _yaAplicada = MutableStateFlow(false)
+    val yaAplicada: StateFlow<Boolean> = _yaAplicada
+
+    fun comprobarSiYaAplicada(alumnoId: Long, ofertaId: Long) {
+        viewModelScope.launch {
+            _yaAplicada.value = comprobarAplicacionExistenteUseCase(alumnoId, ofertaId) // ✅ BIEN USADO
+        }
+    }
+
 }

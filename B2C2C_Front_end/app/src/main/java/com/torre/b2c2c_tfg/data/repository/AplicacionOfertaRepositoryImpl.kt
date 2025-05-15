@@ -12,4 +12,8 @@ class AplicacionOfertaRepositoryImpl(private val api: ApiService) : AplicacionOf
     override suspend fun getAplicacionesPorAlumnoId(alumnoId: Long): List<AplicacionOferta> {
         return api.getAplicacionesPorAlumnoId(alumnoId)
     }
+
+    override suspend fun existeAplicacion(alumnoId: Long, ofertaId: Long): Boolean {
+        return api.existeAplicacion(alumnoId, ofertaId)
+    }
 }

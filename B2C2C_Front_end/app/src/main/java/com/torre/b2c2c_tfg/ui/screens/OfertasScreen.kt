@@ -82,7 +82,8 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
                 onFiltroSeleccionado = { seleccion ->
                     println("Filtro seleccionado en pantalla: $seleccion")
                     viewModel.filtroSeleccionado.value = seleccion
-                }
+                },
+                navController = navController
             )
         }
 

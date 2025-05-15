@@ -8,6 +8,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 
@@ -16,7 +17,8 @@ fun OfertaSeleccionDialog(
     showDialog: Boolean,
     onDismiss: () -> Unit,
     ofertas: List<String>,
-    onSeleccion: (String) -> Unit
+    onSeleccion: (String) -> Unit,
+    deshabilitadas: List<String> = emptyList()
 ) {
     if (!showDialog) return
 
@@ -27,14 +29,22 @@ fun OfertaSeleccionDialog(
         text = {
             Column {
                 ofertas.forEach { titulo ->
+                    val estaDeshabilitada = deshabilitadas.contains(titulo)
                     Text(
                         text = titulo,
+                        color = if (estaDeshabilitada) Color.Gray else Color.Unspecified,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                            .clickable {
-                                onSeleccion(titulo)
-                                onDismiss()
+                            .let {
+                                if (!estaDeshabilitada) {
+                                    it.clickable {
+                                        onSeleccion(titulo)
+                                        onDismiss()
+                                    }
+                                } else {
+                                    it
+                                }
                             }
                     )
                 }

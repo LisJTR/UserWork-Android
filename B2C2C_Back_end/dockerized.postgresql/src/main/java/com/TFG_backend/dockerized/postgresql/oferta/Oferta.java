@@ -19,6 +19,8 @@ public class Oferta {
 	private String titulo;
 	private String descripcion;
 	private String aptitudes;
+	@JsonProperty("que_se_ofrece")
+	@Column(name = "que_se_ofrece")
 	private String que_se_ofrece;
 	@JsonProperty("empresa_id")
 	@Column(name = "empresa_id")
