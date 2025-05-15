@@ -23,8 +23,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.torre.b2c2c_tfg.data.model.AplicacionOferta
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
@@ -38,7 +40,7 @@ import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertaByIdUseCase
 import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
-import com.torre.b2c2c_tfg.ui.components.OutlinedInputTextField
+import com.torre.b2c2c_tfg.ui.components.IconArrowDown
 import com.torre.b2c2c_tfg.ui.viewmodel.OfertaDetalleScreenViewModel
 import com.torre.b2c2c_tfg.ui.components.PerfilDetalleHeader
 import com.torre.b2c2c_tfg.ui.components.SectionDescription
@@ -51,7 +53,8 @@ fun OfertaDetalleScreen(
     navController: NavController,
     sessionViewModel: SessionViewModel,
     idOferta: Long,
-    modoNotificacion: Boolean = false // Parámetro para determinar el modo de la pantalla
+    modoNotificacion: Boolean = false, // Parámetro para determinar el modo de la pantalla
+    desdeMisOfertas: Boolean = false
 ) {
     val context = LocalContext.current
     val viewModel = remember {
@@ -188,6 +191,35 @@ fun OfertaDetalleScreen(
                         Toast.makeText(context, "No interesado", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.weight(1f)
+                )
+            }
+
+        } else if (desdeMisOfertas) {
+            // BOTONES DESDE MIS OFERTAS
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                ButtonGeneric(
+                    text = "SELECCIONADO",
+                    onClick = {},
+                    enabled = false,
+                    modifier = Modifier.width(200.dp)
+                )
+                IconArrowDown()
+                ButtonGeneric(
+                    text = "NO SELECCIONADO",
+                    onClick = {},
+                    enabled = false,
+                    modifier = Modifier.width(200.dp)
+                )
+                IconArrowDown()
+                ButtonGeneric(
+                    text = "APLICAR",
+                    onClick = {},
+                    enabled = false,
+                    modifier = Modifier.width(200.dp)
                 )
             }
         } else {

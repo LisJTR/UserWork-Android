@@ -3,6 +3,7 @@ package com.torre.b2c2c_tfg.ui.components
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddComment
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.FilterAlt
@@ -83,5 +84,17 @@ fun IconArrowBack(
             tint = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+@Composable
+fun IconArrowDown(
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        imageVector = Icons.Default.ArrowDownward,
+        contentDescription = null, // null porque es decorativo
+        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+        modifier = modifier
+    )
 }
 

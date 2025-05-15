@@ -53,9 +53,8 @@ object ScreenRoutes {
     fun perfilDetalle(idAlumno: Long) = "PerfilDetalleScreen/$idAlumno"
     fun ofertaDetalleDesdeNotificacion(idOferta: Long) = "$OfertaDetalle/$idOferta?modoNotificacion=true"
     fun perfilDetalleDesdeInvitacion(idAlumno: Long, idOferta: Long) = "$PerfilDetalle/$idAlumno/$idOferta"
-    fun perfilDetalleDesdeNotificacion(idAlumno: Long, idOferta: Long) =
-        "PerfilDetalleScreen/$idAlumno/$idOferta?desdeNotificacion=true"
-
+    fun perfilDetalleDesdeNotificacion(idAlumno: Long, idOferta: Long) = "PerfilDetalleScreen/$idAlumno/$idOferta?desdeNotificacion=true"
+    fun ofertaDetalleDesdeMisOfertas(idOferta: Long) = "OfertaDetalleScreen/$idOferta?desdeMisOfertas=true"
 
 }
 
@@ -234,6 +233,27 @@ fun AppNavigation(
                 idAlumno = idAlumno,
                 idOfertaPreSeleccionada = idOferta,
                 desdeNotificacion = desdeNotificacion
+            )
+        }
+
+        composable(
+            route = "${ScreenRoutes.OfertaDetalle}/{idOferta}?desdeMisOfertas={desdeMisOfertas}",
+            arguments = listOf(
+                navArgument("idOferta") { type = NavType.LongType },
+                navArgument("desdeMisOfertas") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
+        ) { backStackEntry ->
+            val idOferta = backStackEntry.arguments?.getLong("idOferta") ?: 0L
+            val desdeMisOfertas = backStackEntry.arguments?.getBoolean("desdeMisOfertas") ?: false
+
+            OfertaDetalleScreen(
+                navController = navController,
+                sessionViewModel = sessionViewModel,
+                idOferta = idOferta,
+                desdeMisOfertas = desdeMisOfertas
             )
         }
 

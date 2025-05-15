@@ -25,6 +25,7 @@ public class NotificacionController {
 
     @GetMapping("/empresa/{empresaId}")
     public List<Notificacion> obtenerNotificacionesEmpresa(@PathVariable Long empresaId) {
+    	  System.out.println("📩 Buscando notificaciones para empresa ID: " + empresaId);
         return notificacionRepository.findByDestinatarioTipoAndEmpresaId("empresa", empresaId);
     }
     
