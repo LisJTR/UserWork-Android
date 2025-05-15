@@ -27,4 +27,10 @@ public class NotificacionController {
     public List<Notificacion> obtenerNotificacionesEmpresa(@PathVariable Long empresaId) {
         return notificacionRepository.findByDestinatarioTipoAndEmpresaId("empresa", empresaId);
     }
+    
+    @PutMapping
+    public Notificacion actualizarNotificacion(@RequestBody Notificacion notificacion) {
+        return notificacionRepository.save(notificacion);
+    }
+
 }

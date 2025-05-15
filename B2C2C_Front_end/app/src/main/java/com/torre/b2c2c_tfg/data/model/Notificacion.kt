@@ -21,7 +21,7 @@ data class Notificacion(
     @SerializedName("leido")
     val leido: Boolean = false,
     @SerializedName("estado_respuesta")
-    val estadoRespuesta: String = "pendiente",
+    val estadoRespuesta: String? = "pendiente",
     @SerializedName("fecha")
     val fecha: String? = null
 )
