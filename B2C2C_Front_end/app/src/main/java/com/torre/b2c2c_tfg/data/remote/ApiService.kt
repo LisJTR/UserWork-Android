@@ -6,6 +6,7 @@ import com.torre.b2c2c_tfg.data.model.Empresa
 import com.torre.b2c2c_tfg.data.model.Invitacion
 import com.torre.b2c2c_tfg.data.model.LoginRequest
 import com.torre.b2c2c_tfg.data.model.LoginResponse
+import com.torre.b2c2c_tfg.data.model.Notificacion
 import com.torre.b2c2c_tfg.data.model.Oferta
 import retrofit2.Response
 import retrofit2.http.Body
@@ -14,6 +15,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 // Interfaz que define las llamadas HTTP al back-end
 // Retrofit necesita esta interfaz para construir las peticiones
@@ -70,8 +72,8 @@ interface ApiService {
     @POST("api/oferta")
     suspend fun crearOferta(@Body oferta: Oferta): Response<Unit>
 
-    //@GET("api/oferta/perfil")
-    //suspend fun getOfertas(): List<Oferta>
+    @GET("api/oferta/perfil")
+    suspend fun getOfertasPerfil(): List<Oferta>
 
     @PUT("api/oferta/{id}")
     suspend fun updateOferta(
@@ -103,6 +105,12 @@ interface ApiService {
     @GET("api/aplicacion/alumno/{alumnoId}")
     suspend fun getAplicacionesPorAlumnoId(@Path("alumnoId") alumnoId: Long): List<AplicacionOferta>
 
+    @GET("api/aplicacion/existe")
+    suspend fun existeAplicacion(
+        @Query("alumnoId") alumnoId: Long,
+        @Query("ofertaId") ofertaId: Long
+    ): Boolean
+
     // -------------------------------------------------------------------
     // Peticiones HTTP de Invitaciones (Empresa)
 
@@ -111,6 +119,20 @@ interface ApiService {
 
     @GET("api/invitacion/empresa/{empresaId}")
     suspend fun getInvitacionesByEmpresaId(@Path("empresaId") empresaId: Long): List<Invitacion>
+
+
+    // -------------------------------------------------------------------
+    // Peticiones HTTP de Notificaciones (Alumno y Empresa)
+
+    @POST("api/notificacion")
+    suspend fun crearNotificacion(@Body notificacion: Notificacion): Response<Unit>
+
+    @GET("api/notificacion/alumno/{id}")
+    suspend fun getNotificacionesPorAlumno(@Path("id") id: Long): List<Notificacion>
+
+    @GET("api/notificacion/empresa/{id}")
+    suspend fun getNotificacionesPorEmpresa(@Path("id") id: Long): List<Notificacion>
+
 
 
 }

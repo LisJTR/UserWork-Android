@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/oferta")
@@ -31,9 +32,17 @@ public class OfertaController {
     }
 
     @PostMapping
-    public Oferta createOferta(@RequestBody Oferta oferta) {
-    	  System.out.println("Recibida oferta: " + oferta);
-        return ofertaRepository.save(oferta);
+    public ResponseEntity<?> createOferta(@RequestBody Oferta oferta) {
+        try {
+            System.out.println("🟢 Recibida oferta: " + oferta);
+            Oferta saved = ofertaRepository.save(oferta);
+            System.out.println("✅ Oferta guardada con ID: " + saved.getId());
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            System.out.println("❌ Error al guardar la oferta:");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar la oferta");
+        }
     }
 
     @PutMapping("/perfil") // <- Aquí el path ya incluye "/api/alumno"

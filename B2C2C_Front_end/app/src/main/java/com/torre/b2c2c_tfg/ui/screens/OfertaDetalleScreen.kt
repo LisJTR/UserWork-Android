@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,13 +21,17 @@ import androidx.navigation.NavController
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.torre.b2c2c_tfg.data.model.AplicacionOferta
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.data.repository.AplicacionOfertaRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.EmpresaRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
+import com.torre.b2c2c_tfg.domain.usecase.ComprobarAplicacionExistenteUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearAplicacionOfertaUseCase
+import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertaByIdUseCase
 import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
@@ -49,7 +54,9 @@ fun OfertaDetalleScreen(
         OfertaDetalleScreenViewModel(
             getOfertaByIdUseCase = GetOfertaByIdUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
             getEmpresaUseCase = GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
-            crearAplicacionOfertaUseCase = CrearAplicacionOfertaUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
+            crearAplicacionOfertaUseCase = CrearAplicacionOfertaUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            crearNotificacionUseCase = CrearNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            comprobarAplicacionExistenteUseCase = ComprobarAplicacionExistenteUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
 
@@ -57,9 +64,16 @@ fun OfertaDetalleScreen(
         viewModel.cargarOfertaConEmpresa(idOferta)
     }
 
+    val alumnoId = sessionViewModel.userId.collectAsState().value ?: 0L
+
+    LaunchedEffect(alumnoId, idOferta) {
+        viewModel.comprobarSiYaAplicada(alumnoId, idOferta)
+    }
+
     val empresa by viewModel.empresa.collectAsState()
     val oferta by viewModel.oferta.collectAsState()
     val aplicacionExitosa by viewModel.aplicacionExitosa.collectAsState()
+    val yaAplicada by viewModel.yaAplicada.collectAsState()
 
     LaunchedEffect(aplicacionExitosa) {
         when (aplicacionExitosa) {
@@ -124,27 +138,37 @@ fun OfertaDetalleScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 TextInputLabel(text = "Título")
-                SectionDescription(text = it.titulo)
+                SectionDescription(text = it.titulo ?: "-")
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 TextInputLabel(text = "Qué se ofrece")
-                SectionDescription(text = it.queSeOfrece)
+                SectionDescription(text = it.queSeOfrece ?: "-")
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 TextInputLabel(text = "Aptitudes")
-                SectionDescription(text = it.aptitudes)
+                SectionDescription(text = it.aptitudes ?: "-")
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 TextInputLabel(text = "Descripción de la oferta")
-                SectionDescription(text = it.descripcion)
+                SectionDescription(text = it.descripcion ?: "-")
             }
         }
 
         Spacer(modifier = Modifier.height(30.dp))
 
+        if (yaAplicada) {
+            Text(
+                text = "✅ Ya has aplicado a esta oferta.",
+                color = Color.Green,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+        }
         ButtonGeneric(
             text = "APLICAR",
             onClick = {
@@ -156,7 +180,8 @@ fun OfertaDetalleScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp)
+                .padding(horizontal = 32.dp),
+            enabled = !yaAplicada
         )
 
     }

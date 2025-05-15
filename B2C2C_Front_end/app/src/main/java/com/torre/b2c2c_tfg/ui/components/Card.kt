@@ -37,7 +37,7 @@ fun OfferCardForm(
     title: String,
     description: String,
     aptitudes: String,
-    queSeOfrece: String,
+    queSeOfrece:  String = "",
     isPublic: Boolean, // variable para controlar la visibilidad
     isSaved: Boolean, // variable para controlar si se ha guardado
     onTitleChange: (String) -> Unit,

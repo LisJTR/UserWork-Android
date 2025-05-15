@@ -33,4 +33,9 @@ public class AplicacionOfertaController {
     public List<AplicacionOferta> getTodas() {
         return aplicacionRepository.findAll();
     }
+    
+    @GetMapping("/existe")
+    public boolean existeAplicacion(@RequestParam Long alumnoId, @RequestParam Long ofertaId) {
+        return aplicacionRepository.existsByAlumnoIdAndOfertaId(alumnoId, ofertaId);
+    }
 }

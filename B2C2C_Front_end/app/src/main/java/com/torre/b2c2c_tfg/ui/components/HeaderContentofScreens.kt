@@ -19,6 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.OfertasScreenViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 
@@ -26,7 +28,8 @@ import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 fun HeaderContentofScreens(
     sessionViewModel: SessionViewModel,
     viewModel: OfertasScreenViewModel,
-    onFiltroSeleccionado: (String) -> Unit
+    onFiltroSeleccionado: (String) -> Unit,
+    navController: NavController
 ) {
     val userId = sessionViewModel.userId.collectAsState().value ?: 0L
     val userType = sessionViewModel.userType.collectAsState().value
@@ -53,7 +56,9 @@ fun HeaderContentofScreens(
                 .padding(end = 16.dp),
             horizontalArrangement = Arrangement.End
         ) {
-            IconMessage(onClick = { /* mensajes */ })
+            IconMessage(onClick = {
+                navController.navigate(ScreenRoutes.Notification)
+            })
         }
 
         // Mostrar el perfil según tipo

@@ -76,6 +76,7 @@ fun MisOfertasScreen(
         if (userType == "alumno") {
             headerViewModel.cargarAlumno(userId)
             headerViewModel.cargarEmpresas()
+            viewModel.cargarOfertasAplicadas(userId)
         } else {
             headerViewModel.cargarEmpresa(userId)
             viewModel.cargarOfertasAplicadas(userId)
@@ -91,7 +92,8 @@ fun MisOfertasScreen(
             HeaderContentofScreens(
                 sessionViewModel = sessionViewModel,
                 viewModel = headerViewModel,
-                onFiltroSeleccionado = {}, // no se usa aquí
+                onFiltroSeleccionado = {},
+                navController = navController
             )
         }
 

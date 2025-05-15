@@ -26,14 +26,20 @@ import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.ui.graphics.Color
 import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.data.model.Oferta
 import com.torre.b2c2c_tfg.data.repository.InvitacionRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.CrearInvitacionUseCase
+import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
 import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
 import com.torre.b2c2c_tfg.ui.components.FiltroDropdown
 import com.torre.b2c2c_tfg.ui.components.OfertaSeleccionDialog
+import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
+
+
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -45,6 +51,7 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
     var showDialog by remember { mutableStateOf(false) }
     var ofertaSeleccionadaTitulo by remember { mutableStateOf("OFERTAS ACTIVAS") }
     var ofertaSeleccionadaId by remember { mutableStateOf<Long?>(null) }
+
 
     LaunchedEffect(empresaId) {
         try {
@@ -60,7 +67,10 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
     val viewModel = remember {
         PerfilDetalleViewModel(
             getAlumnoUseCase = GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
-            crearInvitacionUseCase = CrearInvitacionUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context)))
+            crearInvitacionUseCase = CrearInvitacionUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            crearNotificacionUseCase = CrearNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getInvitacionesPorEmpresaUseCase = GetInvitacionPorEmpresaUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context)))
+
         )
     }
 
@@ -68,6 +78,7 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
 
     LaunchedEffect(idAlumno) {
         viewModel.cargarAlumno(idAlumno)
+        viewModel.cargarInvitacionesEnviadas(empresaId, idAlumno)
     }
 
     alumno?.let {
@@ -138,7 +149,20 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
                         text = ofertaSeleccionadaTitulo,
                         onClick = { showDialog = true }
                     )
+                    val ofertasYaUsadas = viewModel.idsOfertasYaUsadas.collectAsState().value
 
+                    val todasUsadas = listaOfertas.all { it.id?.toLong() in ofertasYaUsadas }
+
+
+                    if (todasUsadas) {
+                        Text(
+                            text = "Ya se ha mostrado interés en el usuario en todas las ofertas disponibles.",
+                            color = Color.Gray,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                    val yaInvitada = ofertaSeleccionadaId in ofertasYaUsadas
                     ButtonGeneric(
                         text = "INTERESADO",
                         onClick = {
@@ -155,13 +179,17 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
                                 Toast.makeText(context, "Selecciona una oferta válida antes de continuar", Toast.LENGTH_SHORT).show()
                             }
                         },
-                        enabled = ofertaSeleccionadaId != null // desactivado si no hay selección
+                        enabled = ofertaSeleccionadaId != null && !yaInvitada // desactivado si no hay selección
                     )
                 }
+                val ofertasYaUsadas = viewModel.idsOfertasYaUsadas.collectAsState().value
                 OfertaSeleccionDialog(
                     showDialog = showDialog,
                     onDismiss = { showDialog = false },
                     ofertas = listaOfertas.map { it.titulo },
+                    deshabilitadas = listaOfertas
+                        .filter { it.id?.toLong() in ofertasYaUsadas }
+                        .map { it.titulo },
                     onSeleccion = { seleccionTitulo ->
                         val ofertaSeleccionada = listaOfertas.find { it.titulo == seleccionTitulo }
                         ofertaSeleccionadaTitulo = seleccionTitulo

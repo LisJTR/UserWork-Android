@@ -22,11 +22,12 @@ class OfertaViewModel(
     fun guardarOferta(oferta: Oferta, onResult: (Oferta?) -> Unit = {}) {
         viewModelScope.launch {
             try {
+                println("🛠️ Enviando oferta: $oferta")
                 val resultado = crearOfertaUseCase(oferta)
-                println("Resultado guardar oferta: $resultado")
-                onResult(if (resultado) oferta else null) // devuélvelo al llamador
+                println("✅ Resultado guardar oferta: $resultado")
+                onResult(if (resultado) oferta else null)
             } catch (e: Exception) {
-                println("Error guardando oferta: ${e.message}")
+                println("❌ Error guardando oferta: ${e.message}")
                 onResult(null)
             }
         }
