@@ -126,7 +126,7 @@ fun MisOfertasScreen(
                         descripcion = oferta.titulo,
                         imagenUrl = alumno.imagen,
                         onClick = {
-                            navController.navigate(ScreenRoutes.perfilDetalle(alumno.id?.toLong() ?: 0L))
+                            navController.navigate(ScreenRoutes.perfilDetalleDesdeInvitacion(alumno.id?.toLong() ?: 0L, oferta.id?.toLong() ?: 0L))
                         }
                     )
                 }

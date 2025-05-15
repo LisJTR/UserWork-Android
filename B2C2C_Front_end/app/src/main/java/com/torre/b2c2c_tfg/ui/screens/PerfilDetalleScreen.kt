@@ -44,7 +44,7 @@ import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionViewModel: SessionViewModel) {
+fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionViewModel: SessionViewModel, idOfertaPreSeleccionada: Long? = null, desdeNotificacion: Boolean = false) {
     val context = LocalContext.current
     val empresaId = sessionViewModel.userId.collectAsState().value ?: 0L
     var listaOfertas by remember { mutableStateOf<List<Oferta>>(emptyList()) }
@@ -81,6 +81,20 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
         viewModel.cargarInvitacionesEnviadas(empresaId, idAlumno)
     }
 
+    LaunchedEffect(empresaId) {
+        val repo = OfertaRepositoryImpl(RetrofitInstance.getInstance(context))
+        val useCase = GetOfertasUseCase(repo)
+        listaOfertas = useCase(empresaId).filter { it.publicada }
+
+        // Si venimos de MisOfertasScreen, seleccionamos la oferta automáticamente y deshabilitamos el botón
+        if (idOfertaPreSeleccionada != null) {
+            val seleccionada = listaOfertas.find { it.id?.toLong() == idOfertaPreSeleccionada }
+            ofertaSeleccionadaTitulo = seleccionada?.titulo ?: "OFERTA ASOCIADA"
+            ofertaSeleccionadaId = idOfertaPreSeleccionada
+            showDialog = false // No permitir abrir el selector
+        }
+    }
+
     alumno?.let {
         Column {
             // Flecha volver arriba a la izquierda
@@ -99,7 +113,9 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
                 nombre = "${it.nombre} ${it.apellido}"
             )
 
-            // Info del alumno
+
+
+                // Info del alumno
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -107,6 +123,15 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
                 .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+            // Mostrar título de la oferta solo si venimos de notificación
+
+                if (desdeNotificacion && ofertaSeleccionadaTitulo.isNotBlank()) {
+                    Text(
+                        text = "Aplicando: $ofertaSeleccionadaTitulo",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
                 TextInputLabel("Teléfono: ${it.telefono}")
                 TextInputLabel("Email: ${it.correoElectronico ?: "No disponible"}")
                 TextInputLabel("Ciudad: ${it.ciudad}")
@@ -128,6 +153,7 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
 
                 // Botones
                 Spacer(modifier = Modifier.height(16.dp))
+
                 // Botón "Ver CV" centrado arriba
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -140,47 +166,86 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-            // Botones "OFERTAS" e "INTERESADO" centrados debajo
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    ButtonGeneric(
-                        text = ofertaSeleccionadaTitulo,
-                        onClick = { showDialog = true }
-                    )
-                    val ofertasYaUsadas = viewModel.idsOfertasYaUsadas.collectAsState().value
-
-                    val todasUsadas = listaOfertas.all { it.id?.toLong() in ofertasYaUsadas }
-
-
-                    if (todasUsadas) {
-                        Text(
-                            text = "Ya se ha mostrado interés en el usuario en todas las ofertas disponibles.",
-                            color = Color.Gray,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                if (desdeNotificacion) {
+                    // Mostrar botones SELECCIONADO / DESCARTADO
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        ButtonGeneric(
+                            text = "SELECCIONADO",
+                            onClick = {
+                                Toast.makeText(context, "Alumno seleccionado", Toast.LENGTH_SHORT).show()
+                                // lógica adicional
+                            }
+                        )
+                        ButtonGeneric(
+                            text = "DESCARTADO",
+                            onClick = {
+                                Toast.makeText(context, "Alumno descartado", Toast.LENGTH_SHORT).show()
+                                // lógica adicional
+                            }
                         )
                     }
-                    val yaInvitada = ofertaSeleccionadaId in ofertasYaUsadas
-                    ButtonGeneric(
-                        text = "INTERESADO",
-                        onClick = {
-                            println("🟢 Botón INTERESADO pulsado con ID: $ofertaSeleccionadaId")
+                } else {
+                    // Botones "OFERTAS" e "INTERESADO" centrados debajo
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        ButtonGeneric(
+                            text = ofertaSeleccionadaTitulo,
+                            onClick = {
+                                if (idOfertaPreSeleccionada == null) {
+                                    showDialog = true
+                                }
+                            },
+                            enabled = idOfertaPreSeleccionada == null
+                        )
 
-                            if (ofertaSeleccionadaId != null) {
-                                viewModel.enviarInvitacion(
-                                    idEmpresa = empresaId,
-                                    idOferta = ofertaSeleccionadaId!!,
-                                    idAlumno = idAlumno
-                                )
-                                Toast.makeText(context, "Interesado a la oferta", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Selecciona una oferta válida antes de continuar", Toast.LENGTH_SHORT).show()
-                            }
-                        },
-                        enabled = ofertaSeleccionadaId != null && !yaInvitada // desactivado si no hay selección
-                    )
+                        val ofertasYaUsadas = viewModel.idsOfertasYaUsadas.collectAsState().value
+                        val yaInvitada = ofertaSeleccionadaId in ofertasYaUsadas
+
+
+                        val todasUsadas = listaOfertas.all { it.id?.toLong() in ofertasYaUsadas }
+
+
+                        if (todasUsadas) {
+                            Text(
+                                text = "Ya se ha mostrado interés en el usuario en todas las ofertas disponibles.",
+                                color = Color.Gray,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        }
+
+                        ButtonGeneric(
+                            text = "INTERESADO",
+                            onClick = {
+                                println("🟢 Botón INTERESADO pulsado con ID: $ofertaSeleccionadaId")
+
+                                if (ofertaSeleccionadaId != null) {
+                                    viewModel.enviarInvitacion(
+                                        idEmpresa = empresaId,
+                                        idOferta = ofertaSeleccionadaId!!,
+                                        idAlumno = idAlumno
+                                    )
+                                    Toast.makeText(
+                                        context,
+                                        "Interesado a la oferta",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Selecciona una oferta válida antes de continuar",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            enabled = ofertaSeleccionadaId != null && !yaInvitada // desactivado si no hay selección
+                        )
+                    }
                 }
                 val ofertasYaUsadas = viewModel.idsOfertasYaUsadas.collectAsState().value
                 OfertaSeleccionDialog(
@@ -196,11 +261,7 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
                         ofertaSeleccionadaId = ofertaSeleccionada?.id?.toLong()
                     }
                 )
-
             }
         }
-    } ?: run {
-        // Puedes mostrar un loading o error si lo deseas
-        Text("Cargando...")
     }
 }
