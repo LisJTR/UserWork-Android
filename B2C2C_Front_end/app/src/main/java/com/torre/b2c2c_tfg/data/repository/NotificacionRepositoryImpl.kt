@@ -32,5 +32,46 @@ class NotificacionRepositoryImpl(private val api: ApiService) : NotificacionRepo
         }
     }
 
+    override suspend fun actualizarNotificacion(notificacion: Notificacion): Boolean {
+        return try {
+            api.actualizarNotificacion(notificacion)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    override suspend fun actualizarEstadoRespuesta(id: Long, estado: String): Boolean {
+        return try {
+            val response = api.actualizarEstadoRespuesta(id, estado)
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+
+        }
+
+    override suspend fun marcarNotificacionComoLeida(id: Long): Boolean {
+        return try {
+            val response = api.marcarNotificacionComoLeida(id)
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+
+    }
+
+    override suspend fun getNotificacionPorId(id: Long): Notificacion? {
+        return try {
+            api.getNotificacionPorId(id)
+        } catch (e: Exception) {
+            println("❌ Error al obtener notificación por ID: ${e.message}")
+            null
+        }
+    }
+
+
+
+
 
 }

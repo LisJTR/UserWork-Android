@@ -1,6 +1,5 @@
 package com.torre.b2c2c_tfg.ui.screens
 
-import android.graphics.drawable.Icon
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -24,27 +23,33 @@ import com.torre.b2c2c_tfg.ui.components.VisualHabilidadChip
 import com.torre.b2c2c_tfg.ui.viewmodel.PerfilDetalleViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.ui.graphics.Color
 import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.data.model.Oferta
 import com.torre.b2c2c_tfg.data.repository.InvitacionRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
+import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearInvitacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
-import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
-import com.torre.b2c2c_tfg.ui.components.FiltroDropdown
+import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
 import com.torre.b2c2c_tfg.ui.components.OfertaSeleccionDialog
 import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
-
-
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionPorIdUseCase
+import com.torre.b2c2c_tfg.ui.components.IconArrowDown
 
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionViewModel: SessionViewModel) {
+fun PerfilDetalleScreen(
+    navController: NavController,
+    idAlumno: Long,
+    sessionViewModel: SessionViewModel,
+    idOfertaPreSeleccionada: Long? = null,
+    desdeNotificacion: Boolean = false,
+    idNotificacion: Long? = null
+
+) {
     val context = LocalContext.current
     val empresaId = sessionViewModel.userId.collectAsState().value ?: 0L
     var listaOfertas by remember { mutableStateOf<List<Oferta>>(emptyList()) }
@@ -52,38 +57,48 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
     var ofertaSeleccionadaTitulo by remember { mutableStateOf("OFERTAS ACTIVAS") }
     var ofertaSeleccionadaId by remember { mutableStateOf<Long?>(null) }
 
-
-    LaunchedEffect(empresaId) {
-        try {
-            println(">> ID EMPRESA USUARIO ACTUAL: $empresaId")
-            val repo = OfertaRepositoryImpl(RetrofitInstance.getInstance(context))
-            val useCase = GetOfertasUseCase(repo)
-            listaOfertas = useCase(empresaId).filter { it.publicada }
-            println(">> OFERTAS CARGADAS: ${listaOfertas.map { it.titulo }}")
-        } catch (e: Exception) {
-            println("Error cargando ofertas: ${e.message}")
-        }
-    }
     val viewModel = remember {
         PerfilDetalleViewModel(
             getAlumnoUseCase = GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
             crearInvitacionUseCase = CrearInvitacionUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context))),
             crearNotificacionUseCase = CrearNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
-            getInvitacionesPorEmpresaUseCase = GetInvitacionPorEmpresaUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context)))
-
+            getInvitacionesPorEmpresaUseCase = GetInvitacionPorEmpresaUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getNotificacionPorIdUseCase = GetNotificacionPorIdUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
         )
     }
 
     val alumno by viewModel.alumno.collectAsState()
+    val ofertasYaUsadas = viewModel.idsOfertasYaUsadas.collectAsState().value
 
     LaunchedEffect(idAlumno) {
         viewModel.cargarAlumno(idAlumno)
         viewModel.cargarInvitacionesEnviadas(empresaId, idAlumno)
     }
 
+    LaunchedEffect(empresaId) {
+        val repo = OfertaRepositoryImpl(RetrofitInstance.getInstance(context))
+        val useCase = GetOfertasUseCase(repo)
+        listaOfertas = useCase(empresaId).filter { it.publicada }
+        if (idOfertaPreSeleccionada != null) {
+            val seleccionada = listaOfertas.find { it.id?.toLong() == idOfertaPreSeleccionada }
+            ofertaSeleccionadaTitulo = seleccionada?.titulo ?: "OFERTA ASOCIADA"
+            ofertaSeleccionadaId = idOfertaPreSeleccionada
+            showDialog = false
+        }
+    }
+    val estadoRespuestaBackend by viewModel.estadoRespuesta.collectAsState()
+    val tipoNotificacionBackend by viewModel.tipoNotificacion.collectAsState()
+
+    LaunchedEffect(idNotificacion) {
+        idNotificacion?.let { viewModel.cargarEstadoRespuesta(it) }
+        println("🪵 PerfilDetalleScreen - idNotificacion recibido: $idNotificacion")
+
+    }
+
+
     alumno?.let {
         Column {
-            // Flecha volver arriba a la izquierda
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,20 +108,23 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
                 IconArrowBack(onClick = { navController.popBackStack() })
             }
 
-            // Cabecera con foto y nombre
-            PerfilDetalleHeader(
-                imagenUrl = it.imagen,
-                nombre = "${it.nombre} ${it.apellido}"
-            )
+            PerfilDetalleHeader(imagenUrl = it.imagen, nombre = "${it.nombre} ${it.apellido}")
 
-            // Info del alumno
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(24.dp)
-                .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                if (desdeNotificacion && ofertaSeleccionadaTitulo.isNotBlank()) {
+                    Text(
+                        text = "Aplicando: $ofertaSeleccionadaTitulo",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+
                 TextInputLabel("Teléfono: ${it.telefono}")
                 TextInputLabel("Email: ${it.correoElectronico ?: "No disponible"}")
                 TextInputLabel("Ciudad: ${it.ciudad}")
@@ -117,90 +135,114 @@ fun PerfilDetalleScreen(navController: NavController, idAlumno: Long, sessionVie
                 TextInputLabel("Habilidades:")
 
                 FlowRow {
-                    it.habilidades
-                        .split(",") // o ajusta si usas espacios o puntos y coma
-                        .map { habilidad -> habilidad.trim() }
-                        .filter { it.isNotBlank() }
-                        .forEach { habilidad ->
-                            VisualHabilidadChip(habilidad)
-                        }
+                    it.habilidades.split(",").map { h -> h.trim() }.filter { it.isNotBlank() }.forEach {
+                        VisualHabilidadChip(it)
+                    }
                 }
 
-                // Botones
                 Spacer(modifier = Modifier.height(16.dp))
-                // Botón "Ver CV" centrado arriba
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    ButtonGeneric(text = "Ver CV", onClick = {
-                        // TODO: Acción para ver el CV
-                    })
+                    ButtonGeneric(text = "Ver CV", onClick = {})
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-            // Botones "OFERTAS" e "INTERESADO" centrados debajo
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    ButtonGeneric(
-                        text = ofertaSeleccionadaTitulo,
-                        onClick = { showDialog = true }
-                    )
-                    val ofertasYaUsadas = viewModel.idsOfertasYaUsadas.collectAsState().value
+                if (desdeNotificacion) {
+                    if (estadoRespuestaBackend == null || estadoRespuestaBackend == "pendiente") {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            ButtonGeneric(text = "SELECCIONADO",
+                                onClick = {
+                                    idNotificacion?.let {
+                                        viewModel.responderNotificacion(it, "seleccionado")
+                                        Toast.makeText(context, "Alumno seleccionado", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
+                            ButtonGeneric(text = "DESCARTADO",
+                                onClick = {
+                                    idNotificacion?.let {
+                                        viewModel.responderNotificacion(it, "descartado")
+                                        Toast.makeText(context, "Alumno descartado", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
+                        }
+                    } else {
+                        if (tipoNotificacionBackend != "respuesta") {
+                            Text(
+                                text = "Ya has respondido: ${estadoRespuestaBackend!!.uppercase()}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(vertical = 16.dp)
+                            )
+                        } else {
+                            Text(
+                                text = estadoRespuestaBackend!!.uppercase(),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(vertical = 16.dp)
+                            )
+                        }
+                    }
 
+                } else {
+                    val yaInvitada = ofertaSeleccionadaId in ofertasYaUsadas
                     val todasUsadas = listaOfertas.all { it.id?.toLong() in ofertasYaUsadas }
 
-
-                    if (todasUsadas) {
-                        Text(
-                            text = "Ya se ha mostrado interés en el usuario en todas las ofertas disponibles.",
-                            color = Color.Gray,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        ButtonGeneric(
+                            text = ofertaSeleccionadaTitulo,
+                            onClick = { if (idOfertaPreSeleccionada == null) showDialog = true },
+                            enabled = idOfertaPreSeleccionada == null,
+                            modifier = Modifier.wrapContentWidth()
                         )
-                    }
-                    val yaInvitada = ofertaSeleccionadaId in ofertasYaUsadas
-                    ButtonGeneric(
-                        text = "INTERESADO",
-                        onClick = {
-                            println("🟢 Botón INTERESADO pulsado con ID: $ofertaSeleccionadaId")
 
-                            if (ofertaSeleccionadaId != null) {
-                                viewModel.enviarInvitacion(
-                                    idEmpresa = empresaId,
-                                    idOferta = ofertaSeleccionadaId!!,
-                                    idAlumno = idAlumno
-                                )
-                                Toast.makeText(context, "Interesado a la oferta", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Selecciona una oferta válida antes de continuar", Toast.LENGTH_SHORT).show()
-                            }
-                        },
-                        enabled = ofertaSeleccionadaId != null && !yaInvitada // desactivado si no hay selección
-                    )
+                        ButtonGeneric(
+                            text = "INTERESADO",
+                            onClick = {
+                                ofertaSeleccionadaId?.let {
+                                    viewModel.enviarInvitacion(empresaId, it, idAlumno)
+                                    Toast.makeText(context, "Interesado a la oferta", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            enabled = ofertaSeleccionadaId != null && !yaInvitada,
+                            modifier = Modifier.wrapContentWidth()
+                        )
+
+                            if (todasUsadas) {
+                            Text(
+                                text = "Ya se ha mostrado interés en el usuario en todas las ofertas disponibles.",
+                                color = Color.Gray,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+                    }
                 }
-                val ofertasYaUsadas = viewModel.idsOfertasYaUsadas.collectAsState().value
+
                 OfertaSeleccionDialog(
                     showDialog = showDialog,
                     onDismiss = { showDialog = false },
                     ofertas = listaOfertas.map { it.titulo },
-                    deshabilitadas = listaOfertas
-                        .filter { it.id?.toLong() in ofertasYaUsadas }
-                        .map { it.titulo },
+                    deshabilitadas = listaOfertas.filter { it.id?.toLong() in ofertasYaUsadas }.map { it.titulo },
                     onSeleccion = { seleccionTitulo ->
                         val ofertaSeleccionada = listaOfertas.find { it.titulo == seleccionTitulo }
                         ofertaSeleccionadaTitulo = seleccionTitulo
                         ofertaSeleccionadaId = ofertaSeleccionada?.id?.toLong()
                     }
                 )
-
             }
         }
-    } ?: run {
-        // Puedes mostrar un loading o error si lo deseas
-        Text("Cargando...")
     }
 }

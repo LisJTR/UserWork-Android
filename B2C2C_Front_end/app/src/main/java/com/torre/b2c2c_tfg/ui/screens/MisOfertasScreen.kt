@@ -18,11 +18,15 @@ import com.torre.b2c2c_tfg.data.repository.AlumnoRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.AplicacionOfertaRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.EmpresaRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.InvitacionRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
+import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetAplicacionesPorAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorAlumnoUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetSectoresUnicosUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTitulacionesUnicasUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTodasLasOfertasUseCase
@@ -33,6 +37,7 @@ import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.MisOfertasScreenViewModel
+import com.torre.b2c2c_tfg.ui.viewmodel.NotificationViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.OfertasScreenViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 
@@ -64,6 +69,16 @@ fun MisOfertasScreen(
         )
     }
 
+    val notificationViewModel = remember {
+        NotificationViewModel(
+            getNotificacionesPorAlumnoUseCase = GetNotificacionesPorAlumnoUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getNotificacionesPorEmpresaUseCase = GetNotificacionesPorEmpresaUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context)))
+        )
+    }
+
+    val notificaciones by notificationViewModel.notificaciones.collectAsState()
+
     val userId = sessionViewModel.userId.collectAsState().value ?: 0L
     val userType = sessionViewModel.userType.collectAsState().value
     val ofertas by viewModel.ofertasAplicadas.collectAsState()
@@ -77,7 +92,9 @@ fun MisOfertasScreen(
             headerViewModel.cargarAlumno(userId)
             headerViewModel.cargarEmpresas()
             viewModel.cargarOfertasAplicadas(userId)
+            notificationViewModel.cargarNotificaciones(userId, "alumno")
         } else {
+            notificationViewModel.cargarNotificaciones(userId, "empresa")
             headerViewModel.cargarEmpresa(userId)
             viewModel.cargarOfertasAplicadas(userId)
             viewModel.cargarInvitaciones(userId)
@@ -107,7 +124,14 @@ fun MisOfertasScreen(
                         descripcion = oferta.titulo,
                         imagenUrl = it.imagen,
                         onClick = {
-                            navController.navigate(ScreenRoutes.ofertaDetalle(oferta.id?.toLong() ?: 0L))
+                            val notificacionRelacionada = notificaciones.find {
+                                it.ofertaId == oferta.id?.toLong() && it.alumnoId == userId
+                            }
+
+                            val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
+                            navController.navigate(
+                                ScreenRoutes.ofertaDetalleDesdeMisOfertasAlumno(oferta.id?.toLong() ?: 0L, idNotificacion)
+                            )
                         }
                     )
                 }
@@ -126,7 +150,23 @@ fun MisOfertasScreen(
                         descripcion = oferta.titulo,
                         imagenUrl = alumno.imagen,
                         onClick = {
-                            navController.navigate(ScreenRoutes.perfilDetalle(alumno.id?.toLong() ?: 0L))
+                            val notificacionRelacionada = notificaciones.find {
+                                it.ofertaId == oferta.id?.toLong() &&
+                                        it.alumnoId == alumno.id?.toLong() &&
+                                        it.empresaId == userId
+                            }
+
+                            val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
+                            val estadoRespuesta = notificacionRelacionada?.estadoRespuesta ?: ""
+
+                            navController.navigate(
+                                ScreenRoutes.perfilDetalleDesdeMisOfertasEmpresa(
+                                    alumno.id?.toLong() ?: 0L,
+                                    oferta.id?.toLong() ?: 0L,
+                                    idNotificacion,
+                                    estadoRespuesta
+                                )
+                            )
                         }
                     )
                 }

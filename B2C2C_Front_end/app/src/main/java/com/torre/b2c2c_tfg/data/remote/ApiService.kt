@@ -133,6 +133,20 @@ interface ApiService {
     @GET("api/notificacion/empresa/{id}")
     suspend fun getNotificacionesPorEmpresa(@Path("id") id: Long): List<Notificacion>
 
+    @PUT("api/notificacion")
+    suspend fun actualizarNotificacion(@Body notificacion: Notificacion)
+
+    @PUT("api/notificacion/{id}/{estado}")
+    suspend fun actualizarEstadoRespuesta(
+        @Path("id") id: Long,
+        @Path("estado") estado: String
+    ): Response<Notificacion>
+
+    @PUT("api/notificacion/{id}/marcar-leida")
+    suspend fun marcarNotificacionComoLeida(@Path("id") id: Long): Response<Notificacion>
+
+    @GET("api/notificacion/{id}")
+    suspend fun getNotificacionPorId(@Path("id") id: Long): Notificacion
 
 
 }

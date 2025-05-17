@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notificacion")
@@ -25,6 +26,36 @@ public class NotificacionController {
 
     @GetMapping("/empresa/{empresaId}")
     public List<Notificacion> obtenerNotificacionesEmpresa(@PathVariable Long empresaId) {
+    	  System.out.println("📩 Buscando notificaciones para empresa ID: " + empresaId);
         return notificacionRepository.findByDestinatarioTipoAndEmpresaId("empresa", empresaId);
     }
+    
+    @PutMapping("/{id}/{estado}")
+    public Notificacion actualizarEstadoRespuesta(
+            @PathVariable Long id,
+            @PathVariable String estado) {
+
+        Notificacion notificacion = notificacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notificación no encontrada con ID: " + id));
+
+        notificacion.setEstadoRespuesta(estado);
+        return notificacionRepository.save(notificacion);
+    }
+    
+    @PutMapping("/{id}/marcar-leida")
+    public Notificacion marcarComoLeida(@PathVariable Long id) {
+        Notificacion notificacion = notificacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notificación no encontrada con ID: " + id));
+
+        notificacion.setLeido(true);
+        return notificacionRepository.save(notificacion);
+    }
+    
+    @GetMapping("/{id}")
+    public Notificacion obtenerNotificacionPorId(@PathVariable Long id) {
+        return notificacionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Notificación no encontrada con ID: " + id));
+    }
+
+
 }
