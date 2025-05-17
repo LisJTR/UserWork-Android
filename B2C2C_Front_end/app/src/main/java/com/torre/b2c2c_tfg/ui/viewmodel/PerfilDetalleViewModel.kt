@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.torre.b2c2c_tfg.data.model.Notificacion
+import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
 
 
@@ -18,7 +20,8 @@ class PerfilDetalleViewModel(
     private val getAlumnoUseCase: GetAlumnoUseCase,
     private val crearInvitacionUseCase: CrearInvitacionUseCase,
     private val crearNotificacionUseCase: CrearNotificacionUseCase,
-    private val getInvitacionesPorEmpresaUseCase: GetInvitacionPorEmpresaUseCase
+    private val getInvitacionesPorEmpresaUseCase: GetInvitacionPorEmpresaUseCase,
+    private val actualizarNotificacionUseCase: ActualizarNotificacionUseCase
 )
     : ViewModel() {
     private val _alumno = MutableStateFlow<Alumno?>(null)
@@ -71,6 +74,15 @@ class PerfilDetalleViewModel(
         }
     }
 
-
+    fun responderNotificacion(idNotificacion: Long, estadoRespuesta: String) {
+        viewModelScope.launch {
+            val exito = actualizarNotificacionUseCase(idNotificacion, estadoRespuesta)
+            if (!exito) {
+                println("❌ Error al actualizar estado de la notificación")
+            } else {
+                println("✅ Notificación actualizada correctamente")
+            }
+        }
+    }
 
 }

@@ -1,6 +1,5 @@
 package com.torre.b2c2c_tfg.ui.screens
 
-import android.graphics.drawable.Icon
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -24,18 +23,16 @@ import com.torre.b2c2c_tfg.ui.components.VisualHabilidadChip
 import com.torre.b2c2c_tfg.ui.viewmodel.PerfilDetalleViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.ui.graphics.Color
 import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.data.model.Oferta
 import com.torre.b2c2c_tfg.data.repository.InvitacionRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
+import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearInvitacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
-import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
-import com.torre.b2c2c_tfg.ui.components.FiltroDropdown
+import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
 import com.torre.b2c2c_tfg.ui.components.OfertaSeleccionDialog
 import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
 import com.torre.b2c2c_tfg.ui.components.IconArrowDown
@@ -48,7 +45,10 @@ fun PerfilDetalleScreen(
     idAlumno: Long,
     sessionViewModel: SessionViewModel,
     idOfertaPreSeleccionada: Long? = null,
-    desdeNotificacion: Boolean = false
+    desdeNotificacion: Boolean = false,
+    estadoRespuesta: String? = null,
+    idNotificacion: Long? = null
+
 ) {
     val context = LocalContext.current
     val empresaId = sessionViewModel.userId.collectAsState().value ?: 0L
@@ -62,7 +62,8 @@ fun PerfilDetalleScreen(
             getAlumnoUseCase = GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
             crearInvitacionUseCase = CrearInvitacionUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context))),
             crearNotificacionUseCase = CrearNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
-            getInvitacionesPorEmpresaUseCase = GetInvitacionPorEmpresaUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context)))
+            getInvitacionesPorEmpresaUseCase = GetInvitacionPorEmpresaUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
 
@@ -145,8 +146,22 @@ fun PerfilDetalleScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        ButtonGeneric(text = "SELECCIONADO", onClick = {})
-                        ButtonGeneric(text = "DESCARTADO", onClick = {})
+                        ButtonGeneric(text = "SELECCIONADO",
+                            onClick = {
+                                idNotificacion?.let {
+                                    viewModel.responderNotificacion(it, "seleccionado")
+                                    Toast.makeText(context, "Alumno seleccionado", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        )
+                        ButtonGeneric(text = "DESCARTADO",
+                            onClick = {
+                                idNotificacion?.let {
+                                    viewModel.responderNotificacion(it, "descartado")
+                                    Toast.makeText(context, "Alumno descartado", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        )
                     }
                 } else {
                     val yaInvitada = ofertaSeleccionadaId in ofertasYaUsadas
@@ -183,6 +198,10 @@ fun PerfilDetalleScreen(
                                 text = "INTERÉS MUTUO",
                                 onClick = {},
                                 enabled = false,
+                                containerColor = if (estadoRespuesta == "inter_mutuo")
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.surfaceVariant,
                                 modifier = Modifier.wrapContentWidth()
                             )
 
@@ -192,6 +211,10 @@ fun PerfilDetalleScreen(
                                 text = "NO INTERESADO",
                                 onClick = {},
                                 enabled = false,
+                                containerColor = if (estadoRespuesta == "no_interesado")
+                                    MaterialTheme.colorScheme.error
+                                else
+                                    MaterialTheme.colorScheme.surfaceVariant,
                                 modifier = Modifier.wrapContentWidth()
                             )
                         }

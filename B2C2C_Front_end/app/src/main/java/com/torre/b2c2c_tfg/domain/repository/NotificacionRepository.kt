@@ -7,5 +7,8 @@ interface NotificacionRepository {
     suspend fun getNotificacionesPorAlumno(id: Long): List<Notificacion>
     suspend fun getNotificacionesPorEmpresa(id: Long): List<Notificacion>
     suspend fun actualizarNotificacion(notificacion: Notificacion): Boolean
+    suspend fun actualizarEstadoRespuesta(id: Long, estado: String): Boolean
+    suspend fun marcarNotificacionComoLeida(id: Long): Boolean
+
 
 }
