@@ -12,6 +12,7 @@ coil = "2.4.0" # Version de Coil para introducir imagenes
 retrofit = "2.9.0" # Version de Retrofit para hacer peticiones
 okhttp = "4.11.0" # Version de OkHttp para hacer peticiones
 gson = "2.9.0" # Version de Gson para hacer peticiones
+datastore = "1.0.0" # Version de DataStore para guardar datos en el dispositivo (usado para el tema claro/oscuro)
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,7 +38,7 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = 
 retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "gson" } # Retrofit con Gson
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" } # OkHttp con logging
-
+datastorePreferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" } # DataStore para guardar datos en el dispositivo (usado para el tema claro/oscuro)
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
