@@ -12,16 +12,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.torre.b2c2c_tfg.data.model.AplicacionOferta
 import com.torre.b2c2c_tfg.data.model.Notificacion
+import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.ComprobarAplicacionExistenteUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
-
+import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
 
 class OfertaDetalleScreenViewModel(
-    private val getOfertaByIdUseCase: GetOfertaByIdUseCase,
-    private val getEmpresaUseCase: GetEmpresaUseCase,
-    private val crearAplicacionOfertaUseCase: CrearAplicacionOfertaUseCase,
-    private val crearNotificacionUseCase: CrearNotificacionUseCase,
-    private val comprobarAplicacionExistenteUseCase: ComprobarAplicacionExistenteUseCase
+private val getOfertaByIdUseCase: GetOfertaByIdUseCase,
+private val getEmpresaUseCase: GetEmpresaUseCase,
+private val crearAplicacionOfertaUseCase: CrearAplicacionOfertaUseCase,
+private val crearNotificacionUseCase: CrearNotificacionUseCase,
+private val comprobarAplicacionExistenteUseCase: ComprobarAplicacionExistenteUseCase,
+private val actualizarNotificacionUseCase: ActualizarNotificacionUseCase
 ) : ViewModel() {
 
     private val _oferta = MutableStateFlow<Oferta?>(null)
@@ -90,6 +92,17 @@ class OfertaDetalleScreenViewModel(
     fun comprobarSiYaAplicada(alumnoId: Long, ofertaId: Long) {
         viewModelScope.launch {
             _yaAplicada.value = comprobarAplicacionExistenteUseCase(alumnoId, ofertaId) // ✅ BIEN USADO
+        }
+    }
+
+    fun responderNotificacion(idNotificacion: Long, estadoRespuesta: String) {
+        viewModelScope.launch {
+            val exito = actualizarNotificacionUseCase(idNotificacion, estadoRespuesta)
+            if (!exito) {
+                println("❌ Error al actualizar estado de la notificación")
+            } else {
+                println("✅ Notificación actualizada correctamente")
+            }
         }
     }
 

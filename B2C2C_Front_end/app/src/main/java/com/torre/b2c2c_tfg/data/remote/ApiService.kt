@@ -136,5 +136,15 @@ interface ApiService {
     @PUT("api/notificacion")
     suspend fun actualizarNotificacion(@Body notificacion: Notificacion)
 
+    @PUT("api/notificacion/{id}/{estado}")
+    suspend fun actualizarEstadoRespuesta(
+        @Path("id") id: Long,
+        @Path("estado") estado: String
+    ): Response<Notificacion>
+
+    @PUT("api/notificacion/{id}/marcar-leida")
+    suspend fun marcarNotificacionComoLeida(@Path("id") id: Long): Response<Notificacion>
+
+
 
 }

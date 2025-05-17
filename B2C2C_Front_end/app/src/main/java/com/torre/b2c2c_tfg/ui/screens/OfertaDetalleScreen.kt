@@ -26,18 +26,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.torre.b2c2c_tfg.data.model.AplicacionOferta
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.data.repository.AplicacionOfertaRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.EmpresaRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
+import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.ComprobarAplicacionExistenteUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearAplicacionOfertaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertaByIdUseCase
 import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
 import com.torre.b2c2c_tfg.ui.components.IconArrowDown
@@ -47,14 +47,16 @@ import com.torre.b2c2c_tfg.ui.components.SectionDescription
 import com.torre.b2c2c_tfg.ui.components.TextInputLabel
 import com.torre.b2c2c_tfg.ui.components.TextTitle
 
-
 @Composable
 fun OfertaDetalleScreen(
     navController: NavController,
     sessionViewModel: SessionViewModel,
     idOferta: Long,
     modoNotificacion: Boolean = false, // Parámetro para determinar el modo de la pantalla
-    desdeMisOfertas: Boolean = false
+    desdeMisOfertas: Boolean = false,
+    estadoRespuesta: String? = null,
+    idNotificacion: Long? = null
+
 ) {
     val context = LocalContext.current
     val viewModel = remember {
@@ -63,7 +65,9 @@ fun OfertaDetalleScreen(
             getEmpresaUseCase = GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
             crearAplicacionOfertaUseCase = CrearAplicacionOfertaUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
             crearNotificacionUseCase = CrearNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
-            comprobarAplicacionExistenteUseCase = ComprobarAplicacionExistenteUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
+            comprobarAplicacionExistenteUseCase = ComprobarAplicacionExistenteUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context)))
+
         )
     }
 
@@ -177,20 +181,21 @@ fun OfertaDetalleScreen(
                 ButtonGeneric(
                     text = "INTERÉS MUTUO",
                     onClick = {
-                        // lógica para marcar como interés mutuo
-                        Toast.makeText(context, "Interés mutuo registrado", Toast.LENGTH_SHORT)
-                            .show()
-                    },
-                    modifier = Modifier.weight(1f)
+                        idNotificacion?.let {
+                            viewModel.responderNotificacion(it, "inter_mutuo")
+                            Toast.makeText(context, "Interés mutuo registrado", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 ButtonGeneric(
                     text = "NO INTERESADO",
                     onClick = {
-                        // lógica para marcar como no interesado
-                        Toast.makeText(context, "No interesado", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.weight(1f)
+                        idNotificacion?.let {
+                            viewModel.responderNotificacion(it, "no_interesado")
+                            Toast.makeText(context, "No interesado", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 )
             }
 
@@ -205,6 +210,10 @@ fun OfertaDetalleScreen(
                     text = "SELECCIONADO",
                     onClick = {},
                     enabled = false,
+                    containerColor = if (estadoRespuesta == "seleccionado")
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.width(200.dp)
                 )
                 IconArrowDown()
@@ -212,6 +221,10 @@ fun OfertaDetalleScreen(
                     text = "NO SELECCIONADO",
                     onClick = {},
                     enabled = false,
+                    containerColor = if (estadoRespuesta == "descartado")
+                        MaterialTheme.colorScheme.error
+                    else
+                        MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.width(200.dp)
                 )
                 IconArrowDown()

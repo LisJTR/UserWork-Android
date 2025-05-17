@@ -35,7 +35,8 @@ public class Notificacion {
     private String destinatarioTipo; // "alumno" o "empresa"
 
     private Boolean leido = false;
-
+    
+    @JsonProperty("estado_respuesta")
     @Column(name = "estado_respuesta")
     private String estadoRespuesta = "pendiente";
 
@@ -122,4 +123,13 @@ public class Notificacion {
     public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
+
+	@Override
+	public String toString() {
+		return "Notificacion [id=" + id + ", tipo=" + tipo + ", mensaje=" + mensaje + ", alumnoId=" + alumnoId
+				+ ", empresaId=" + empresaId + ", ofertaId=" + ofertaId + ", destinatarioTipo=" + destinatarioTipo
+				+ ", leido=" + leido + ", estadoRespuesta=" + estadoRespuesta + ", fecha=" + fecha + "]";
+	}
+    
+    
 }

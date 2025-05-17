@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notificacion")
@@ -29,9 +30,29 @@ public class NotificacionController {
         return notificacionRepository.findByDestinatarioTipoAndEmpresaId("empresa", empresaId);
     }
     
-    @PutMapping
-    public Notificacion actualizarNotificacion(@RequestBody Notificacion notificacion) {
+    @PutMapping("/{id}/{estado}")
+    public Notificacion actualizarEstadoRespuesta(
+            @PathVariable Long id,
+            @PathVariable String estado) {
+
+        Notificacion notificacion = notificacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notificación no encontrada con ID: " + id));
+
+        notificacion.setEstadoRespuesta(estado);
         return notificacionRepository.save(notificacion);
     }
+    
+    @PutMapping("/{id}/marcar-leida")
+    public Notificacion marcarComoLeida(@PathVariable Long id) {
+        Notificacion notificacion = notificacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notificación no encontrada con ID: " + id));
+
+        notificacion.setLeido(true);
+        return notificacionRepository.save(notificacion);
+    }
+    
+ 
+
+
 
 }

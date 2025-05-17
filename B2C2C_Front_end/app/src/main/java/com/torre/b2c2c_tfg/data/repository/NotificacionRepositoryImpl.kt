@@ -41,5 +41,30 @@ class NotificacionRepositoryImpl(private val api: ApiService) : NotificacionRepo
         }
     }
 
+    override suspend fun actualizarEstadoRespuesta(id: Long, estado: String): Boolean {
+        return try {
+            val response = api.actualizarEstadoRespuesta(id, estado)
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+
+        }
+
+    override suspend fun marcarNotificacionComoLeida(id: Long): Boolean {
+        return try {
+            val response = api.marcarNotificacionComoLeida(id)
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+
+    }
+
+
+
+
+
+
 
 }
