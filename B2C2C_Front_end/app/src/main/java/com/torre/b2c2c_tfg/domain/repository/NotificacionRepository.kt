@@ -9,6 +9,6 @@ interface NotificacionRepository {
     suspend fun actualizarNotificacion(notificacion: Notificacion): Boolean
     suspend fun actualizarEstadoRespuesta(id: Long, estado: String): Boolean
     suspend fun marcarNotificacionComoLeida(id: Long): Boolean
-
+    suspend fun getNotificacionPorId(id: Long): Notificacion?
 
 }

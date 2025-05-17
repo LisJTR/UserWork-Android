@@ -58,16 +58,17 @@ object ScreenRoutes {
     fun ofertaDetalle(idOferta: Long) = "$OfertaDetalle/$idOferta"
     // Detalle de perfil de alumno (sin oferta asociada)
     fun perfilDetalle(idAlumno: Long) = "$PerfilDetalle/$idAlumno"
-    // Detalle de oferta desde notificación (modo especial)
-    fun perfilDetalleDesdeMisOfertasEmpresa(idAlumno: Long, idOferta: Long) = "$PerfilDetalle/$idAlumno/$idOferta"
-    // Detalle de perfil de alumno desde mis ofertas (empresa), con oferta asociada
-    fun ofertaDetalleDesdeMisOfertasAlumno(idOferta: Long) = "$OfertaDetalle/$idOferta?desdeMisOfertas=true"
     // Detalle de perfil desde notificación, con todos los datos necesarios
     fun perfilDetalleDesdeNotificacionEmpresa(idAlumno: Long, idOferta: Long, notificacionId: Long, estadoRespuesta: String? = null) =
         "$PerfilDetalle/$idAlumno/$idOferta/$notificacionId?desdeNotificacion=true&estadoRespuesta=${estadoRespuesta ?: ""}"
     // Detalle de oferta desde notificación, con ID de notificación
     fun ofertaDetalleDesdeNotificacionAlumno(idOferta: Long, idNotificacion: Long) = "$OfertaDetalle/$idOferta/$idNotificacion?modoNotificacion=true"
-
+    // Detalle perfil desde mis ofertas EMPRESA (vista igual que notificación)
+    fun perfilDetalleDesdeMisOfertasEmpresa(idAlumno: Long, idOferta: Long, idNotificacion: Long, estadoRespuesta: String?) =
+        "$PerfilDetalle/$idAlumno/$idOferta/$idNotificacion?desdeNotificacion=true&estadoRespuesta=${estadoRespuesta ?: ""}"
+    // Detalle de oferta desde mis ofertas ALUMNO (vista igual que notificación)
+    fun ofertaDetalleDesdeMisOfertasAlumno(idOferta: Long, idNotificacion: Long) =
+        "$OfertaDetalle/$idOferta/$idNotificacion?modoNotificacion=true"
 
 }
 
@@ -225,7 +226,7 @@ fun AppNavigation(
             val idOferta = backStackEntry.arguments?.getLong("idOferta") ?: 0L
             val notificacionId = backStackEntry.arguments?.getLong("notificacionId") ?: 0L
             val desdeNotificacion = backStackEntry.arguments?.getBoolean("desdeNotificacion") ?: false
-            val estadoRespuesta = backStackEntry.arguments?.getString("estadoRespuesta")
+
 
             PerfilDetalleScreen(
                 navController = navController,
@@ -233,7 +234,6 @@ fun AppNavigation(
                 idAlumno = idAlumno,
                 idOfertaPreSeleccionada = idOferta,
                 desdeNotificacion = desdeNotificacion,
-                estadoRespuesta = estadoRespuesta,
                 idNotificacion = notificacionId
             )
         }
@@ -249,47 +249,6 @@ fun AppNavigation(
                 navController = navController,
                 sessionViewModel = sessionViewModel,
                 idAlumno = idAlumno
-            )
-        }
-        // Detalle de perfil desde MisOfertas (empresa): alumno + oferta
-        composable(
-            route = "${ScreenRoutes.PerfilDetalle}/{idAlumno}/{idOferta}",
-            arguments = listOf(
-                navArgument("idAlumno") { type = NavType.LongType },
-                navArgument("idOferta") { type = NavType.LongType }
-            )
-        ) { backStackEntry ->
-            val idAlumno = backStackEntry.arguments?.getLong("idAlumno") ?: 0L
-            val idOferta = backStackEntry.arguments?.getLong("idOferta") ?: 0L
-
-            PerfilDetalleScreen(
-                navController = navController,
-                sessionViewModel = sessionViewModel,
-                idAlumno = idAlumno,
-                idOfertaPreSeleccionada = idOferta
-            )
-        }
-
-
-        // Detalle de oferta desde MisOfertas (alumno)
-        composable(
-            route = "${ScreenRoutes.OfertaDetalle}/{idOferta}?desdeMisOfertas={desdeMisOfertas}",
-            arguments = listOf(
-                navArgument("idOferta") { type = NavType.LongType },
-                navArgument("desdeMisOfertas") {
-                    type = NavType.BoolType
-                    defaultValue = false
-                }
-            )
-        ) { backStackEntry ->
-            val idOferta = backStackEntry.arguments?.getLong("idOferta") ?: 0L
-            val desdeMisOfertas = backStackEntry.arguments?.getBoolean("desdeMisOfertas") ?: false
-
-            OfertaDetalleScreen(
-                navController = navController,
-                sessionViewModel = sessionViewModel,
-                idOferta = idOferta,
-                desdeMisOfertas = desdeMisOfertas
             )
         }
 

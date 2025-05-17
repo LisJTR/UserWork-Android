@@ -51,8 +51,11 @@ public class NotificacionController {
         return notificacionRepository.save(notificacion);
     }
     
- 
-
+    @GetMapping("/{id}")
+    public Notificacion obtenerNotificacionPorId(@PathVariable Long id) {
+        return notificacionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Notificación no encontrada con ID: " + id));
+    }
 
 
 }

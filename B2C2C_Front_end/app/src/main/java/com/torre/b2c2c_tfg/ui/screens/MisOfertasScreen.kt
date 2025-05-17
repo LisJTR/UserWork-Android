@@ -124,8 +124,14 @@ fun MisOfertasScreen(
                         descripcion = oferta.titulo,
                         imagenUrl = it.imagen,
                         onClick = {
-                            val notificacion = notificaciones.find { it.ofertaId == oferta.id?.toLong() && it.alumnoId == userId }
-                            navController.navigate(ScreenRoutes.ofertaDetalleDesdeMisOfertasAlumno(oferta.id?.toLong() ?: 0L))
+                            val notificacionRelacionada = notificaciones.find {
+                                it.ofertaId == oferta.id?.toLong() && it.alumnoId == userId
+                            }
+
+                            val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
+                            navController.navigate(
+                                ScreenRoutes.ofertaDetalleDesdeMisOfertasAlumno(oferta.id?.toLong() ?: 0L, idNotificacion)
+                            )
                         }
                     )
                 }
@@ -144,11 +150,21 @@ fun MisOfertasScreen(
                         descripcion = oferta.titulo,
                         imagenUrl = alumno.imagen,
                         onClick = {
-                            val notificacion = notificaciones.find { it.ofertaId == oferta.id?.toLong() && it.alumnoId == alumno.id?.toLong() }
+                            val notificacionRelacionada = notificaciones.find {
+                                it.ofertaId == oferta.id?.toLong() &&
+                                        it.alumnoId == alumno.id?.toLong() &&
+                                        it.empresaId == userId
+                            }
+
+                            val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
+                            val estadoRespuesta = notificacionRelacionada?.estadoRespuesta ?: ""
+
                             navController.navigate(
                                 ScreenRoutes.perfilDetalleDesdeMisOfertasEmpresa(
                                     alumno.id?.toLong() ?: 0L,
-                                    oferta.id?.toLong() ?: 0L
+                                    oferta.id?.toLong() ?: 0L,
+                                    idNotificacion,
+                                    estadoRespuesta
                                 )
                             )
                         }
