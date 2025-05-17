@@ -145,6 +145,8 @@ interface ApiService {
     @PUT("api/notificacion/{id}/marcar-leida")
     suspend fun marcarNotificacionComoLeida(@Path("id") id: Long): Response<Notificacion>
 
+    @GET("api/notificacion/{id}")
+    suspend fun getNotificacionPorId(@Path("id") id: Long): Notificacion
 
 
 }

@@ -35,6 +35,7 @@ import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
 import com.torre.b2c2c_tfg.ui.components.OfertaSeleccionDialog
 import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionPorIdUseCase
 import com.torre.b2c2c_tfg.ui.components.IconArrowDown
 
 
@@ -46,7 +47,6 @@ fun PerfilDetalleScreen(
     sessionViewModel: SessionViewModel,
     idOfertaPreSeleccionada: Long? = null,
     desdeNotificacion: Boolean = false,
-    estadoRespuesta: String? = null,
     idNotificacion: Long? = null
 
 ) {
@@ -63,7 +63,8 @@ fun PerfilDetalleScreen(
             crearInvitacionUseCase = CrearInvitacionUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context))),
             crearNotificacionUseCase = CrearNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
             getInvitacionesPorEmpresaUseCase = GetInvitacionPorEmpresaUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context))),
-            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context)))
+            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getNotificacionPorIdUseCase = GetNotificacionPorIdUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
         )
     }
 
@@ -86,6 +87,15 @@ fun PerfilDetalleScreen(
             showDialog = false
         }
     }
+    val estadoRespuestaBackend by viewModel.estadoRespuesta.collectAsState()
+    val tipoNotificacionBackend by viewModel.tipoNotificacion.collectAsState()
+
+    LaunchedEffect(idNotificacion) {
+        idNotificacion?.let { viewModel.cargarEstadoRespuesta(it) }
+        println("🪵 PerfilDetalleScreen - idNotificacion recibido: $idNotificacion")
+
+    }
+
 
     alumno?.let {
         Column {
@@ -142,27 +152,46 @@ fun PerfilDetalleScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 if (desdeNotificacion) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        ButtonGeneric(text = "SELECCIONADO",
-                            onClick = {
-                                idNotificacion?.let {
-                                    viewModel.responderNotificacion(it, "seleccionado")
-                                    Toast.makeText(context, "Alumno seleccionado", Toast.LENGTH_SHORT).show()
+                    if (estadoRespuestaBackend == null || estadoRespuestaBackend == "pendiente") {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            ButtonGeneric(text = "SELECCIONADO",
+                                onClick = {
+                                    idNotificacion?.let {
+                                        viewModel.responderNotificacion(it, "seleccionado")
+                                        Toast.makeText(context, "Alumno seleccionado", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
-                            }
-                        )
-                        ButtonGeneric(text = "DESCARTADO",
-                            onClick = {
-                                idNotificacion?.let {
-                                    viewModel.responderNotificacion(it, "descartado")
-                                    Toast.makeText(context, "Alumno descartado", Toast.LENGTH_SHORT).show()
+                            )
+                            ButtonGeneric(text = "DESCARTADO",
+                                onClick = {
+                                    idNotificacion?.let {
+                                        viewModel.responderNotificacion(it, "descartado")
+                                        Toast.makeText(context, "Alumno descartado", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
+                    } else {
+                        if (tipoNotificacionBackend != "respuesta") {
+                            Text(
+                                text = "Ya has respondido: ${estadoRespuestaBackend!!.uppercase()}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(vertical = 16.dp)
+                            )
+                        } else {
+                            Text(
+                                text = estadoRespuestaBackend!!.uppercase(),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(vertical = 16.dp)
+                            )
+                        }
                     }
+
                 } else {
                     val yaInvitada = ofertaSeleccionadaId in ofertasYaUsadas
                     val todasUsadas = listaOfertas.all { it.id?.toLong() in ofertasYaUsadas }
@@ -191,35 +220,7 @@ fun PerfilDetalleScreen(
                             modifier = Modifier.wrapContentWidth()
                         )
 
-                        if (idOfertaPreSeleccionada != null && !desdeNotificacion) {
-                            IconArrowDown()
-
-                            ButtonGeneric(
-                                text = "INTERÉS MUTUO",
-                                onClick = {},
-                                enabled = false,
-                                containerColor = if (estadoRespuesta == "inter_mutuo")
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                modifier = Modifier.wrapContentWidth()
-                            )
-
-                            IconArrowDown()
-
-                            ButtonGeneric(
-                                text = "NO INTERESADO",
-                                onClick = {},
-                                enabled = false,
-                                containerColor = if (estadoRespuesta == "no_interesado")
-                                    MaterialTheme.colorScheme.error
-                                else
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                modifier = Modifier.wrapContentWidth()
-                            )
-                        }
-
-                        if (todasUsadas) {
+                            if (todasUsadas) {
                             Text(
                                 text = "Ya se ha mostrado interés en el usuario en todas las ofertas disponibles.",
                                 color = Color.Gray,

@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -37,10 +36,9 @@ import com.torre.b2c2c_tfg.domain.usecase.ComprobarAplicacionExistenteUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearAplicacionOfertaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
-import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionPorIdUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertaByIdUseCase
 import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
-import com.torre.b2c2c_tfg.ui.components.IconArrowDown
 import com.torre.b2c2c_tfg.ui.viewmodel.OfertaDetalleScreenViewModel
 import com.torre.b2c2c_tfg.ui.components.PerfilDetalleHeader
 import com.torre.b2c2c_tfg.ui.components.SectionDescription
@@ -53,8 +51,6 @@ fun OfertaDetalleScreen(
     sessionViewModel: SessionViewModel,
     idOferta: Long,
     modoNotificacion: Boolean = false, // Parámetro para determinar el modo de la pantalla
-    desdeMisOfertas: Boolean = false,
-    estadoRespuesta: String? = null,
     idNotificacion: Long? = null
 
 ) {
@@ -66,8 +62,8 @@ fun OfertaDetalleScreen(
             crearAplicacionOfertaUseCase = CrearAplicacionOfertaUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
             crearNotificacionUseCase = CrearNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
             comprobarAplicacionExistenteUseCase = ComprobarAplicacionExistenteUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
-            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context)))
-
+            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getNotificacionPorIdUseCase = GetNotificacionPorIdUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
         )
     }
 
@@ -96,6 +92,15 @@ fun OfertaDetalleScreen(
             else -> {}
         }
     }
+    val estadoRespuestaBackend by viewModel.estadoRespuesta.collectAsState()
+    val tipoNotificacionBackend by viewModel.tipoNotificacion.collectAsState()
+
+    LaunchedEffect(idNotificacion) {
+        idNotificacion?.let { viewModel.cargarEstadoRespuesta(it) }
+        println("🪵 OfertaDetalleScreen - idNotificacion recibido: $idNotificacion")
+
+    }
+
 
     Column(
         modifier = Modifier
@@ -174,68 +179,50 @@ fun OfertaDetalleScreen(
         Spacer(modifier = Modifier.height(30.dp))
 
         if (modoNotificacion) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                ButtonGeneric(
-                    text = "INTERÉS MUTUO",
-                    onClick = {
-                        idNotificacion?.let {
-                            viewModel.responderNotificacion(it, "inter_mutuo")
-                            Toast.makeText(context, "Interés mutuo registrado", Toast.LENGTH_SHORT).show()
+            if (estadoRespuestaBackend == null || estadoRespuestaBackend == "pendiente") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    ButtonGeneric(
+                        text = "INTERÉS MUTUO",
+                        onClick = {
+                            idNotificacion?.let {
+                                viewModel.responderNotificacion(it, "inter_mutuo")
+                                Toast.makeText(context, "Interés mutuo registrado", Toast.LENGTH_SHORT).show()
+                            }
                         }
-                    }
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                ButtonGeneric(
-                    text = "NO INTERESADO",
-                    onClick = {
-                        idNotificacion?.let {
-                            viewModel.responderNotificacion(it, "no_interesado")
-                            Toast.makeText(context, "No interesado", Toast.LENGTH_SHORT).show()
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    ButtonGeneric(
+                        text = "NO INTERESADO",
+                        onClick = {
+                            idNotificacion?.let {
+                                viewModel.responderNotificacion(it, "no_interesado")
+                                Toast.makeText(context, "No interesado", Toast.LENGTH_SHORT).show()
+                            }
                         }
-                    }
-                )
+                    )
+                }
+            } else {
+                if (tipoNotificacionBackend != "respuesta") {
+                    Text(
+                        text = "Ya has respondido: ${estadoRespuestaBackend!!.uppercase()}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                } else {
+                    Text(
+                        text = estadoRespuestaBackend!!.uppercase(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                }
             }
-
-        } else if (desdeMisOfertas) {
-            // BOTONES DESDE MIS OFERTAS
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                ButtonGeneric(
-                    text = "SELECCIONADO",
-                    onClick = {},
-                    enabled = false,
-                    containerColor = if (estadoRespuesta == "seleccionado")
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.width(200.dp)
-                )
-                IconArrowDown()
-                ButtonGeneric(
-                    text = "NO SELECCIONADO",
-                    onClick = {},
-                    enabled = false,
-                    containerColor = if (estadoRespuesta == "descartado")
-                        MaterialTheme.colorScheme.error
-                    else
-                        MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.width(200.dp)
-                )
-                IconArrowDown()
-                ButtonGeneric(
-                    text = "APLICAR",
-                    onClick = {},
-                    enabled = false,
-                    modifier = Modifier.width(200.dp)
-                )
-            }
-        } else {
+        }
+        else {
             if (yaAplicada) {
                 Text(
                     text = "Ya has aplicado a esta oferta.",

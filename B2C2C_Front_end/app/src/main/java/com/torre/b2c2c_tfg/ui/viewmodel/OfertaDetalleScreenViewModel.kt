@@ -16,14 +16,16 @@ import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.ComprobarAplicacionExistenteUseCase
 import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionPorIdUseCase
 
 class OfertaDetalleScreenViewModel(
-private val getOfertaByIdUseCase: GetOfertaByIdUseCase,
-private val getEmpresaUseCase: GetEmpresaUseCase,
-private val crearAplicacionOfertaUseCase: CrearAplicacionOfertaUseCase,
-private val crearNotificacionUseCase: CrearNotificacionUseCase,
-private val comprobarAplicacionExistenteUseCase: ComprobarAplicacionExistenteUseCase,
-private val actualizarNotificacionUseCase: ActualizarNotificacionUseCase
+    private val getOfertaByIdUseCase: GetOfertaByIdUseCase,
+    private val getEmpresaUseCase: GetEmpresaUseCase,
+    private val crearAplicacionOfertaUseCase: CrearAplicacionOfertaUseCase,
+    private val crearNotificacionUseCase: CrearNotificacionUseCase,
+    private val comprobarAplicacionExistenteUseCase: ComprobarAplicacionExistenteUseCase,
+    private val actualizarNotificacionUseCase: ActualizarNotificacionUseCase,
+    private val getNotificacionPorIdUseCase: GetNotificacionPorIdUseCase
 ) : ViewModel() {
 
     private val _oferta = MutableStateFlow<Oferta?>(null)
@@ -34,6 +36,14 @@ private val actualizarNotificacionUseCase: ActualizarNotificacionUseCase
 
     private val _aplicacionExitosa = MutableStateFlow<Boolean?>(null)
     val aplicacionExitosa: StateFlow<Boolean?> = _aplicacionExitosa
+
+
+    private val _estadoRespuesta = MutableStateFlow<String?>(null)
+    val estadoRespuesta: StateFlow<String?> = _estadoRespuesta
+
+
+    private val _tipoNotificacion = MutableStateFlow<String?>(null)
+    val tipoNotificacion: StateFlow<String?> = _tipoNotificacion
 
     fun cargarOfertaConEmpresa(idOferta: Long) {
         viewModelScope.launch {
@@ -98,12 +108,50 @@ private val actualizarNotificacionUseCase: ActualizarNotificacionUseCase
     fun responderNotificacion(idNotificacion: Long, estadoRespuesta: String) {
         viewModelScope.launch {
             val exito = actualizarNotificacionUseCase(idNotificacion, estadoRespuesta)
-            if (!exito) {
-                println("❌ Error al actualizar estado de la notificación")
+            if (exito) {
+                // Obtener la notificación original
+                val original = getNotificacionPorIdUseCase(idNotificacion)
+
+                // Crear mensaje personalizado según respuesta
+                val mensaje = when (estadoRespuesta) {
+                    "inter_mutuo" -> "El alumno ha mostrado interés mutuo en tu oferta."
+                    "no_interesado" -> "El alumno no está interesado en tu oferta."
+                    "seleccionado" -> "Has sido seleccionado para la oferta."
+                    "descartado" -> "No has sido seleccionado para la oferta."
+                    else -> null
+                }
+
+                // Crear notificación de respuesta
+                mensaje?.let {
+                    val nuevaNoti = Notificacion(
+                        tipo = "respuesta",
+                        mensaje = it,
+                        alumnoId = original?.alumnoId,
+                        empresaId = original?.empresaId,
+                        ofertaId = original?.ofertaId,
+                        destinatarioTipo = if (original?.destinatarioTipo == "empresa") "alumno" else "empresa",
+                        estadoRespuesta = estadoRespuesta
+                    )
+                    crearNotificacionUseCase(nuevaNoti)
+                }
+
+                println("✅ Notificación actualizada y respuesta enviada")
             } else {
-                println("✅ Notificación actualizada correctamente")
+                println("❌ Error al actualizar estado de la notificación")
             }
         }
     }
+
+
+    fun cargarEstadoRespuesta(idNotificacion: Long) {
+        viewModelScope.launch {
+            val notificacion = getNotificacionPorIdUseCase(idNotificacion)
+            println("🔍 Buscando notificación con ID: $idNotificacion")
+            _estadoRespuesta.value = notificacion?.estadoRespuesta
+            _tipoNotificacion.value = notificacion?.tipo
+            println("📬 Estado encontrado: ${notificacion?.estadoRespuesta}")
+        }
+    }
+
 
 }

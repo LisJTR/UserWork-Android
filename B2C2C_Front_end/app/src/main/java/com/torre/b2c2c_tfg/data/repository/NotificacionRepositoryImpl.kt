@@ -61,7 +61,14 @@ class NotificacionRepositoryImpl(private val api: ApiService) : NotificacionRepo
 
     }
 
-
+    override suspend fun getNotificacionPorId(id: Long): Notificacion? {
+        return try {
+            api.getNotificacionPorId(id)
+        } catch (e: Exception) {
+            println("❌ Error al obtener notificación por ID: ${e.message}")
+            null
+        }
+    }
 
 
 
