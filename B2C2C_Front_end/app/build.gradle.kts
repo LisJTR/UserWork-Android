@@ -58,6 +58,9 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp.logging)
 
+    // Dependencias para usar datastore
+    implementation(libs.datastorePreferences)
+
 
 
     implementation(libs.androidx.core.ktx)
