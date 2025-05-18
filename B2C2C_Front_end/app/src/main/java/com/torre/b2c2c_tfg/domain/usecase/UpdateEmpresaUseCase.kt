@@ -5,5 +5,8 @@ import com.torre.b2c2c_tfg.domain.repository.EmpresaRepository
 
 class UpdateEmpresaUseCase(private val repository: EmpresaRepository) {
 
-    suspend operator fun invoke(empresa: Empresa): Boolean = repository.updateEmpresa(empresa)
+    suspend operator fun invoke(empresa: Empresa): Empresa {
+        repository.updateEmpresa(empresa) // ← sigue ejecutando el update
+        return empresa // ← devuelve la misma empresa
+    }
 }

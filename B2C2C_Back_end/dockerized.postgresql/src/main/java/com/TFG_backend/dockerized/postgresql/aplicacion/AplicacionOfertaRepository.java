@@ -7,4 +7,6 @@ public interface AplicacionOfertaRepository extends JpaRepository<AplicacionOfer
     List<AplicacionOferta> findByAlumnoId(Long alumnoId);
     List<AplicacionOferta> findByOfertaId(Long ofertaId);
     boolean existsByAlumnoIdAndOfertaId(Long alumnoId, Long ofertaId);
+    void deleteByAlumnoId(Long alumnoId);
+
 }

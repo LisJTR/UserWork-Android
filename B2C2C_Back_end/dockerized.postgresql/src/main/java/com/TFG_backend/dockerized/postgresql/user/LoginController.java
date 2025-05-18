@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.TFG_backend.dockerized.postgresql.config.PasswordEncoderUtil;
+
 @RestController
 @RequestMapping("/api/auth")
 public class LoginController {
@@ -22,18 +24,29 @@ public class LoginController {
         var alumno = alumnoRepository.findByUsernameOrCorreoElectronico(
             request.getUsername(), request.getCorreo_electronico());
 
-        if (alumno != null && alumno.getPassword().equals(request.getPassword())) {
+       // if (alumno != null && alumno.getPassword().equals(request.getPassword())) {
+           // return ResponseEntity.ok(new LoginResponse("Login exitoso", alumno.getId(), "alumno"));
+        //}
+        
+        if (alumno != null && PasswordEncoderUtil.matches(request.getPassword(), alumno.getPassword())) {
             return ResponseEntity.ok(new LoginResponse("Login exitoso", alumno.getId(), "alumno"));
         }
 
         var empresa = empresaRepository.findByUsernameOrCorreoElectronico(
             request.getUsername(), request.getCorreo_electronico());
 
-        if (empresa != null && empresa.getPassword().equals(request.getPassword())) {
+        //if (empresa != null && empresa.getPassword().equals(request.getPassword())) {
+          //  return ResponseEntity.ok(new LoginResponse("Login exitoso", empresa.getId(), "empresa"));
+       // }
+        
+        if (empresa != null && PasswordEncoderUtil.matches(request.getPassword(), empresa.getPassword())) {
             return ResponseEntity.ok(new LoginResponse("Login exitoso", empresa.getId(), "empresa"));
         }
 
         return ResponseEntity.status(401).body(new LoginResponse("Credenciales incorrectas", null, null));
     }
+    
+    
+
     
 }

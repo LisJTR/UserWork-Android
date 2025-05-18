@@ -25,6 +25,7 @@ interface ApiService {
     @POST("/api/auth/login") // Ajustar el endpoint según el backend
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
+
     // -------------------------------------------------------------------
     // Peticiones HTTP de Empresa
     @GET("api/empresa/perfil")
@@ -44,6 +45,9 @@ interface ApiService {
 
     @GET("api/empresa")
     suspend fun getAllEmpresas(): List<Empresa>
+
+    @DELETE("api/empresa/eliminar/{id}")
+    suspend fun eliminarEmpresa(@Path("id") id: Long): Response<Unit>
 
     // -------------------------------------------------------------------
     // Peticiones HTTP de Alumno
@@ -66,6 +70,8 @@ interface ApiService {
     @GET("api/alumno")
     suspend fun getAllAlumnos(): List<Alumno>
 
+    @DELETE("api/alumno/eliminar/{id}")
+    suspend fun eliminarAlumno(@Path("id") id: Long): Response<Unit>
 
     // -------------------------------------------------------------------
     // Peticiones HTTP de Ofertas (Empresa)

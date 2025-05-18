@@ -11,7 +11,7 @@ data class Oferta(
     val descripcion: String,
     @SerializedName("aptitudes")
     val aptitudes: String,
-    @SerializedName("queSeOfrece")
+    @SerializedName("que_se_ofrece")
     val queSeOfrece: String,
     @SerializedName("empresa_id")
     val empresaId: Int, // variable para identificar a qué empresa pertenece la oferta
