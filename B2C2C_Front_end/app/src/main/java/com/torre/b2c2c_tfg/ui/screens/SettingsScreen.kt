@@ -1,6 +1,7 @@
 package com.torre.b2c2c_tfg.ui.screens
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,11 +23,14 @@ import com.torre.b2c2c_tfg.ui.components.ScreenTitle
 import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
 import com.torre.b2c2c_tfg.ui.util.UserType
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.torre.b2c2c_tfg.ui.components.ConfirmDialog
+import com.torre.b2c2c_tfg.ui.components.ErrorMessageGeneral
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SettingsScreenViewModel
@@ -64,6 +68,17 @@ fun SettingsScreen(
         )
     }
 
+    // Mensaje de eliminación de cuenta
+    val context = LocalContext.current
+    val mensajeEliminacion by settingsViewModel.mensajeEliminacion.collectAsState()
+
+    if (mensajeEliminacion != null) {
+        LaunchedEffect(mensajeEliminacion) {
+            Toast.makeText(context, mensajeEliminacion, Toast.LENGTH_SHORT).show()
+            settingsViewModel.resetMensaje()
+        }
+    }
+
     if (showToggleThemeDialog.value) {
         ConfirmDialog(
             title = "Cambiar tema",
@@ -73,6 +88,21 @@ fun SettingsScreen(
                 onToggleTheme()
             },
             onDismiss = { showToggleThemeDialog.value = false }
+        )
+    }
+
+    // Diálogo para eliminar cuenta
+    val showDeleteDialog = remember { mutableStateOf(false) }
+
+    if (showDeleteDialog.value) {
+        ConfirmDialog(
+            title = "Eliminar cuenta",
+            message = "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible.",
+            onConfirm = {
+                showDeleteDialog.value = false
+                settingsViewModel.eliminarCuenta()
+            },
+            onDismiss = { showDeleteDialog.value = false }
         )
     }
 
@@ -99,7 +129,7 @@ fun SettingsScreen(
             onClick = onChangePassword)
         ButtonSettingItem(
             text = "Eliminar Cuenta",
-            onClick = onDeleteAccount)
+            onClick = { showDeleteDialog.value = true })
     }
 
 }

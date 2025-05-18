@@ -14,7 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.SettingsRepository
 import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
+import com.torre.b2c2c_tfg.domain.usecase.EliminarCuentaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorEmpresaUseCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
@@ -168,7 +170,17 @@ fun AppNavigation(
                 else -> UserType.ALUMNO
             }
 
-            val settingsViewModel = remember { SettingsScreenViewModel(sessionViewModel) }
+            val context = LocalContext.current
+            val apiService = RetrofitInstance.getInstance(context) // tu instancia existente
+            val settingsRepository = remember { SettingsRepository(apiService) }
+            val eliminarCuentaUseCase = remember { EliminarCuentaUseCase(settingsRepository) }
+
+            val settingsViewModel = remember {
+                SettingsScreenViewModel(
+                    sessionViewModel = sessionViewModel,
+                    eliminarCuentaUseCase = eliminarCuentaUseCase
+                )
+            }
 
             Scaffold(bottomBar = { BottomBar(navController, userType) }) {
                 SettingsScreen(
@@ -176,12 +188,12 @@ fun AppNavigation(
                     navController = navController,
                     onToggleTheme = onToggleTheme,
                     onChangePassword = {},
-                    onDeleteAccount = {}
+                    onDeleteAccount = { settingsViewModel.eliminarCuenta() }
                 )
             }
         }
 
-        // Pantalla de notificaciones
+            // Pantalla de notificaciones
         composable(ScreenRoutes.Notification) {
             NotificationScreen(
                 sessionViewModel = sessionViewModel,

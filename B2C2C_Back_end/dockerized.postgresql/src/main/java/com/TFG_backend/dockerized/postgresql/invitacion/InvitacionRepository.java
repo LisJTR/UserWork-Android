@@ -8,4 +8,7 @@ public interface InvitacionRepository extends JpaRepository<Invitacion, Long> {
     List<Invitacion> findByEmpresaId(Long empresaId);
     List<Invitacion> findByAlumnoId(Long alumnoId);
     List<Invitacion> findByOfertaId(Long ofertaId);
+    void deleteByAlumnoId(Long alumnoId);
+    void deleteByEmpresaId(Long empresaId);
+    
 }

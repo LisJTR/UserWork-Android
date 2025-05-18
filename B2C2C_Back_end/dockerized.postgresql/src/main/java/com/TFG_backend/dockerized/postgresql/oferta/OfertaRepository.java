@@ -9,5 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface OfertaRepository extends JpaRepository<Oferta, Long> {
 
 	List<Oferta> findByEmpresaId(Long empresaId);
+	void deleteByEmpresaId(Long empresaId);
 
 }
