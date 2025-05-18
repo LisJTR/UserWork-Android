@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -13,7 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.SettingsRepository
 import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
+import com.torre.b2c2c_tfg.domain.usecase.EliminarCuentaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorEmpresaUseCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
@@ -30,6 +33,7 @@ import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.screens.SettingsScreen
 import com.torre.b2c2c_tfg.ui.viewmodel.NotificationViewModel
+import com.torre.b2c2c_tfg.ui.viewmodel.SettingsScreenViewModel
 
 // RUTAS PRINCIPALES DE LA APP
 object ScreenRoutes {
@@ -76,7 +80,8 @@ object ScreenRoutes {
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
-    sessionViewModel: SessionViewModel
+    sessionViewModel: SessionViewModel,
+    onToggleTheme: () -> Unit
 ) {
 
     NavHost(navController = navController, startDestination = ScreenRoutes.Welcome) {
@@ -165,12 +170,30 @@ fun AppNavigation(
                 else -> UserType.ALUMNO
             }
 
+            val context = LocalContext.current
+            val apiService = RetrofitInstance.getInstance(context) // tu instancia existente
+            val settingsRepository = remember { SettingsRepository(apiService) }
+            val eliminarCuentaUseCase = remember { EliminarCuentaUseCase(settingsRepository) }
+
+            val settingsViewModel = remember {
+                SettingsScreenViewModel(
+                    sessionViewModel = sessionViewModel,
+                    eliminarCuentaUseCase = eliminarCuentaUseCase
+                )
+            }
+
             Scaffold(bottomBar = { BottomBar(navController, userType) }) {
-                SettingsScreen( navController = navController)
+                SettingsScreen(
+                    settingsViewModel = settingsViewModel,
+                    navController = navController,
+                    onToggleTheme = onToggleTheme,
+                    onChangePassword = {},
+                    onDeleteAccount = { settingsViewModel.eliminarCuenta() }
+                )
             }
         }
 
-        // Pantalla de notificaciones
+            // Pantalla de notificaciones
         composable(ScreenRoutes.Notification) {
             NotificationScreen(
                 sessionViewModel = sessionViewModel,
@@ -252,7 +275,25 @@ fun AppNavigation(
             )
         }
 
+        //Ruta básica para navegar a OfertaDetalleScreen con solo idOferta
+        composable(
+            route = "${ScreenRoutes.OfertaDetalle}/{idOferta}",
+            arguments = listOf(
+                navArgument("idOferta") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val idOferta = backStackEntry.arguments?.getLong("idOferta") ?: 0L
 
+            OfertaDetalleScreen(
+                navController = navController,
+                sessionViewModel = sessionViewModel,
+                idOferta = idOferta,
+                modoNotificacion = false,
+                idNotificacion = null
+            )
+        }
 
     }
+
+
 }

@@ -1,8 +1,5 @@
 package com.torre.b2c2c_tfg.ui.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.torre.b2c2c_tfg.data.model.Empresa
@@ -22,34 +19,47 @@ class RegisterEmpresaViewModel(
     private val _empresa = MutableStateFlow<Empresa?>(null)
     val empresa: StateFlow<Empresa?> = _empresa
 
-    var empresaId: Long? by mutableStateOf(null)
+    var empresaId: Long? = null
         private set
 
+    private val _mensajeError = MutableStateFlow<String?>(null)
+    val mensajeError: StateFlow<String?> = _mensajeError
 
     fun cargarDatos(id: Long) {
         viewModelScope.launch {
             try {
-            _empresa.value = getEmpresaUseCase(id)
+                _empresa.value = getEmpresaUseCase(id)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun crearEmpresa(empresa: Empresa, onEmpresaCreada: (Empresa) -> Unit) {
+    fun guardarDatos(empresa: Empresa, esEdicion: Boolean, onEmpresaGuardada: (Empresa?) -> Unit = {}) {
         viewModelScope.launch {
-            val empresaCreadaNullable = createEmpresaUseCase(empresa)
-            empresaCreadaNullable?.let { empresaCreada ->
-                empresaId = empresaCreada.id?.toLong()
-                onEmpresaCreada(empresaCreada)
+            try {
+                val resultado = if (esEdicion) {
+                    updateEmpresaUseCase(empresa)
+                } else {
+                    createEmpresaUseCase(empresa)
+                }
+
+                _empresa.value = resultado
+                empresaId = resultado?.id?.toLong()
+                _mensajeError.value = ""
+                onEmpresaGuardada(resultado) // ← devuelves la empresa
+            } catch (e: retrofit2.HttpException) {
+                if (e.code() == 409) {
+                    _mensajeError.value = "El usuario o correo electrónico ya están en uso"
+                } else {
+                    _mensajeError.value = "Error del servidor: ${e.code()}"
+                }
+                onEmpresaGuardada(null)
+            } catch (e: Exception) {
+                _mensajeError.value = "Error inesperado: ${e.message}"
+                onEmpresaGuardada(null)
             }
         }
     }
-
-    fun guardarDatos(empresa: Empresa) {
-        viewModelScope.launch {
-            updateEmpresaUseCase(empresa)
-            // Puedes emitir estado o mostrar feedback
-        }
-    }
 }
+

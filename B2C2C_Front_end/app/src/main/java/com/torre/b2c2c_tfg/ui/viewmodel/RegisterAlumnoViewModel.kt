@@ -22,6 +22,9 @@ class RegisterAlumnoViewModel(
     var alumnoId: Long? = null
         private set
 
+    private val _mensajeError = MutableStateFlow<String?>(null)
+    val mensajeError: StateFlow<String?> = _mensajeError
+
     fun cargarDatos(id: Long) {
         viewModelScope.launch {
             try {
@@ -35,19 +38,25 @@ class RegisterAlumnoViewModel(
     fun guardarDatos(alumno: Alumno, esEdicion: Boolean) {
         viewModelScope.launch {
             try {
-                println("GUARDANDO ALUMNO...")
                 val resultado = if (esEdicion) {
                     updateAlumnoUserCase(alumno)
                 } else {
                     createAlumnoUseCase(alumno)
                 }
 
-                println("RESULTADO GUARDADO: ${resultado.id}")
                 _alumno.value = resultado
                 alumnoId = resultado.id?.toLong()
+
+                // Limpia el mensaje de error si se guardó bien
+                _mensajeError.value = ""
+            } catch (e: retrofit2.HttpException) {
+                if (e.code() == 409) {
+                    _mensajeError.value = "El usuario o correo electrónico ya están en uso"
+                } else {
+                    _mensajeError.value = "Error del servidor: ${e.code()}"
+                }
             } catch (e: Exception) {
-                println("ERROR al guardar: ${e.message}")
-                e.printStackTrace()
+                _mensajeError.value = "Error inesperado: ${e.message}"
             }
         }
     }

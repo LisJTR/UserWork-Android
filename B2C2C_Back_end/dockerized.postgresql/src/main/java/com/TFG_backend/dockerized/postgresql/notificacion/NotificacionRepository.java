@@ -10,5 +10,6 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Long
     List<Notificacion> findByEmpresaId(Long empresaId);
     List<Notificacion> findByDestinatarioTipoAndAlumnoId(String destinatarioTipo, Long alumnoId);
     List<Notificacion> findByDestinatarioTipoAndEmpresaId(String destinatarioTipo, Long empresaId);
-  
+    void deleteByAlumnoId(Long alumnoId);
+    void deleteByEmpresaId(Long empresaId);
 }

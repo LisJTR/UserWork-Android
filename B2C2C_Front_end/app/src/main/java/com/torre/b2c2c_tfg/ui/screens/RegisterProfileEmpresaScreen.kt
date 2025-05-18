@@ -61,6 +61,7 @@ import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.ui.platform.LocalFocusManager
 import com.torre.b2c2c_tfg.domain.usecase.CreateEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.DeleteOfertaUseCase
+import com.torre.b2c2c_tfg.ui.components.ErrorMessage
 import com.torre.b2c2c_tfg.ui.components.UploadFileImageComponent
 
 
@@ -106,6 +107,9 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
 
         )
     }
+
+    val errorMessage by viewModel.mensajeError.collectAsState()
+
     val ofertaViewModel = remember {
         OfertaViewModel(
         // CrearOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.api)))
@@ -321,6 +325,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 }
             )
         }
+        ErrorMessage(message = errorMessage.orEmpty(), modifier = Modifier.padding(top = 8.dp))
 
         // Botón de Guardar
         ButtonGeneric(
@@ -343,25 +348,20 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
 
                 focusManager.clearFocus()
 
-                if (esEdicion) {
-                    // Actualiza empresa existente
-                    viewModel.guardarDatos(nuevaEmpresa)
+                viewModel.guardarDatos(nuevaEmpresa, esEdicion) { empresaGuardada ->
+                    if (empresaGuardada?.id != null) {
+                        val empresaIdValido = empresaGuardada.id!!
 
-                    // Luego quítalas de la UI
-                    offerCards.removeAll { card ->
-                        if (card.isMarkedForDeletion && card.id != null) {
-                            ofertaViewModel.eliminarOferta(card.id!!)
-                            true // se elimina de la lista
-                        } else {
-                            false
+                        // BORRAR ofertas marcadas
+                        offerCards.removeAll { card ->
+                            if (card.isMarkedForDeletion && card.id != null) {
+                                ofertaViewModel.eliminarOferta(card.id!!)
+                                true
+                            } else false
                         }
-                    }
 
-
-                    empresa?.id?.let { idEmpresa ->
-
+                        // GUARDAR ofertas restantes
                         offerCards.forEachIndexed { index, card ->
-                            // Oculta las que están marcadas para borrar
                             if (card.isMarkedForDeletion) return@forEachIndexed
                             val nuevaOferta = Oferta(
                                 id = card.id,
@@ -369,65 +369,35 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                                 descripcion = card.description,
                                 aptitudes = card.aptitudes,
                                 queSeOfrece = card.queSeOfrece,
-                                empresaId = idEmpresa.toInt(),
+                                empresaId = empresaIdValido.toInt(),
                                 publicada = card.isPublic,
                                 fechaPublicacion = fechaActual
                             )
                             ofertaViewModel.guardarOferta(nuevaOferta) { ofertaGuardada ->
-                                if (ofertaGuardada?.id != null) {
-                                    val updatedCard = card.copy(id = ofertaGuardada.id, isSaved = true)
-                                    offerCards[index] = updatedCard
-
-                                } else {
+                                ofertaGuardada?.let {
+                                    offerCards[index] = card.copy(id = it.id, isSaved = true)
+                                } ?: run {
                                     offerCards[index] = card.copy(isSaved = true)
                                 }
-                                // Recarga datos
-                                viewModel.cargarDatos(empresaId)
-                                ofertaViewModel.cargarOfertas(empresaId)
+                                viewModel.cargarDatos(empresaIdValido.toLong())
+                                ofertaViewModel.cargarOfertas(empresaIdValido.toLong())
                             }
                         }
-                        // Actualiza originalCards después de guardar todas
-                        originalCards.clear()
-                        originalCards.addAll(offerCards.map { it.copy() })
 
-                    }
-                } else {
-                    // Crea nueva empresa y luego ofertas
-                    viewModel.crearEmpresa(nuevaEmpresa) { empresaCreada ->
-                        val empresaIdValido = empresaCreada.id
-
-                        if (empresaIdValido != null && empresaIdValido > 0) {
-
+                        // Navegar si es registro
+                        if (!esEdicion) {
                             sessionViewModel.setSession(empresaIdValido.toLong(), "empresa")
-
-                            offerCards.forEach { card ->
-                                val nuevaOferta = Oferta(
-                                    id = card.id,
-                                    titulo = card.title,
-                                    descripcion = card.description,
-                                    aptitudes = card.aptitudes,
-                                    queSeOfrece = card.queSeOfrece,
-                                    empresaId = empresaIdValido.toInt(), // Utilizamos la ID de la empresa creada
-                                    publicada = card.isPublic,
-                                    fechaPublicacion = fechaActual
-                                )
-                                ofertaViewModel.guardarOferta(nuevaOferta)
-                            }
-
                             navController.navigate("OfertasScreen?isEmpresa=true")
-                        } else {
-                            println("ERROR: empresaCreada.id no es válido. No se guardan ofertas.")
                         }
                     }
                 }
-            },
-            modifier = Modifier
-                .width(300.dp)
-                .padding(top = 90.dp)
-        )
 
+            },
+            modifier = Modifier.width(300.dp).padding(top = 90.dp)
+        )
     }
 }
+
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

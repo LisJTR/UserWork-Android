@@ -55,6 +55,7 @@ import com.torre.b2c2c_tfg.domain.usecase.CreateAlumnoUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
+import com.torre.b2c2c_tfg.ui.components.ErrorMessage
 import com.torre.b2c2c_tfg.ui.components.UploadFileImageComponent
 import com.torre.b2c2c_tfg.ui.components.UploadDocComponent
 
@@ -82,6 +83,8 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     var nombreDoc by rememberSaveable { mutableStateOf<String?>(null) }
     var cvUri by remember { mutableStateOf<Uri?>(null) }
 
+
+
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -97,7 +100,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
             CreateAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
-
+    val errorMessage by viewModel.mensajeError.collectAsState()
     val alumno by viewModel.alumno.collectAsState()
     val alumnoId = sessionViewModel.userId.collectAsState().value ?: 0L
 
@@ -309,6 +312,10 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
             label = "Nombre del documento",
             modifier = Modifier.fillMaxWidth(),
             enabled = false // Solo lectura
+        )
+        ErrorMessage(
+            message = errorMessage.orEmpty(),
+            modifier = Modifier.padding(top = 8.dp)
         )
 
         // --- BOTÓN GUARDAR ---
