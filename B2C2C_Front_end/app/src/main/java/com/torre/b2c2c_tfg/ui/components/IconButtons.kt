@@ -86,15 +86,4 @@ fun IconArrowBack(
     }
 }
 
-@Composable
-fun IconArrowDown(
-    modifier: Modifier = Modifier
-) {
-    Icon(
-        imageVector = Icons.Default.ArrowDownward,
-        contentDescription = null, // null porque es decorativo
-        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-        modifier = modifier
-    )
-}
 

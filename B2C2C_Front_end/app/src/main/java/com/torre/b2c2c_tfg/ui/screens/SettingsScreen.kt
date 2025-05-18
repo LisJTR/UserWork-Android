@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,17 +24,22 @@ import com.torre.b2c2c_tfg.ui.components.ScreenTitle
 import com.torre.b2c2c_tfg.ui.theme.B2C2C_TFGTheme
 import com.torre.b2c2c_tfg.ui.util.UserType
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.torre.b2c2c_tfg.ui.components.CambiarPasswordDialog
 import com.torre.b2c2c_tfg.ui.components.ConfirmDialog
 import com.torre.b2c2c_tfg.ui.components.ErrorMessageGeneral
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SettingsScreenViewModel
+
+
+
 
 @Composable
 fun SettingsScreen(
@@ -79,6 +85,17 @@ fun SettingsScreen(
         }
     }
 
+    //  Mensaje de cambio de contraseña
+    val mensajePassword by settingsViewModel.mensajeCambioPassword.collectAsState()
+
+    if (mensajePassword != null) {
+        LaunchedEffect(mensajePassword) {
+            Toast.makeText(context, mensajePassword, Toast.LENGTH_SHORT).show()
+            settingsViewModel.resetMensajePassword()
+        }
+    }
+
+    // Diálogo para cambiar el tema
     if (showToggleThemeDialog.value) {
         ConfirmDialog(
             title = "Cambiar tema",
@@ -106,7 +123,40 @@ fun SettingsScreen(
         )
     }
 
+    // Diálogo para cambiar contraseña
+    val showChangePasswordDialog = remember { mutableStateOf(false) }
 
+    if (showChangePasswordDialog.value) {
+        CambiarPasswordDialog(
+            onDismiss = { showChangePasswordDialog.value = false },
+            onConfirm = { actual, nueva ->
+                settingsViewModel.cambiarPassword(actual, nueva)
+            }
+        )
+    }
+
+    val versionName = context.packageManager
+        .getPackageInfo(context.packageName, 0).versionName
+
+    // Mensaje de version sacada del build.gradle
+    val showVersionDialog = remember { mutableStateOf(false) }
+    if (showVersionDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showVersionDialog.value = false },
+            title = { Text("Información de la app") },
+            text = {
+                Column {
+                    Text("Versión: $versionName")
+                    Text("TFG - 2025")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showVersionDialog.value = false }) {
+                    Text("Aceptar")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -126,10 +176,13 @@ fun SettingsScreen(
             onClick = { showToggleThemeDialog.value = true })
         ButtonSettingItem(
             text = "Cambiar Contraseña",
-            onClick = onChangePassword)
+            onClick = { showChangePasswordDialog.value = true })
         ButtonSettingItem(
             text = "Eliminar Cuenta",
             onClick = { showDeleteDialog.value = true })
+        ButtonSettingItem(
+            text = "Información sobre versión",
+            onClick = { showVersionDialog.value = true })
     }
 
 }
