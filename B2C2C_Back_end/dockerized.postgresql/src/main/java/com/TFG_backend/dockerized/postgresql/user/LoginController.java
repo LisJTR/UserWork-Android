@@ -1,6 +1,7 @@
 package com.TFG_backend.dockerized.postgresql.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,7 +47,26 @@ public class LoginController {
         return ResponseEntity.status(401).body(new LoginResponse("Credenciales incorrectas", null, null));
     }
     
-    
+    @PostMapping("/change-password")
+    public ResponseEntity<?> cambiarPassword(@RequestBody CambiarPasswordRequest request) {
+        if (request.getTipo().equals("alumno")) {
+            Alumno alumno = alumnoRepository.findById(request.getId()).orElse(null);
+            if (alumno != null && PasswordEncoderUtil.matches(request.getPasswordActual(), alumno.getPassword())) {
+                alumno.setPassword(PasswordEncoderUtil.encode(request.getPasswordNueva()));
+                alumnoRepository.save(alumno);
+                return ResponseEntity.ok("Contraseña cambiada con éxito");
+            }
+        } else if (request.getTipo().equals("empresa")) {
+            Empresa empresa = empresaRepository.findById(request.getId()).orElse(null);
+            if (empresa != null && PasswordEncoderUtil.matches(request.getPasswordActual(), empresa.getPassword())) {
+                empresa.setPassword(PasswordEncoderUtil.encode(request.getPasswordNueva()));
+                empresaRepository.save(empresa);
+                return ResponseEntity.ok("Contraseña cambiada con éxito");
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Contraseña actual incorrecta");
+    }
 
     
 }

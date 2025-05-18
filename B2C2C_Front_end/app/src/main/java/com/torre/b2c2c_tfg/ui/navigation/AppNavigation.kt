@@ -13,12 +13,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
-import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
-import com.torre.b2c2c_tfg.data.repository.SettingsRepository
-import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
+import com.torre.b2c2c_tfg.domain.repository.SettingsRepository
+import com.torre.b2c2c_tfg.domain.usecase.CambiarPasswordUseCase
 import com.torre.b2c2c_tfg.domain.usecase.EliminarCuentaUseCase
-import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorAlumnoUseCase
-import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorEmpresaUseCase
 import com.torre.b2c2c_tfg.ui.components.BottomBar
 import com.torre.b2c2c_tfg.ui.screens.RegisterProfileEmpresaScreen
 import com.torre.b2c2c_tfg.ui.screens.WelcomeScreen
@@ -27,12 +24,10 @@ import com.torre.b2c2c_tfg.ui.screens.MisOfertasScreen
 import com.torre.b2c2c_tfg.ui.screens.NotificationScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertaDetalleScreen
 import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
-import com.torre.b2c2c_tfg.ui.screens.OfertasScreen
 import com.torre.b2c2c_tfg.ui.screens.PerfilDetalleScreen
 import com.torre.b2c2c_tfg.ui.util.UserType
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.screens.SettingsScreen
-import com.torre.b2c2c_tfg.ui.viewmodel.NotificationViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SettingsScreenViewModel
 
 // RUTAS PRINCIPALES DE LA APP
@@ -174,11 +169,13 @@ fun AppNavigation(
             val apiService = RetrofitInstance.getInstance(context) // tu instancia existente
             val settingsRepository = remember { SettingsRepository(apiService) }
             val eliminarCuentaUseCase = remember { EliminarCuentaUseCase(settingsRepository) }
+            val cambiarPasswordUseCase = remember {  CambiarPasswordUseCase(settingsRepository) }
 
             val settingsViewModel = remember {
                 SettingsScreenViewModel(
                     sessionViewModel = sessionViewModel,
-                    eliminarCuentaUseCase = eliminarCuentaUseCase
+                    eliminarCuentaUseCase = eliminarCuentaUseCase,
+                    cambiarPasswordUseCase = cambiarPasswordUseCase
                 )
             }
 

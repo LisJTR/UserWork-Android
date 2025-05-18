@@ -36,7 +36,7 @@ import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
 import com.torre.b2c2c_tfg.ui.components.OfertaSeleccionDialog
 import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionPorIdUseCase
-import com.torre.b2c2c_tfg.ui.components.IconArrowDown
+
 
 
 @OptIn(ExperimentalLayoutApi::class)

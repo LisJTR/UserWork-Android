@@ -9,12 +9,12 @@ android {
     compileSdk = 35
 
     defaultConfig {
+        namespace = "com.torre.b2c2c_tfg"
         applicationId = "com.torre.b2c2c_tfg"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

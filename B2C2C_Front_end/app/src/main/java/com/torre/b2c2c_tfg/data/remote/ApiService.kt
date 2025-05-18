@@ -2,6 +2,7 @@ package com.torre.b2c2c_tfg.data.remote
 
 import com.torre.b2c2c_tfg.data.model.Alumno
 import com.torre.b2c2c_tfg.data.model.AplicacionOferta
+import com.torre.b2c2c_tfg.data.model.CambiarPasswordRequest
 import com.torre.b2c2c_tfg.data.model.Empresa
 import com.torre.b2c2c_tfg.data.model.Invitacion
 import com.torre.b2c2c_tfg.data.model.LoginRequest
@@ -24,6 +25,9 @@ interface ApiService {
     // Peticiones HTTP de Login
     @POST("/api/auth/login") // Ajustar el endpoint según el backend
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+
+    @POST("api/auth/change-password")
+    suspend fun cambiarPassword(@Body request: CambiarPasswordRequest): Response<Unit>
 
 
     // -------------------------------------------------------------------
