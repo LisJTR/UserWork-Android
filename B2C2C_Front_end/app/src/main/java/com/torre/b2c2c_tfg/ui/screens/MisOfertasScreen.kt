@@ -45,9 +45,10 @@ import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 fun MisOfertasScreen(
     navController: NavController,
     isUserEmpresa: Boolean,
-    sessionViewModel: SessionViewModel
+    sessionViewModel: SessionViewModel,
 ) {
     val context = LocalContext.current
+    val entradaDesdeMisOfertas = true
 
     val viewModel = remember {
         MisOfertasScreenViewModel(
@@ -130,7 +131,7 @@ fun MisOfertasScreen(
 
                             val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
                             navController.navigate(
-                                ScreenRoutes.ofertaDetalleDesdeMisOfertasAlumno(oferta.id?.toLong() ?: 0L, idNotificacion)
+                                ScreenRoutes.ofertaDetalleDesdeMisOfertasAlumno(oferta.id?.toLong() ?: 0L, idNotificacion, )
                             )
                         }
                     )

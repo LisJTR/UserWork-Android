@@ -33,8 +33,6 @@ data class Alumno(
     val imagen: String? = null,
     @SerializedName("curriculum")
     val cvUri: String? = null,
-    @SerializedName("verificacion_titulacion")
-    val docUri: String? = null,
     @SerializedName("nombreDoc")
     val nombreDoc: String? = null
 )

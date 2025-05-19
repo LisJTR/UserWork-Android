@@ -64,10 +64,10 @@ object ScreenRoutes {
     fun ofertaDetalleDesdeNotificacionAlumno(idOferta: Long, idNotificacion: Long) = "$OfertaDetalle/$idOferta/$idNotificacion?modoNotificacion=true"
     // Detalle perfil desde mis ofertas EMPRESA (vista igual que notificación)
     fun perfilDetalleDesdeMisOfertasEmpresa(idAlumno: Long, idOferta: Long, idNotificacion: Long, estadoRespuesta: String?) =
-        "$PerfilDetalle/$idAlumno/$idOferta/$idNotificacion?desdeNotificacion=true&estadoRespuesta=${estadoRespuesta ?: ""}"
+        "$PerfilDetalle/$idAlumno/$idOferta/$idNotificacion?desdeNotificacion=true&estadoRespuesta=${estadoRespuesta ?: ""}&entradaDesdeMisOfertas=true"
     // Detalle de oferta desde mis ofertas ALUMNO (vista igual que notificación)
     fun ofertaDetalleDesdeMisOfertasAlumno(idOferta: Long, idNotificacion: Long) =
-        "$OfertaDetalle/$idOferta/$idNotificacion?modoNotificacion=true"
+        "$OfertaDetalle/$idOferta/$idNotificacion?modoNotificacion=true&entradaDesdeMisOfertas=true"
 
 }
 
@@ -202,11 +202,15 @@ fun AppNavigation(
 
         // Detalle de oferta desde notificación
         composable(
-            route = "${ScreenRoutes.OfertaDetalle}/{idOferta}/{idNotificacion}?modoNotificacion={modoNotificacion}",
+            route = "${ScreenRoutes.OfertaDetalle}/{idOferta}/{idNotificacion}?modoNotificacion={modoNotificacion}&entradaDesdeMisOfertas={entradaDesdeMisOfertas}",
             arguments = listOf(
                 navArgument("idOferta") { type = NavType.LongType },
                 navArgument("idNotificacion") { type = NavType.LongType },
                 navArgument("modoNotificacion") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                },
+                navArgument("entradaDesdeMisOfertas") {
                     type = NavType.BoolType
                     defaultValue = false
                 }
@@ -215,19 +219,22 @@ fun AppNavigation(
             val idOferta = backStackEntry.arguments?.getLong("idOferta") ?: 0L
             val idNotificacion = backStackEntry.arguments?.getLong("idNotificacion") ?: 0L
             val modoNotificacion = backStackEntry.arguments?.getBoolean("modoNotificacion") ?: false
+            val entradaDesdeMisOfertas = backStackEntry.arguments?.getBoolean("entradaDesdeMisOfertas") ?: false
 
             OfertaDetalleScreen(
                 navController = navController,
                 sessionViewModel = sessionViewModel,
                 idOferta = idOferta,
                 modoNotificacion = modoNotificacion,
-                idNotificacion = idNotificacion
+                idNotificacion = idNotificacion,
+                entradaDesdeMisOfertas = entradaDesdeMisOfertas
             )
         }
 
-        // Detalle de perfil desde notificación con estado de respuesta
+
+        // Detalle de perfil desde notificación
         composable(
-            route = "PerfilDetalleScreen/{idAlumno}/{idOferta}/{notificacionId}?desdeNotificacion={desdeNotificacion}&estadoRespuesta={estadoRespuesta}",
+            route = "PerfilDetalleScreen/{idAlumno}/{idOferta}/{notificacionId}?desdeNotificacion={desdeNotificacion}&estadoRespuesta={estadoRespuesta}&entradaDesdeMisOfertas={entradaDesdeMisOfertas}",
             arguments = listOf(
                 navArgument("idAlumno") { type = NavType.LongType },
                 navArgument("idOferta") { type = NavType.LongType },
@@ -239,6 +246,10 @@ fun AppNavigation(
                 navArgument("estadoRespuesta") {
                     type = NavType.StringType
                     defaultValue = ""
+                },
+                navArgument("entradaDesdeMisOfertas") {
+                    type = NavType.BoolType
+                    defaultValue = false
                 }
             )
         ) { backStackEntry ->
@@ -246,7 +257,7 @@ fun AppNavigation(
             val idOferta = backStackEntry.arguments?.getLong("idOferta") ?: 0L
             val notificacionId = backStackEntry.arguments?.getLong("notificacionId") ?: 0L
             val desdeNotificacion = backStackEntry.arguments?.getBoolean("desdeNotificacion") ?: false
-
+            val entradaDesdeMisOfertas = backStackEntry.arguments?.getBoolean("entradaDesdeMisOfertas") ?: false
 
             PerfilDetalleScreen(
                 navController = navController,
@@ -254,9 +265,11 @@ fun AppNavigation(
                 idAlumno = idAlumno,
                 idOfertaPreSeleccionada = idOferta,
                 desdeNotificacion = desdeNotificacion,
-                idNotificacion = notificacionId
+                idNotificacion = notificacionId,
+                entradaDesdeMisOfertas = entradaDesdeMisOfertas
             )
         }
+
 
 
         // Detalle de perfil de alumno (solo ID alumno)
