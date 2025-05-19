@@ -51,7 +51,8 @@ fun OfertaDetalleScreen(
     sessionViewModel: SessionViewModel,
     idOferta: Long,
     modoNotificacion: Boolean = false, // Parámetro para determinar el modo de la pantalla
-    idNotificacion: Long? = null
+    idNotificacion: Long? = null,
+    entradaDesdeMisOfertas: Boolean = false
 
 ) {
     val context = LocalContext.current
@@ -179,7 +180,7 @@ fun OfertaDetalleScreen(
         Spacer(modifier = Modifier.height(30.dp))
 
         if (modoNotificacion) {
-            if (estadoRespuestaBackend == null || estadoRespuestaBackend == "pendiente") {
+            if ((estadoRespuestaBackend == null || estadoRespuestaBackend == "pendiente") && !entradaDesdeMisOfertas) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -206,19 +207,23 @@ fun OfertaDetalleScreen(
                 }
             } else {
                 if (tipoNotificacionBackend != "respuesta") {
-                    Text(
-                        text = "Ya has respondido: ${estadoRespuestaBackend!!.uppercase()}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
+                    estadoRespuestaBackend?.let { respuesta ->
+                        Text(
+                            text = "Respondido: ${estadoRespuestaBackend!!.uppercase()}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    }
                 } else {
-                    Text(
-                        text = estadoRespuestaBackend!!.uppercase(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
+                    estadoRespuestaBackend?.let { respuesta ->
+                        Text(
+                            text = estadoRespuestaBackend!!.uppercase(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    }
                 }
             }
         }

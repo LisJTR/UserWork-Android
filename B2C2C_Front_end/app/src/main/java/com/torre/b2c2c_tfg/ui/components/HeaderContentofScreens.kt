@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -56,6 +57,8 @@ fun HeaderContentofScreens(
                 .padding(end = 16.dp),
             horizontalArrangement = Arrangement.End
         ) {
+
+            Spacer(modifier = Modifier.weight(10f))
             IconMessage(onClick = {
                 navController.navigate(ScreenRoutes.Notification)
             })
@@ -92,7 +95,22 @@ fun HeaderContentofScreens(
                     Text("Limpiar filtro")
                 }
             }
+
         }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 16.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+
+            Spacer(modifier = Modifier.weight(10f))
+            IconMessage(onClick = {
+                navController.navigate(ScreenRoutes.Notification)
+            })
+        }
+
 
         // Dropdown de opciones según tipo
         if (dropdownVisible.value) {

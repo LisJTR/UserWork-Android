@@ -47,7 +47,8 @@ fun PerfilDetalleScreen(
     sessionViewModel: SessionViewModel,
     idOfertaPreSeleccionada: Long? = null,
     desdeNotificacion: Boolean = false,
-    idNotificacion: Long? = null
+    idNotificacion: Long? = null,
+    entradaDesdeMisOfertas: Boolean = false
 
 ) {
     val context = LocalContext.current
@@ -152,7 +153,7 @@ fun PerfilDetalleScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 if (desdeNotificacion) {
-                    if (estadoRespuestaBackend == null || estadoRespuestaBackend == "pendiente") {
+                    if ((estadoRespuestaBackend == null || estadoRespuestaBackend == "pendiente") && !entradaDesdeMisOfertas) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
@@ -176,19 +177,23 @@ fun PerfilDetalleScreen(
                         }
                     } else {
                         if (tipoNotificacionBackend != "respuesta") {
-                            Text(
-                                text = "Ya has respondido: ${estadoRespuestaBackend!!.uppercase()}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(vertical = 16.dp)
-                            )
+                            estadoRespuestaBackend?.let { respuesta ->
+                                Text(
+                                    text = "Ya has respondido: ${estadoRespuestaBackend!!.uppercase()}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(vertical = 16.dp)
+                                )
+                            }
                         } else {
-                            Text(
-                                text = estadoRespuestaBackend!!.uppercase(),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(vertical = 16.dp)
-                            )
+                            estadoRespuestaBackend?.let { respuesta ->
+                                Text(
+                                    text = estadoRespuestaBackend!!.uppercase(),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(vertical = 16.dp)
+                                )
+                            }
                         }
                     }
 
