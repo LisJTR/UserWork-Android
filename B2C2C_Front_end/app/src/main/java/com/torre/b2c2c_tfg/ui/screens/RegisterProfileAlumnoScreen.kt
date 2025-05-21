@@ -58,7 +58,10 @@ import androidx.core.net.toUri
 import com.torre.b2c2c_tfg.ui.components.ErrorMessage
 import com.torre.b2c2c_tfg.ui.components.UploadFileImageComponent
 import com.torre.b2c2c_tfg.ui.components.UploadDocComponent
-
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -82,6 +85,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     val listaHabilidades = remember { mutableStateListOf<String>() }
     var nombreDoc by rememberSaveable { mutableStateOf<String?>(null) }
     var cvUri by remember { mutableStateOf<Uri?>(null) }
+    var archivoCv by remember { mutableStateOf<File?>(null) }
 
 
 
@@ -131,7 +135,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                     direccion = it.direccion.orEmpty()
                     nombreCentro = it.centro.orEmpty()
                     descripcion = it.descripcion.orEmpty()
-                    imageUri = it.imagen?.let { uri -> uri.toUri() }
+                    imageUri = RetrofitInstance.buildUri(it.imagen)
                     cvUri = it.cvUri?.let { uri -> uri.toUri() }
                     nombreDoc = it.nombreDoc.orEmpty()
                     listaHabilidades.clear()
@@ -296,14 +300,14 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
         )
         UploadDocComponent(
             label = "Subir CV",
-            storageKey = "doc_titulacion_uri",
+            mimeType = "application/pdf",
+            storageKey = "cv_uri",
             initialUri = cvUri,
-            onFileSelected = { uri, name ->
-                println("DEBUG: Doc seleccionado - URI: $uri, Nombre: $name")
-                cvUri = uri
-                nombreDoc = name
-            },
-            modifier = Modifier.fillMaxWidth()
+            onFileReadyToUpload = { file, fileName ->
+                cvUri = file.toURI().toString().toUri() // se guarda la uri como string
+                nombreDoc = fileName
+                archivoCv = file // se guarda el archivo
+            }
         )
 
         OutlinedInputTextField(
@@ -322,37 +326,84 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
         ButtonGeneric(
             text = "GUARDAR",
             onClick = {
-                val habilidadesTexto = listaHabilidades.joinToString(",") // Convierte la lista en una cadena separada por comas
+                val habilidadesTexto = listaHabilidades.joinToString(",")
 
-                val nuevoAlumno = Alumno(
-                    id = idAlumnoForm,
-                    nombre = nombre,
-                    username = username,
-                    apellido = apellido,
-                    password = password,
-                    telefono = telefono,
-                    correoElectronico = correoElectronico,
-                    ciudad = ciudad,
-                    direccion = direccion,
-                    centro = nombreCentro,
-                    titulacion = tituloCurso,
-                    descripcion = descripcion,
-                    habilidades = habilidadesTexto,
-                    cvUri = cvUri?.toString(),
-                    nombreDoc = nombreDoc,
-                    imagen = imageUri?.toString()
-                )
-                println("DEBUG: nombreDoc actual antes de guardar: $nombreDoc")
-                println("DEBUG FINAL ANTES DE GUARDAR: " + Gson().toJson(nuevoAlumno))
+                coroutineScope.launch {
+                    var urlDelCV: String? = null
+                    var urlImagen: String? = null
 
-                viewModel.guardarDatos(nuevoAlumno , esEdicion)
+                    if (imageUri != null && imageUri.toString().startsWith("content://")) {
+                        // SOLO si es una imagen nueva (viene del selector de imágenes)
+                        val inputStream = context.contentResolver.openInputStream(imageUri!!)
+                        val tempFile = File.createTempFile("upload_image", ".jpg", context.cacheDir)
+                        // Se copia el contenido del archivo seleccionado (desde inputStream) al archivo temporal.
+                        // se necesita porque Retrofit no puede subir directamente archivos
+                        inputStream?.use { input ->
+                            tempFile.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
 
-                // Quitar el foco para que se cierre el teclado y desaparezca el cursor
-                focusManager.clearFocus()
+                        // Se convierte el archivo temporal a RequestBody y se crea el MultipartBody.Part para enviar la imagen
+                        val imagePart = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
+                        // Establece el nombre del archivo sea unico
+                        val uniqueName = "foto_${System.currentTimeMillis()}.jpg"
+                        val imageMultipart = MultipartBody.Part.createFormData("file", uniqueName, imagePart)
 
-                if (!esEdicion) {
-                    // Esperamos brevemente y navegamos
-                    coroutineScope.launch {
+                        // Se envia el archivo al endpoint
+                        val imageResponse = RetrofitInstance.getFileUploadApi(context).uploadFile(imageMultipart)
+
+                        if (imageResponse.isSuccessful) {
+                            val imageUrl = imageResponse.body()?.string()
+                            urlImagen = imageUrl
+                            println("Imagen subida: $imageUrl")
+                        } else {
+                            println("Error al subir imagen. Código: ${imageResponse.code()}")
+                        }
+                    } else if (esEdicion) {
+                        // Si esta edicion y no cambiaste imagen, conserva la que ya tenía
+                        urlImagen = alumno?.imagen
+                    }
+
+                    if (archivoCv != null && nombreDoc != null) {
+                        val part = archivoCv!!.asRequestBody("application/pdf".toMediaTypeOrNull())
+                        val multipart = MultipartBody.Part.createFormData("file", nombreDoc!!, part)
+                        val response = RetrofitInstance.getFileUploadApi(context).uploadFile(multipart)
+                        if (response.isSuccessful) {
+                            val url = response.body()?.string() // Se obtiene el texto plano de la respuesta
+                            urlDelCV = url
+                            println("URL del CV subida: $urlDelCV")
+                        } else {
+                            println("Error al subir archivo. Código: ${response.code()}")
+                        }
+                    }
+
+
+                    val nuevoAlumno = Alumno(
+                        id = idAlumnoForm,
+                        nombre = nombre,
+                        username = username,
+                        apellido = apellido,
+                        password = password,
+                        telefono = telefono,
+                        correoElectronico = correoElectronico,
+                        ciudad = ciudad,
+                        direccion = direccion,
+                        centro = nombreCentro,
+                        titulacion = tituloCurso,
+                        descripcion = descripcion,
+                        habilidades = habilidadesTexto,
+                        cvUri = urlDelCV,
+                        nombreDoc = nombreDoc,
+                        imagen = urlImagen
+                    )
+
+                    println("DEBUG FINAL ANTES DE GUARDAR: " + Gson().toJson(nuevoAlumno))
+                    viewModel.guardarDatos(nuevoAlumno, esEdicion)
+
+                    focusManager.clearFocus()
+
+                    if (!esEdicion) {
                         delay(500)
                         viewModel.alumnoId?.let { newUserId ->
                             sessionViewModel.setSession(newUserId, "alumno")
@@ -360,12 +411,12 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                         }
                     }
                 }
-
             },
             modifier = Modifier
                 .width(300.dp)
                 .padding(top = 90.dp)
         )
+
     }
 
 }

@@ -1,5 +1,6 @@
 package com.torre.b2c2c_tfg.ui.components
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,14 +24,14 @@ import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun ProfileCard(
-    imageUrl: String,
+    imagenUri: Uri?,
     name: String,
     subtitle: String = "", // sector o cualquier texto secundario
     description: String = "", // descripción breve
     modifier: Modifier = Modifier,
-    trailingContent: @Composable (() -> Unit)? = null // por ejemplo, el botón con la letra "J"
+    trailingContent: @Composable (() -> Unit)? = null
 ) {
-    val imagePainter = rememberAsyncImagePainter(imageUrl)
+    val imagePainter = rememberAsyncImagePainter(imagenUri)
 
     Card(
         modifier = modifier

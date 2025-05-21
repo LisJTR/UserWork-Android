@@ -1,5 +1,6 @@
 package com.torre.b2c2c_tfg.ui.components
 
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,7 +26,7 @@ fun EmpresaCard(
     nombre: String,
     sector: String,
     descripcion: String,
-    imagenUrl: String?,
+    imagenUri: Uri?,
     onClick: () -> Unit = {},
     trailingContent: @Composable (() -> Unit)? = null
 ) {
@@ -45,7 +46,7 @@ fun EmpresaCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = imagenUrl ?: "",
+                model = imagenUri,
                 contentDescription = null,
                 modifier = Modifier
                     .size(60.dp)

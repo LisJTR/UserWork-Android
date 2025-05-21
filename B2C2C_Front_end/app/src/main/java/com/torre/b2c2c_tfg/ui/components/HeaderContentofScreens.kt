@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.OfertasScreenViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
@@ -67,14 +68,14 @@ fun HeaderContentofScreens(
         // Mostrar el perfil según tipo
         if (userType == "alumno" && alumno != null) {
             ProfileCard(
-                imageUrl = alumno!!.imagen ?: "",
+                imagenUri = RetrofitInstance.buildUri(alumno?.imagen),
                 name = "${alumno!!.nombre} ${alumno!!.apellido}"
             )
         }
 
         if (userType == "empresa" && empresa != null) {
             ProfileCard(
-                imageUrl = empresa!!.imagen ?: "",
+                imagenUri = RetrofitInstance.buildUri(empresa?.imagen),
                 name = empresa!!.nombre ?: ""
             )
         }

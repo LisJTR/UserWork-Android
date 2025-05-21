@@ -123,7 +123,7 @@ fun MisOfertasScreen(
                         nombre = it.nombre,
                         sector = it.sector,
                         descripcion = oferta.titulo,
-                        imagenUrl = it.imagen,
+                        imagenUri = RetrofitInstance.buildUri(it.imagen),
                         onClick = {
                             val notificacionRelacionada = notificaciones.find {
                                 it.ofertaId == oferta.id?.toLong() && it.alumnoId == userId
@@ -149,7 +149,7 @@ fun MisOfertasScreen(
                         nombre = "${alumno.nombre} ${alumno.apellido}",
                         sector = alumno.titulacion,
                         descripcion = oferta.titulo,
-                        imagenUrl = alumno.imagen,
+                        imagenUri = RetrofitInstance.buildUri(alumno.imagen),
                         onClick = {
                             val notificacionRelacionada = notificaciones.find {
                                 it.ofertaId == oferta.id?.toLong() &&

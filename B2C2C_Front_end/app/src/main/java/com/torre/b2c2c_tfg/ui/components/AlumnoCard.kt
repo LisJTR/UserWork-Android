@@ -1,5 +1,6 @@
 package com.torre.b2c2c_tfg.ui.components
 
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,7 +27,7 @@ fun AlumnoCard(
     apellido: String,
     titulacion: String,
     ciudad: String,
-    imagenUrl: String?,
+    imagenUri: Uri?,
     onClick: () -> Unit = {}
 ) {
     Card(
@@ -45,7 +46,7 @@ fun AlumnoCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = imagenUrl ?: "",
+                model = imagenUri,
                 contentDescription = null,
                 modifier = Modifier
                     .size(60.dp)
