@@ -99,7 +99,7 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
                         nombre = it.nombre,
                         sector = it.sector,
                         descripcion = oferta.titulo,
-                        imagenUrl = it.imagen,
+                        imagenUri = RetrofitInstance.buildUri(it.imagen),
                         onClick = {
                             navController.navigate(ScreenRoutes.ofertaDetalle(oferta.id?.toLong() ?: 0L))
                         }
@@ -117,7 +117,7 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
                     apellido = alumno.apellido,
                     titulacion = alumno.titulacion,
                     ciudad = alumno.ciudad,
-                    imagenUrl = alumno.imagen,
+                    imagenUri = RetrofitInstance.buildUri(alumno.imagen),
                     onClick = {
                         navController.navigate(ScreenRoutes.perfilDetalle(alumno.id?.toLong() ?: 0L))
                     }

@@ -9,12 +9,15 @@ import com.torre.b2c2c_tfg.data.model.LoginRequest
 import com.torre.b2c2c_tfg.data.model.LoginResponse
 import com.torre.b2c2c_tfg.data.model.Notificacion
 import com.torre.b2c2c_tfg.data.model.Oferta
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 

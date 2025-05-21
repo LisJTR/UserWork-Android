@@ -111,7 +111,7 @@ fun OfertaDetalleScreen(
     ) {
         empresa?.let {
             PerfilDetalleHeader(
-                imagenUrl = it.imagen,
+                imagenUri = RetrofitInstance.buildUri(empresa?.imagen),
                 nombre = it.nombre ?: "Empresa"
             )
 

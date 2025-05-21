@@ -1,5 +1,6 @@
 package com.torre.b2c2c_tfg.ui.components
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 @Composable
-fun PerfilDetalleHeader(imagenUrl: String?, nombre: String) {
+fun PerfilDetalleHeader(imagenUri: Uri?, nombre: String) {
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
     Column(
@@ -35,7 +36,7 @@ fun PerfilDetalleHeader(imagenUrl: String?, nombre: String) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
-            model = imagenUrl,
+            model = imagenUri,
             contentDescription = "Imagen perfil",
             modifier = Modifier
                 .size(80.dp)

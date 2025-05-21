@@ -1,14 +1,20 @@
 package com.torre.b2c2c_tfg.ui.viewmodel
 
+import android.content.Context
+import android.net.Uri
+import android.os.FileUtils
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.torre.b2c2c_tfg.data.model.Alumno
+import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.UpdateAlumnoUserCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.torre.b2c2c_tfg.domain.usecase.CreateAlumnoUseCase
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 
 class RegisterAlumnoViewModel(
     private val getAlumnoUseCase: GetAlumnoUseCase,
@@ -60,4 +66,5 @@ class RegisterAlumnoViewModel(
             }
         }
     }
+
 }

@@ -1,5 +1,7 @@
 package com.torre.b2c2c_tfg.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -109,7 +111,9 @@ fun PerfilDetalleScreen(
                 IconArrowBack(onClick = { navController.popBackStack() })
             }
 
-            PerfilDetalleHeader(imagenUrl = it.imagen, nombre = "${it.nombre} ${it.apellido}")
+            PerfilDetalleHeader(
+                imagenUri = RetrofitInstance.buildUri(it.imagen),
+                nombre = "${it.nombre} ${it.apellido}")
 
             Column(
                 modifier = Modifier
@@ -147,7 +151,16 @@ fun PerfilDetalleScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    ButtonGeneric(text = "Ver CV", onClick = {})
+                    ButtonGeneric(text = "Ver CV", onClick = {
+                        val url = alumno?.cvUri
+                        if (!url.isNullOrBlank()) {
+                            val fullUrl = RetrofitInstance.buildFullUrl(alumno?.cvUri)
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(fullUrl))
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(context, "CV no disponible", Toast.LENGTH_SHORT).show()
+                        }
+                    })
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
