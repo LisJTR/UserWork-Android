@@ -6,6 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import kotlin.coroutines.CoroutineContext
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 
 
 // Clase que crea una instancia de Retrofit, se configura para saber a que servidor llamar
@@ -14,18 +15,22 @@ object RetrofitInstance {
 
     // URLs del servidor
     // url apunto al emulador mismo
-    //private const val BASE_URL = "http://127.0.0.1:1234/"
+    private const val BASE_URL ="http://192.168.1.38:8080/"
     // url para acceder desde el ordenador con el emulador
-    private const val BASE_URL_EMULADOR = "http://10.0.2.2:8080/"
-    val BASE_URL = BASE_URL_EMULADOR
+   // private const val BASE_URL_EMULADOR = "http://10.0.2.2:8080/"
+    //val BASE_URL = BASE_URL_EMULADOR
     // url para acceder desde un dispositivo físico
     // private const val BASE_URL_LOCALHOST_REAL = "http://192.168.1.38:1234/"
 
     fun getInstance(context: Context): ApiService {
-        val client = OkHttpClient.Builder().build()
+        val client = OkHttpClient.Builder()
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
+            .build()
 
         return Retrofit.Builder()
-            .baseUrl(BASE_URL_EMULADOR)
+            .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -36,7 +41,7 @@ object RetrofitInstance {
         val client = OkHttpClient.Builder().build()
 
         return Retrofit.Builder()
-            .baseUrl(BASE_URL_EMULADOR)
+            .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
