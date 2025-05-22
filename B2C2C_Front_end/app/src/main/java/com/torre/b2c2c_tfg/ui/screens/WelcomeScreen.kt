@@ -75,7 +75,10 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             10.dp, alignment = Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .padding(30.dp)
+                .fillMaxSize()
+                .systemBarsPadding()
+                .padding(30.dp),
+
 
     ) {
 

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -198,6 +199,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .systemBarsPadding()
             .padding(top = 50.dp)
             .padding(horizontal = 50.dp)
             .verticalScroll(rememberScrollState())

@@ -1,6 +1,13 @@
 package com.torre.b2c2c_tfg.ui.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
@@ -9,8 +16,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
@@ -52,29 +61,71 @@ fun MisOfertasScreen(
 
     val viewModel = remember {
         MisOfertasScreenViewModel(
-            getAplicacionesUseCase = GetAplicacionesPorAlumnoUseCase(AplicacionOfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
-            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
-            getInvitacionesPorEmpresaUseCase = GetInvitacionPorEmpresaUseCase(InvitacionRepositoryImpl(RetrofitInstance.getInstance(context)))
+            getAplicacionesUseCase = GetAplicacionesPorAlumnoUseCase(
+                AplicacionOfertaRepositoryImpl(
+                    RetrofitInstance.getInstance(context)
+                )
+            ),
+            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(
+                OfertaRepositoryImpl(
+                    RetrofitInstance.getInstance(context)
+                )
+            ),
+            getInvitacionesPorEmpresaUseCase = GetInvitacionPorEmpresaUseCase(
+                InvitacionRepositoryImpl(RetrofitInstance.getInstance(context))
+            )
         )
     }
 
     val headerViewModel = remember {
         OfertasScreenViewModel(
-            getAlumnoUseCase = GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
-            getEmpresaUseCase = GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
-            getSectoresUnicosUseCase = GetSectoresUnicosUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
-            getTitulacionesUnicasUseCase = GetTitulacionesUnicasUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getAlumnoUseCase = GetAlumnoUseCase(
+                AlumnoRepositoryImpl(
+                    RetrofitInstance.getInstance(
+                        context
+                    )
+                )
+            ),
+            getEmpresaUseCase = GetEmpresaUseCase(
+                EmpresaRepositoryImpl(
+                    RetrofitInstance.getInstance(
+                        context
+                    )
+                )
+            ),
+            getSectoresUnicosUseCase = GetSectoresUnicosUseCase(
+                EmpresaRepositoryImpl(
+                    RetrofitInstance.getInstance(context)
+                )
+            ),
+            getTitulacionesUnicasUseCase = GetTitulacionesUnicasUseCase(
+                AlumnoRepositoryImpl(
+                    RetrofitInstance.getInstance(context)
+                )
+            ),
             alumnoRepository = AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)),
             empresaRepository = EmpresaRepositoryImpl(RetrofitInstance.getInstance(context)),
-            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
+            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(
+                OfertaRepositoryImpl(
+                    RetrofitInstance.getInstance(context)
+                )
+            )
         )
     }
 
     val notificationViewModel = remember {
         NotificationViewModel(
-            getNotificacionesPorAlumnoUseCase = GetNotificacionesPorAlumnoUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
-            getNotificacionesPorEmpresaUseCase = GetNotificacionesPorEmpresaUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
-            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context)))
+            getNotificacionesPorAlumnoUseCase = GetNotificacionesPorAlumnoUseCase(
+                NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))
+            ),
+            getNotificacionesPorEmpresaUseCase = GetNotificacionesPorEmpresaUseCase(
+                NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))
+            ),
+            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(
+                NotificacionRepositoryImpl(
+                    RetrofitInstance.getInstance(context)
+                )
+            )
         )
     }
 
@@ -105,78 +156,91 @@ fun MisOfertasScreen(
 
     }
 
-    LazyColumn {
-        item {
-            HeaderContentofScreens(
-                sessionViewModel = sessionViewModel,
-                viewModel = headerViewModel,
-                onFiltroSeleccionado = {},
-                navController = navController
-            )
-        }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 60.dp)
+            .systemBarsPadding()
+    ) {
+        HeaderContentofScreens(
+            sessionViewModel = sessionViewModel,
+            viewModel = headerViewModel,
+            onFiltroSeleccionado = {},
+            navController = navController
+        )
 
-        if (userType == "alumno") {
-            items(ofertas) { oferta ->
-                val empresa = empresas.find { it.id?.toLong() == oferta.empresaId.toLong() }
-                empresa?.let {
-                    EmpresaCard(
-                        nombre = it.nombre,
-                        sector = it.sector,
-                        descripcion = oferta.titulo,
-                        imagenUri = RetrofitInstance.buildUri(it.imagen),
-                        onClick = {
-                            val notificacionRelacionada = notificaciones.find {
-                                it.ofertaId == oferta.id?.toLong() && it.alumnoId == userId
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+
+            if (userType == "alumno") {
+                items(ofertas) { oferta ->
+                    val empresa = empresas.find { it.id?.toLong() == oferta.empresaId.toLong() }
+                    empresa?.let {
+                        EmpresaCard(
+                            nombre = it.nombre,
+                            sector = it.sector,
+                            descripcion = oferta.titulo,
+                            imagenUri = RetrofitInstance.buildUri(it.imagen),
+                            onClick = {
+                                val notificacionRelacionada = notificaciones.find {
+                                    it.ofertaId == oferta.id?.toLong() && it.alumnoId == userId
+                                }
+
+                                val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
+                                navController.navigate(
+                                    ScreenRoutes.ofertaDetalleDesdeMisOfertasAlumno(
+                                        oferta.id?.toLong() ?: 0L, idNotificacion,
+                                    )
+                                )
                             }
-
-                            val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
-                            navController.navigate(
-                                ScreenRoutes.ofertaDetalleDesdeMisOfertasAlumno(oferta.id?.toLong() ?: 0L, idNotificacion, )
-                            )
-                        }
-                    )
+                        )
+                    }
                 }
             }
-        }
 
-        if (userType == "empresa") {
-            items(invitaciones) { invitacion ->
-                val oferta = ofertasFiltradas.find { it.id?.toLong() == invitacion.ofertaId }
-                val alumno = alumnosFiltrados.find { it.id?.toLong() == invitacion.alumnoId }
+            if (userType == "empresa") {
+                items(invitaciones) { invitacion ->
+                    val oferta = ofertasFiltradas.find { it.id?.toLong() == invitacion.ofertaId }
+                    val alumno = alumnosFiltrados.find { it.id?.toLong() == invitacion.alumnoId }
 
-                if (oferta != null && alumno != null) {
-                    EmpresaCard(
-                        nombre = "${alumno.nombre} ${alumno.apellido}",
-                        sector = alumno.titulacion,
-                        descripcion = oferta.titulo,
-                        imagenUri = RetrofitInstance.buildUri(alumno.imagen),
-                        onClick = {
-                            val notificacionRelacionada = notificaciones.find {
-                                it.ofertaId == oferta.id?.toLong() &&
-                                        it.alumnoId == alumno.id?.toLong() &&
-                                        it.empresaId == userId
-                            }
+                    if (oferta != null && alumno != null) {
+                        EmpresaCard(
+                            nombre = "${alumno.nombre} ${alumno.apellido}",
+                            sector = alumno.titulacion,
+                            descripcion = oferta.titulo,
+                            imagenUri = RetrofitInstance.buildUri(alumno.imagen),
+                            onClick = {
+                                val notificacionRelacionada = notificaciones.find {
+                                    it.ofertaId == oferta.id?.toLong() &&
+                                            it.alumnoId == alumno.id?.toLong() &&
+                                            it.empresaId == userId
+                                }
 
-                            val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
-                            val estadoRespuesta = notificacionRelacionada?.estadoRespuesta ?: ""
+                                val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
+                                val estadoRespuesta = notificacionRelacionada?.estadoRespuesta ?: ""
 
-                            navController.navigate(
-                                ScreenRoutes.perfilDetalleDesdeMisOfertasEmpresa(
-                                    alumno.id?.toLong() ?: 0L,
-                                    oferta.id?.toLong() ?: 0L,
-                                    idNotificacion,
-                                    estadoRespuesta
+                                navController.navigate(
+                                    ScreenRoutes.perfilDetalleDesdeMisOfertasEmpresa(
+                                        alumno.id?.toLong() ?: 0L,
+                                        oferta.id?.toLong() ?: 0L,
+                                        idNotificacion,
+                                        estadoRespuesta
+                                    )
                                 )
-                            )
-                        }
-                    )
+                            }
+                        )
+                    }
                 }
+            }
+            item {
+                Spacer(modifier = Modifier.height(80.dp))
             }
         }
     }
 }
-
-
 
 
 

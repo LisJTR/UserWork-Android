@@ -5,8 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -65,7 +69,10 @@ fun NotificationScreen(
         }
     }
 
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -89,7 +96,11 @@ fun NotificationScreen(
             }
         )
 
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f) // IMPORTANTE: ocupa el resto del espacio y permite scroll
+        ) {
             items(notificaciones) { notificacion ->
                 Card(
                     modifier = Modifier
@@ -129,6 +140,9 @@ fun NotificationScreen(
                         Text(text = "Visto: ${if (notificacion.leido) "Sí" else "No"}", style = MaterialTheme.typography.bodySmall)
                     }
                 }
+            }
+            item {
+                Spacer(modifier = Modifier.height(80.dp))
             }
         }
     }
