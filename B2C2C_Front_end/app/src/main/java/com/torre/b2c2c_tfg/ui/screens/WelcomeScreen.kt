@@ -127,11 +127,25 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             onPasswordChange = { password = it },
             onDismiss = { showLoginDialog = false },
             onLoginClick = {
-                //loginViewModel.login(username, "", password)
+                println("🟡 BOTÓN LOGIN PULSADO")
+
+                if (username.isBlank() || password.isBlank()) {
+                    println("❌ Campos vacíos: username='$username' password='$password'")
+                    return@LoginDialog
+                }
+
                 val isEmail = username.contains("@")
+                val usernameFinal = if (!isEmail) username else null
+                val correoFinal = if (isEmail) username else null
+
+                if (usernameFinal == null && correoFinal == null) {
+                    println("❌ No se proporcionó username ni correo")
+                    return@LoginDialog
+                }
+
                 loginViewModel.login(
-                    username = if (!isEmail) username else null,
-                    email = if (isEmail) username else null,
+                    username = usernameFinal,
+                    email = correoFinal,
                     password = password
                 )
             },

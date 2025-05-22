@@ -61,5 +61,10 @@ class RegisterEmpresaViewModel(
             }
         }
     }
+
+    fun limpiarError() {
+        _mensajeError.value = null
+    }
+
 }
 

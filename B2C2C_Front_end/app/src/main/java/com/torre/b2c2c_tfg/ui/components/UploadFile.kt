@@ -22,125 +22,24 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import android.provider.OpenableColumns
 import com.torre.b2c2c_tfg.ui.util.FileUtils.copyUriToTempFile
+import com.torre.b2c2c_tfg.ui.util.FileUtils.getFileNameFromUri
 import java.io.File
 
 @Composable
-fun UploadFileImageComponent(
-    onFileSelected: (Uri) -> Unit,
-    mimeType: String = "*/*",
-    initialUri: Uri? = null,
-    modifier: Modifier = Modifier,
-    esEdicion: Boolean = false // edición o registro
-) {
-    var selectedFileUri by remember { mutableStateOf<Uri?>(initialUri) }
-    var fileName by remember { mutableStateOf<String?>(null) }
-
-    val context = LocalContext.current
-
-    // Sincroniza selectedFileUri cuando cambia initialUri desde afuera
-    LaunchedEffect(Unit) {
-        if (selectedFileUri == null && esEdicion ) {
-            val prefs = context.getSharedPreferences("my_prefs", android.content.Context.MODE_PRIVATE)
-            val uriString = prefs.getString("saved_file_uri", null)
-            val uri = uriString?.let { Uri.parse(it) }
-
-            if (uri != null) {
-                val hasPermission = context.contentResolver.persistedUriPermissions.any {
-                    it.uri == uri && it.isReadPermission
-                }
-
-                if (hasPermission) {
-                    selectedFileUri = uri
-                    onFileSelected(uri)
-
-                    // Obtener nombre del archivo
-                    val cursor = context.contentResolver.query(uri, null, null, null, null)
-                    cursor?.use {
-                        if (it.moveToFirst()) {
-                            val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                            if (nameIndex != -1) {
-                                fileName = it.getString(nameIndex)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            selectedFileUri = it
-            onFileSelected(it)
-
-            //PERMISOS PERSISTENTES
-            try {
-                context.contentResolver.takePersistableUriPermission(
-                    it,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                )
-            } catch (e: SecurityException) {
-                e.printStackTrace()
-            }
-
-            // GUARDA LA URI EN SharedPreferences
-            val prefs = context.getSharedPreferences("my_prefs", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putString("saved_file_uri", it.toString()).apply()
-
-
-
-
-            val cursor = context.contentResolver.query(it, null, null, null, null)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (nameIndex != -1) {
-                        fileName = it.getString(nameIndex)
-                    }
-                }
-            }
-        }
-    }
-
-    OutlinedButton(
-        onClick = { filePickerLauncher.launch(mimeType) },
-        modifier = modifier,
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-        shape = RoundedCornerShape(8.dp),
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Default.UploadFile, contentDescription = null)
-            if (selectedFileUri == null) {
-                Text("Arrastra el archivo", style = MaterialTheme.typography.bodyMedium)
-                Text("Seleccione archivo", style = MaterialTheme.typography.bodySmall)
-            } else {
-                Text(
-                    text = fileName ?: "Archivo seleccionado",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(8.dp)
-                )
-
-            }
-        }
-    }
-}
-
-@Composable
-fun UploadDocComponent(
-    label: String = "Seleccionar archivo",
-    mimeType: String = "application/pdf",
-    initialUri: Uri? = null,
+fun UploadFileComponent(
+    label: String,
+    mimeType: String,
     storageKey: String,
+    initialUri: Uri? = null,
+    mostrarVistaPreviaImagen: Boolean = false,
     modifier: Modifier = Modifier,
-    onFileReadyToUpload: (File, fileName: String) -> Unit
+    onFileReadyToUpload: (uri: Uri?, file: File?, nombre: String?) -> Unit
 ) {
     val context = LocalContext.current
-    var selectedUri by remember { mutableStateOf<Uri?>(initialUri) }
+    var selectedUri by remember { mutableStateOf(initialUri) }
     var fileName by remember { mutableStateOf<String?>(null) }
 
-    // Recuperar URI guardada (si tiene permisos)
+    // Cargar URI guardada si existe
     LaunchedEffect(Unit) {
         if (selectedUri == null) {
             val prefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
@@ -148,25 +47,15 @@ fun UploadDocComponent(
             val savedUri = savedUriString?.let { Uri.parse(it) }
 
             savedUri?.let { uri ->
-                // Comprobar si aún se tiene permiso persistente
                 val hasPermission = context.contentResolver.persistedUriPermissions.any {
                     it.uri == uri && it.isReadPermission
                 }
 
                 if (hasPermission) {
-                    try {
-                        selectedUri = uri
-                        fileName = getFileNameFromUri(context, uri)
-
-                        copyUriToTempFile(context, uri)?.let { file ->
-                            onFileReadyToUpload(file, file.name)
-                        }
-                    } catch (e: SecurityException) {
-                        e.printStackTrace()
-                        println("No se pudo acceder al archivo guardado: sin permiso")
-                    }
-                } else {
-                    println(" URI guardada sin permiso persistente, ignorando.")
+                    selectedUri = uri
+                    fileName = getFileNameFromUri(context, uri)
+                    val tempFile = copyUriToTempFile(context, uri)
+                    onFileReadyToUpload(uri, tempFile, fileName)
                 }
             }
         }
@@ -175,7 +64,6 @@ fun UploadDocComponent(
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
             try {
-                // Guardar permiso persistente
                 context.contentResolver.takePersistableUriPermission(
                     it,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -184,16 +72,14 @@ fun UploadDocComponent(
                 e.printStackTrace()
             }
 
-            // Guardar la URI en SharedPreferences
             val prefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
             prefs.edit().putString(storageKey, it.toString()).apply()
 
             selectedUri = it
             fileName = getFileNameFromUri(context, it)
+            val tempFile = copyUriToTempFile(context, it)
 
-            copyUriToTempFile(context, it)?.let { file ->
-                onFileReadyToUpload(file, file.name)
-            }
+            onFileReadyToUpload(it, tempFile, fileName)
         }
     }
 
@@ -205,27 +91,19 @@ fun UploadDocComponent(
         }
 
         fileName?.let {
-            Text(
-                "Archivo seleccionado: $it",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 8.dp)
+            Text("Archivo seleccionado: $it", style = MaterialTheme.typography.bodyMedium)
+        }
+
+        if (mostrarVistaPreviaImagen && selectedUri != null) {
+            AsyncImage(
+                model = selectedUri,
+                contentDescription = "Vista previa",
+                modifier = Modifier
+                    .size(150.dp)
+                    .padding(top = 8.dp)
             )
         }
     }
-}
-
-
-// Helper para sacar el nombre del archivo
-fun getFileNameFromUri(context: Context, uri: Uri): String? {
-    context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        if (cursor.moveToFirst() && nameIndex != -1) {
-            return cursor.getString(nameIndex)
-        }
-    }
-
-    // Fallback: usar parte del path del URI
-    return uri.lastPathSegment?.substringAfterLast("/")
 }
 
 

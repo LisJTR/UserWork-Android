@@ -38,8 +38,10 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
     fun login(username: String?, email: String?, password: String) {
         viewModelScope.launch {
             try {
+                println("🔄 Ejecutando login con -> username=$username, email=$email")
                 val result = loginUseCase(LoginRequest(username, email, password))
 
+                println("✅ Respuesta login: $result")
                 if (result.isSuccessful && result.body() != null) {
                     val loginResponse = result.body()!!
                     _loginResult.value = loginResponse.mensaje

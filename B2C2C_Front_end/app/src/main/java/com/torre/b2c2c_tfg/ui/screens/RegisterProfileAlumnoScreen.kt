@@ -2,6 +2,7 @@ package com.torre.b2c2c_tfg.ui.screens
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,12 +57,11 @@ import com.torre.b2c2c_tfg.domain.usecase.CreateAlumnoUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
-import com.torre.b2c2c_tfg.ui.components.ErrorMessage
-import com.torre.b2c2c_tfg.ui.components.UploadFileImageComponent
-import com.torre.b2c2c_tfg.ui.components.UploadDocComponent
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
+import com.torre.b2c2c_tfg.ui.components.AutoDismissCorrectText
+import com.torre.b2c2c_tfg.ui.components.AutoDismissErrorText
+import com.torre.b2c2c_tfg.ui.components.PerfilProgresoCompleto
+import com.torre.b2c2c_tfg.ui.components.UploadFileComponent
+import com.torre.b2c2c_tfg.ui.util.FileUtils
 import java.io.File
 
 
@@ -86,67 +87,71 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     var nombreDoc by rememberSaveable { mutableStateOf<String?>(null) }
     var cvUri by remember { mutableStateOf<Uri?>(null) }
     var archivoCv by remember { mutableStateOf<File?>(null) }
+    var mensajeErrorLocal by remember { mutableStateOf<String?>(null) }
+    var mensajeCorectLocal by remember { mutableStateOf<String?>(null) }
 
+    val porcentajeCompletado = run {
+        val totalCampos = 10
+        var completados = 0
 
+        if (nombre.isNotBlank()) completados++
+        if (apellido.isNotBlank()) completados++
+        if (username.isNotBlank()) completados++
+        if (correoElectronico.isNotBlank()) completados++
+        if (ciudad.isNotBlank()) completados++
+        if (direccion.isNotBlank()) completados++
+        if (nombreCentro.isNotBlank()) completados++
+        if (descripcion.isNotBlank()) completados++
+        if (imageUri != null) completados++
+        if (cvUri != null) completados++
+
+        completados / totalCampos.toFloat()
+    }
 
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
-
-
-
     val context = LocalContext.current
+
     val viewModel = remember {
         RegisterAlumnoViewModel(
-            //GetAlumnoUseCase(FakeAlumnoRepository()),
             GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
-            //UpdateAlumnoUserCase(FakeAlumnoRepository())
             UpdateAlumnoUserCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
             CreateAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
-    val errorMessage by viewModel.mensajeError.collectAsState()
+
     val alumno by viewModel.alumno.collectAsState()
     val alumnoId = sessionViewModel.userId.collectAsState().value ?: 0L
 
-    // Si es edición, carga los datos del alumno
     if (esEdicion) {
-
         LaunchedEffect(alumnoId) {
-            println("Alumno ID recibido: $alumnoId")
             if (alumnoId > 0) {
                 viewModel.cargarDatos(alumnoId)
             }
         }
 
-        // Actualiza los campos cuando llegue el alumno
         LaunchedEffect(alumno) {
             alumno?.let {
-                alumno?.let {
-                    idAlumnoForm = it.id ?: 0
-                    nombre = it.nombre.orEmpty()
-                    username = it.username.orEmpty()
-                    password = it.password.orEmpty()
-                    apellido = it.apellido.orEmpty()
-                    telefono = it.telefono.orEmpty()
-                    println("Correo electrónico desde backend: '${it.correoElectronico}'")
-                    println(Gson().toJson(alumno))
-                    correoElectronico = it.correoElectronico.orEmpty().trim()
-                    ciudad = it.ciudad.orEmpty()
-                    direccion = it.direccion.orEmpty()
-                    nombreCentro = it.centro.orEmpty()
-                    descripcion = it.descripcion.orEmpty()
-                    imageUri = RetrofitInstance.buildUri(it.imagen)
-                    cvUri = it.cvUri?.let { uri -> uri.toUri() }
-                    nombreDoc = it.nombreDoc.orEmpty()
-                    listaHabilidades.clear()
-                    listaHabilidades.addAll(
-                        it.habilidades.orEmpty().split(",").filter { h -> h.isNotBlank() })
-                }
+                idAlumnoForm = it.id ?: 0
+                nombre = it.nombre.orEmpty()
+                username = it.username.orEmpty()
+                password = it.password.orEmpty()
+                apellido = it.apellido.orEmpty()
+                telefono = it.telefono.orEmpty()
+                correoElectronico = it.correoElectronico.orEmpty().trim()
+                ciudad = it.ciudad.orEmpty()
+                direccion = it.direccion.orEmpty()
+                nombreCentro = it.centro.orEmpty()
+                descripcion = it.descripcion.orEmpty()
+                imageUri = RetrofitInstance.buildUri(it.imagen)
+                cvUri = it.cvUri?.toUri()
+                nombreDoc = it.nombreDoc.orEmpty()
+                listaHabilidades.clear()
+                listaHabilidades.addAll(it.habilidades.orEmpty().split(",").filter { h -> h.isNotBlank() })
             }
         }
     }
 
-    // Si no es edición, guarda sesión y navega una vez se obtenga el ID
     if (!esEdicion) {
         LaunchedEffect(viewModel.alumnoId) {
             viewModel.alumnoId?.let { newUserId ->
@@ -156,228 +161,130 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
         }
     }
 
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 50.dp)
             .padding(horizontal = 50.dp)
-            .verticalScroll(rememberScrollState()) // añade scroll
-            .padding(bottom = contentPadding.calculateBottomPadding()), // se agrega el padding bottom para que no se pisen los botones con la barra de navegación
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = contentPadding.calculateBottomPadding()),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        UploadFileImageComponent(
-            onFileSelected = { uri -> imageUri = uri },
+        UploadFileComponent(
+            label = "",
             mimeType = "image/*",
+            storageKey = "alumno_imagen_uri",
             initialUri = imageUri,
-            modifier = Modifier
-                .width(100.dp)
-                .height(50.dp),
-            esEdicion = esEdicion
-
-
+            mostrarVistaPreviaImagen = true,
+            modifier = Modifier.width(100.dp).height(50.dp),
+            onFileReadyToUpload = { uri, _, _ ->
+                imageUri = uri
+            }
         )
-
+        PerfilProgresoCompleto(porcentajeCompletado)
         UserSelectedImage(imageUri)
 
-        OutlinedInputTextField(
-            value = nombre,
-            onValueChange = { nombre = it },
-            label = "Nombre*",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-                value = apellido,
-        onValueChange = { apellido = it },
-        label = "Apellido*",
-        modifier = Modifier
-            .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = "User name*",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = "Contraseña*",
-            modifier = Modifier
-                .height(60.dp)
-        )
+        OutlinedInputTextField(nombre, { nombre = it }, "Nombre*", Modifier.height(60.dp))
+        OutlinedInputTextField(apellido, { apellido = it }, "Apellido*", Modifier.height(60.dp))
+        OutlinedInputTextField(username, { username = it }, "User name*", Modifier.height(60.dp))
+        if (!esEdicion) {
+            OutlinedInputTextField(password, { password = it }, "Contraseña*", Modifier.height(60.dp))
+        }
+        OutlinedInputTextField(telefono, { telefono = it }, "Nº Teléfono", Modifier.height(60.dp))
+        OutlinedInputTextField(correoElectronico, { correoElectronico = it }, "Correo Electrónico*", Modifier.height(60.dp))
+        OutlinedInputTextField(ciudad, { ciudad = it }, "Ciudad", Modifier.height(60.dp))
+        OutlinedInputTextField(direccion, { direccion = it }, "Dirección", Modifier.height(60.dp))
+        OutlinedInputTextField(nombreCentro, { nombreCentro = it }, "Nombre del centro*", Modifier.height(60.dp))
+        OutlinedInputTextField(tituloCurso, { tituloCurso = it }, "Título que se está cursando", Modifier.height(60.dp))
 
-        OutlinedInputTextField(
-            value = telefono,
-            onValueChange = { telefono = it },
-            label = "Nº Teléfono",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = correoElectronico,
-            onValueChange = { correoElectronico = it },
-            label = "Correo Electrónico*",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = ciudad,
-            onValueChange = { ciudad = it },
-            label = "Ciudad",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = direccion,
-            onValueChange = { direccion = it },
-            label = "Dirección",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = nombreCentro,
-            onValueChange = { nombreCentro = it },
-            label = "Nombre del centro*",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = tituloCurso,
-            onValueChange = { tituloCurso = it },
-            label = "Título que se está cursando",
-            modifier = Modifier
-                .height(60.dp)
-        )
-
-        // Campo para añadir habilidad + botón "+"
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            OutlinedInputTextField(
-                value = nuevaHabilidad,
-                onValueChange = { nuevaHabilidad = it },
-                label = "Habilidades",
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(
-                onClick = {
-                    val habilidadLimpia = nuevaHabilidad.trim()
-                    if (habilidadLimpia.isNotBlank() && !listaHabilidades.contains(habilidadLimpia)) {
-                        listaHabilidades.add(habilidadLimpia)
-                        nuevaHabilidad = ""
-                    }
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            OutlinedInputTextField(nuevaHabilidad, { nuevaHabilidad = it }, "Habilidades", Modifier.weight(1f))
+            IconButton(onClick = {
+                val habilidadLimpia = nuevaHabilidad.trim()
+                if (habilidadLimpia.isNotBlank() && !listaHabilidades.contains(habilidadLimpia)) {
+                    listaHabilidades.add(habilidadLimpia)
+                    nuevaHabilidad = ""
                 }
-
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Añadir habilidad")
-            }
+            }) { Icon(Icons.Default.Add, contentDescription = "Añadir habilidad") }
         }
 
-        // Mostrar habilidades añadidas
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
-        ) {
+        FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
             listaHabilidades.forEach { habilidad ->
-                HabilidadChip(
-                    habilidad = habilidad,
-                    onRemove = { listaHabilidades.remove(habilidad) }
-                )
+                HabilidadChip(habilidad = habilidad, onRemove = { listaHabilidades.remove(habilidad) })
             }
         }
 
+        OutlinedInputTextField(descripcion, { descripcion = it }, "Breve descripción", Modifier.height(60.dp))
 
-        OutlinedInputTextField(
-            value = descripcion,
-            onValueChange = { descripcion = it },
-            label = "Breve descripción",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        UploadDocComponent(
+        UploadFileComponent(
             label = "Subir CV",
             mimeType = "application/pdf",
             storageKey = "cv_uri",
             initialUri = cvUri,
-            onFileReadyToUpload = { file, fileName ->
-                cvUri = file.toURI().toString().toUri() // se guarda la uri como string
-                nombreDoc = fileName
-                archivoCv = file // se guarda el archivo
+            mostrarVistaPreviaImagen = false,
+            onFileReadyToUpload = { uri, file, nombre ->
+                cvUri = uri
+                archivoCv = file
+                nombreDoc = nombre
             }
         )
 
-        OutlinedInputTextField(
-            value = nombreDoc ?: "",
-            onValueChange = {},
-            label = "Nombre del documento",
-            modifier = Modifier.fillMaxWidth(),
-            enabled = false // Solo lectura
-        )
-        ErrorMessage(
-            message = errorMessage.orEmpty(),
-            modifier = Modifier.padding(top = 8.dp)
-        )
+        OutlinedInputTextField(nombreDoc ?: "", {}, "Nombre del documento", Modifier.fillMaxWidth(), enabled = false)
 
-        // --- BOTÓN GUARDAR ---
+        AutoDismissErrorText(text = mensajeErrorLocal, onDismiss = { mensajeErrorLocal = null })
+        AutoDismissCorrectText( text = mensajeCorectLocal, onDismiss = { mensajeCorectLocal = null })
         ButtonGeneric(
             text = "GUARDAR",
             onClick = {
-                val habilidadesTexto = listaHabilidades.joinToString(",")
-
                 coroutineScope.launch {
+                    viewModel.limpiarError()
+                    if (nombre.isBlank() || apellido.isBlank() || username.isBlank() || password.isBlank() || correoElectronico.isBlank()) {
+                        mensajeErrorLocal = "Por favor, completa todos los campos obligatorios."
+                        return@launch
+                    }
+                    if (descripcion.length > 255) {
+                        mensajeErrorLocal = "La descripción no puede tener más de 255 caracteres."
+                        return@launch
+                    }
+
+                    val habilidadesTexto = listaHabilidades.joinToString(",")
                     var urlDelCV: String? = null
                     var urlImagen: String? = null
 
                     if (imageUri != null && imageUri.toString().startsWith("content://")) {
-                        // SOLO si es una imagen nueva (viene del selector de imágenes)
-                        val inputStream = context.contentResolver.openInputStream(imageUri!!)
-                        val tempFile = File.createTempFile("upload_image", ".jpg", context.cacheDir)
-                        // Se copia el contenido del archivo seleccionado (desde inputStream) al archivo temporal.
-                        // se necesita porque Retrofit no puede subir directamente archivos
-                        inputStream?.use { input ->
-                            tempFile.outputStream().use { output ->
-                                input.copyTo(output)
-                            }
-                        }
+                        val fileName = FileUtils.getFileNameFromUri(context, imageUri!!) ?: "imagen.jpg"
+                        val tempFile = FileUtils.copyUriToTempFile(context, imageUri!!)
+                        val oldFileName = viewModel.alumno.value?.imagen?.substringAfterLast("/")
 
-                        // Se convierte el archivo temporal a RequestBody y se crea el MultipartBody.Part para enviar la imagen
-                        val imagePart = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
-                        // Establece el nombre del archivo sea unico
-                        val uniqueName = "foto_${System.currentTimeMillis()}.jpg"
-                        val imageMultipart = MultipartBody.Part.createFormData("file", uniqueName, imagePart)
-
-                        // Se envia el archivo al endpoint
-                        val imageResponse = RetrofitInstance.getFileUploadApi(context).uploadFile(imageMultipart)
-
-                        if (imageResponse.isSuccessful) {
-                            val imageUrl = imageResponse.body()?.string()
-                            urlImagen = imageUrl
-                            println("Imagen subida: $imageUrl")
-                        } else {
-                            println("Error al subir imagen. Código: ${imageResponse.code()}")
+                        tempFile?.let {
+                            urlImagen = FileUtils.subirArchivoConOldFile(
+                                context = context,
+                                archivo = it,
+                                nombreArchivo = fileName,
+                                mimeType = "image/*",
+                                nombreArchivoAntiguo = oldFileName
+                            )
                         }
                     } else if (esEdicion) {
-                        // Si esta edicion y no cambiaste imagen, conserva la que ya tenía
                         urlImagen = alumno?.imagen
                     }
 
                     if (archivoCv != null && nombreDoc != null) {
-                        val part = archivoCv!!.asRequestBody("application/pdf".toMediaTypeOrNull())
-                        val multipart = MultipartBody.Part.createFormData("file", nombreDoc!!, part)
-                        val response = RetrofitInstance.getFileUploadApi(context).uploadFile(multipart)
-                        if (response.isSuccessful) {
-                            val url = response.body()?.string() // Se obtiene el texto plano de la respuesta
-                            urlDelCV = url
-                            println("URL del CV subida: $urlDelCV")
-                        } else {
-                            println("Error al subir archivo. Código: ${response.code()}")
-                        }
-                    }
+                        val oldFileName = viewModel.alumno.value?.cvUri?.substringAfterLast("/")
 
+                        urlDelCV = FileUtils.subirArchivoConOldFile(
+                            context = context,
+                            archivo = archivoCv!!,
+                            nombreArchivo = nombreDoc!!,
+                            mimeType = "application/pdf",
+                            nombreArchivoAntiguo = oldFileName
+                        )
+
+                        cvUri = urlDelCV?.toUri() // asegura coherencia para el siguiente guardado
+                    }
 
                     val nuevoAlumno = Alumno(
                         id = idAlumnoForm,
@@ -398,9 +305,8 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                         imagen = urlImagen
                     )
 
-                    println("DEBUG FINAL ANTES DE GUARDAR: " + Gson().toJson(nuevoAlumno))
                     viewModel.guardarDatos(nuevoAlumno, esEdicion)
-
+                    mensajeCorectLocal = "Datos guardados"
                     focusManager.clearFocus()
 
                     if (!esEdicion) {
@@ -412,14 +318,11 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                     }
                 }
             },
-            modifier = Modifier
-                .width(300.dp)
-                .padding(top = 90.dp)
+            modifier = Modifier.width(300.dp).padding(top = 20.dp)
         )
-
     }
-
 }
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true)

@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -62,13 +63,12 @@ import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.ui.platform.LocalFocusManager
 import com.torre.b2c2c_tfg.domain.usecase.CreateEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.DeleteOfertaUseCase
-import com.torre.b2c2c_tfg.ui.components.ErrorMessage
-import com.torre.b2c2c_tfg.ui.components.UploadFileImageComponent
+import com.torre.b2c2c_tfg.ui.components.AutoDismissCorrectText
+import com.torre.b2c2c_tfg.ui.components.AutoDismissErrorText
+import com.torre.b2c2c_tfg.ui.components.PerfilProgresoCompleto
+import com.torre.b2c2c_tfg.ui.components.UploadFileComponent
+import com.torre.b2c2c_tfg.ui.util.FileUtils
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import java.io.File
 
 
 
@@ -100,31 +100,42 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
     var descripcion by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val offerCards = remember { mutableStateListOf<OfferCardData>() }
-    val originalCards = remember { mutableStateListOf<OfferCardData>() } // Guarda el estado original
+    val originalCards = remember { mutableStateListOf<OfferCardData>() }
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
-
-
     val context = LocalContext.current
+    var mensajeErrorLocal by remember { mutableStateOf<String?>(null) }
+    var mensajeCorectLocal by remember { mutableStateOf<String?>(null) }
+
+    val porcentajeCompletado = run {
+        val totalCampos = 8
+        var completados = 0
+
+        if (nombreEmpresa.isNotBlank()) completados++
+        if (username.isNotBlank()) completados++
+        if (sector.isNotBlank()) completados++
+        if (ciudad.isNotBlank()) completados++
+        if (descripcion.isNotBlank()) completados++
+        if (correo.isNotBlank()) completados++
+        if (telefono.isNotBlank()) completados++
+        if (imageUri != null) completados++
+
+        completados / totalCampos.toFloat()
+    }
+
+
     val viewModel = remember {
         RegisterEmpresaViewModel(
-            //GetEmpresaUseCase(FakeEmpresaRepository()),
             GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
-            //UpdateEmpresaUseCase(FakeEmpresaRepository())
             UpdateEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
             CreateEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context)))
-
         )
     }
 
-    val errorMessage by viewModel.mensajeError.collectAsState()
 
     val ofertaViewModel = remember {
         OfertaViewModel(
-        // CrearOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.api)))
-            //crearOfertaUseCase = CrearOfertaUseCase(FakeOfertaRepository()),
             CrearOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
-            //getOfertasUseCase = GetOfertasUseCase(FakeOfertaRepository())
             GetOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context))),
             DeleteOfertaUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
@@ -132,7 +143,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
 
     val empresaId = sessionViewModel.userId.collectAsState().value ?: 0L
 
-    // Si no es edición, guarda sesión y navega una vez se obtenga el ID
     if (!esEdicion) {
         LaunchedEffect(viewModel.empresaId) {
             viewModel.empresaId?.let { newEmpresaId ->
@@ -143,19 +153,14 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
     }
 
     val empresa by viewModel.empresa.collectAsState()
-    // Obtiene el alumno actual desde el ViewModel
     if (esEdicion) {
         val ofertas by ofertaViewModel.ofertas.collectAsState()
-
-        // Cargar los datos
         LaunchedEffect(empresaId) {
-            println("Alumno ID recibido: $empresaId")
             if (empresaId > 0) {
-            viewModel.cargarDatos(empresaId)             // carga empresa
+                viewModel.cargarDatos(empresaId)
             }
-            ofertaViewModel.cargarOfertas(empresaId) // carga ofertas
+            ofertaViewModel.cargarOfertas(empresaId)
         }
-        // Cuando llega la empresa, actualizar campos
         LaunchedEffect(empresa) {
             empresa?.let {
                 idEmpresaForm = it.id
@@ -165,16 +170,11 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 sector = it.sector
                 ciudad = it.ciudad
                 telefono = it.telefono
-                println("Correo electrónico desde backend: '${it.correoElectronico}'")
-                println(Gson().toJson(empresa))
                 correo = it.correoElectronico.orEmpty().trim()
                 descripcion = it.descripcion
                 imageUri = RetrofitInstance.buildUri(it.imagen)
-
             }
         }
-
-        // Cuando llegan las ofertas, actualiza tus cards:
         LaunchedEffect(ofertas) {
             offerCards.clear()
             originalCards.clear()
@@ -184,7 +184,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                     title = it.titulo ?: "",
                     description = it.descripcion ?: "",
                     aptitudes = it.aptitudes ?: "",
-                    queSeOfrece = it.queSeOfrece ?: "", // ← ESTA LÍNEA CORRIGE EL CRASH
+                    queSeOfrece = it.queSeOfrece ?: "",
                     isPublic = it.publicada,
                     isSaved = true
                 )
@@ -194,116 +194,58 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
         }
     }
 
-    //Campos a la izquierda
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 50.dp)
             .padding(horizontal = 50.dp)
-            .verticalScroll(rememberScrollState()) // añade scroll
-            .padding(bottom = contentPadding.calculateBottomPadding()), // se agrega el padding bottom para que no se pisen los botones con la barra de navegación
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = contentPadding.calculateBottomPadding()),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        UploadFileImageComponent(
-            onFileSelected = { uri -> imageUri = uri },
+        UploadFileComponent(
+            label = "",
             mimeType = "image/*",
+            storageKey = "empresa_imagen_uri",
             initialUri = imageUri,
-            modifier = Modifier
-                .width(100.dp)
-                .height(50.dp),
-            esEdicion = esEdicion
+            mostrarVistaPreviaImagen = true,
+            modifier = Modifier.width(100.dp).height(50.dp),
+            onFileReadyToUpload = { uri, _, _ ->
+                imageUri = uri
+            }
         )
 
         UserSelectedImage(imageUri)
+        PerfilProgresoCompleto(porcentajeCompletado)
 
-        OutlinedInputTextField(
-            value = nombreEmpresa,
-            onValueChange = { nombreEmpresa = it },
-            label = "Nombre Empresa*",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = "User Name*",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = "Contraseña*",
-            modifier = Modifier
-                .height(60.dp)
-        )
-        OutlinedInputTextField(
-            value = sector,
-            onValueChange = { sector = it },
-            label = "Sector*",
-            modifier = Modifier
-                .height(60.dp)
+        OutlinedInputTextField(nombreEmpresa, { nombreEmpresa = it }, "Nombre Empresa*", Modifier.height(60.dp))
+        OutlinedInputTextField(username, { username = it }, "User Name*", Modifier.height(60.dp))
+        if (!esEdicion) {
+            OutlinedInputTextField(password, { password = it }, "Contraseña*", Modifier.height(60.dp))
+        }
+        OutlinedInputTextField(sector, { sector = it }, "Sector*", Modifier.height(60.dp))
+        OutlinedInputTextField(ciudad, { ciudad = it }, "Ciudad*", Modifier.height(60.dp))
+        OutlinedInputTextField(telefono, { telefono = it }, "Teléfono", Modifier.height(60.dp))
+        OutlinedInputTextField(correo, { correo = it }, "Correo electrónico", Modifier.height(60.dp))
+        OutlinedInputTextField(descripcion, { descripcion = it }, "Breve descripción*", Modifier.height(60.dp))
 
-        )
-        OutlinedInputTextField(
-            value = ciudad,
-            onValueChange = { ciudad = it },
-            label = "Ciudad*",
-            modifier = Modifier
-                .height(60.dp)
-
-        )
-        OutlinedInputTextField(
-            value = telefono,
-            onValueChange = { telefono = it },
-            label = "Teléfono",
-            modifier = Modifier
-                .height(60.dp)
-
-        )
-        OutlinedInputTextField(
-            value = correo,
-            onValueChange = { correo = it },
-            label = "Correo electrónico",
-            modifier = Modifier
-                .height(60.dp)
-        )
-
-        OutlinedInputTextField(
-            value =  descripcion,
-            onValueChange = {  descripcion = it },
-            label = "Breve descripción*",
-            modifier = Modifier
-                .height(60.dp)
-        )
-
-        // Título + botón "+"
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextTitle(
-                text = "OFERTAS",
-                style = MaterialTheme.typography.titleSmall
-            )
-
+            TextTitle("OFERTAS", style = MaterialTheme.typography.titleSmall)
             IconButton(onClick = {
-                offerCards.add(OfferCardData(isSaved = false)) // Añadir nueva card vacía
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Añadir oferta")
-            }
-
+                offerCards.add(OfferCardData(isSaved = false))
+            }) { Icon(Icons.Default.Add, contentDescription = "Añadir oferta") }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Mostrar la tarjeta si el botón se ha pulsado
-        offerCards
-            .filter { !it.isMarkedForDeletion }
-            .forEachIndexed { index, card ->
+        offerCards.filter { !it.isMarkedForDeletion }.forEachIndexed { index, card ->
             OfferCardForm(
                 id = card.id,
                 title = card.title,
@@ -312,64 +254,51 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                 queSeOfrece = card.queSeOfrece,
                 isPublic = card.isPublic,
                 isSaved = card.isSaved,
-                onTitleChange = { newTitle ->
-                    offerCards[index] = card.copy(title = newTitle)
-                },
-                onDescriptionChange = { newDesc ->
-                    offerCards[index] = card.copy(description = newDesc)
-                },
-                onAptitudesChange = { newAptitudes ->
-                    offerCards[index] = card.copy(aptitudes = newAptitudes)
-                },
-                onQueSeOfreceChange = { newValue ->
-                    offerCards[index] = card.copy(queSeOfrece = newValue)
-                },
-                onDelete = {
-                    offerCards[index] = card.copy(isMarkedForDeletion = true)
-                },
-                onView = {
-                    offerCards[index] = card.copy(isPublic = true)
-                },
-                onHide = {
-                    offerCards[index] = card.copy(isPublic = false)
-                }
+                onTitleChange = { offerCards[index] = card.copy(title = it) },
+                onDescriptionChange = { offerCards[index] = card.copy(description = it) },
+                onAptitudesChange = { offerCards[index] = card.copy(aptitudes = it) },
+                onQueSeOfreceChange = { offerCards[index] = card.copy(queSeOfrece = it) },
+                onDelete = { offerCards[index] = card.copy(isMarkedForDeletion = true) },
+                onView = { offerCards[index] = card.copy(isPublic = true) },
+                onHide = { offerCards[index] = card.copy(isPublic = false) }
             )
         }
-        ErrorMessage(message = errorMessage.orEmpty(), modifier = Modifier.padding(top = 8.dp))
 
-        // Botón de Guardar
+        AutoDismissErrorText(text = mensajeErrorLocal, onDismiss = { mensajeErrorLocal = null })
+        AutoDismissCorrectText( text = mensajeCorectLocal, onDismiss = { mensajeCorectLocal = null })
         ButtonGeneric(
             text = "GUARDAR",
             onClick = {
-
                 coroutineScope.launch {
+                    if (nombreEmpresa.isBlank() || username.isBlank() || password.isBlank() || sector.isBlank() || ciudad.isBlank() || descripcion.isBlank()) {
+                        viewModel.limpiarError()
+                        mensajeErrorLocal = "Por favor, completa todos los campos obligatorios."
+                        return@launch
+                    }
+
+                    if (descripcion.length > 255) {
+                        viewModel.limpiarError()
+                        mensajeErrorLocal = "La descripción no puede tener más de 255 caracteres."
+                        return@launch
+                    }
+
                     var urlImagen: String? = null
 
                     if (imageUri != null && imageUri.toString().startsWith("content://")) {
-                        // SOLO si es una imagen seleccionada desde el dispositivo
-                        val inputStream = context.contentResolver.openInputStream(imageUri!!)
-                        val tempFile = File.createTempFile("upload_image", ".jpg", context.cacheDir)
-                        inputStream?.use { input ->
-                            tempFile.outputStream().use { output ->
-                                input.copyTo(output)
-                            }
+                        val fileName = FileUtils.getFileNameFromUri(context, imageUri!!) ?: "imagen.jpg"
+                        val tempFile = FileUtils.copyUriToTempFile(context, imageUri!!)
+                        val oldFileName = viewModel.empresa.value?.imagen?.substringAfterLast("/")
+
+                        tempFile?.let {
+                            urlImagen = FileUtils.subirArchivoConOldFile(
+                                context = context,
+                                archivo = it,
+                                nombreArchivo = fileName,
+                                mimeType = "image/*",
+                                nombreArchivoAntiguo = oldFileName
+                            )
                         }
-
-                        val imagePart = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
-                        val uniqueName = "foto_${System.currentTimeMillis()}.jpg"
-                        val imageMultipart = MultipartBody.Part.createFormData("file", uniqueName, imagePart)
-
-                        val imageResponse = RetrofitInstance.getFileUploadApi(context).uploadFile(imageMultipart)
-
-                        if (imageResponse.isSuccessful) {
-                            val imageUrl = imageResponse.body()?.string()
-                            urlImagen = imageUrl
-                            println("✅ Imagen subida: $imageUrl")
-                        } else {
-                            println("🛑 Error al subir imagen. Código: ${imageResponse.code()}")
-                        }
-                    } else if (esEdicion) {
-                        // Si ya estaba cargada y no fue modificada, conservar la URL anterior
+                    }else if (esEdicion) {
                         urlImagen = viewModel.empresa.value?.imagen
                     }
 
@@ -386,16 +315,13 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                         imagen = urlImagen
                     )
 
-                    val fechaActual =
-                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-
+                    val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
                     focusManager.clearFocus()
 
                     viewModel.guardarDatos(nuevaEmpresa, esEdicion) { empresaGuardada ->
                         if (empresaGuardada?.id != null) {
                             val empresaIdValido = empresaGuardada.id!!
 
-                            // BORRAR ofertas marcadas
                             offerCards.removeAll { card ->
                                 if (card.isMarkedForDeletion && card.id != null) {
                                     ofertaViewModel.eliminarOferta(card.id!!)
@@ -403,7 +329,6 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                                 } else false
                             }
 
-                            // GUARDAR ofertas restantes
                             offerCards.forEachIndexed { index, card ->
                                 if (card.isMarkedForDeletion) return@forEachIndexed
                                 val nuevaOferta = Oferta(
@@ -427,20 +352,21 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
                                 }
                             }
 
-                            // Navegar si es registro
                             if (!esEdicion) {
                                 sessionViewModel.setSession(empresaIdValido.toLong(), "empresa")
                                 navController.navigate("OfertasScreen?isEmpresa=true")
                             }
                         }
+                        mensajeCorectLocal = "Datos guardados"
                     }
                 }
-
             },
-            modifier = Modifier.width(300.dp).padding(top = 90.dp)
+            modifier = Modifier.width(300.dp).padding(top = 20.dp)
         )
+
     }
 }
+
 
 
 

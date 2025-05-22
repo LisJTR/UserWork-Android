@@ -1,10 +1,22 @@
 package com.TFG_backend.dockerized.postgresql.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.persistence.Column;
+
 //recibe datos del frontend
 public class LoginRequest {
 
-	  private String username;
+		@Column(name = "username")
+    	@JsonProperty("username")
+    	private String username;
+		
+		@Column(name = "correo_electronico")
+    	@JsonProperty("correo_electronico")
 	    private String correo_electronico;
+		
+		@Column(name = "password")
+    	@JsonProperty("password")
 	    private String password;
 
 	    public LoginRequest() {
@@ -33,4 +45,4 @@ public class LoginRequest {
 	    public void setPassword(String password) {
 	        this.password = password;
 	    }
-	}
+}

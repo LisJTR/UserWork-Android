@@ -67,4 +67,9 @@ class RegisterAlumnoViewModel(
         }
     }
 
+    fun limpiarError() {
+        _mensajeError.value = null
+    }
+
+
 }
