@@ -105,6 +105,7 @@ fun PerfilDetalleScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .systemBarsPadding()
                     .padding(start = 16.dp, top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
