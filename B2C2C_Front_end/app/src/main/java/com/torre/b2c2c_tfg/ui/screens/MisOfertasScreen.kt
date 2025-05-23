@@ -178,21 +178,22 @@ fun MisOfertasScreen(
             if (userType == "alumno") {
                 items(ofertas) { oferta ->
                     val empresa = empresas.find { it.id?.toLong() == oferta.empresaId.toLong() }
+                    val notificacionRelacionada = notificaciones
+                        .filter { it.ofertaId == oferta.id?.toLong() && it.alumnoId == userId }
+                        .maxByOrNull { it.fecha.toString() }
+
                     empresa?.let {
                         EmpresaCard(
                             nombre = it.nombre,
                             sector = it.sector,
-                            descripcion = oferta.titulo,
+                            descripcion = "${oferta.titulo}\n  Respuesta: ${notificacionRelacionada?.estadoRespuesta?.uppercase() ?: "PENDIENTE"}",
                             imagenUri = RetrofitInstance.buildUri(it.imagen),
                             onClick = {
-                                val notificacionRelacionada = notificaciones.find {
-                                    it.ofertaId == oferta.id?.toLong() && it.alumnoId == userId
-                                }
-
                                 val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
                                 navController.navigate(
                                     ScreenRoutes.ofertaDetalleDesdeMisOfertasAlumno(
-                                        oferta.id?.toLong() ?: 0L, idNotificacion,
+                                        oferta.id?.toLong() ?: 0L,
+                                        idNotificacion
                                     )
                                 )
                             }
@@ -205,20 +206,21 @@ fun MisOfertasScreen(
                 items(invitaciones) { invitacion ->
                     val oferta = ofertasFiltradas.find { it.id?.toLong() == invitacion.ofertaId }
                     val alumno = alumnosFiltrados.find { it.id?.toLong() == invitacion.alumnoId }
+                    val notificacionRelacionada = notificaciones
+                        .filter {
+                            it.ofertaId == invitacion.ofertaId &&
+                                    it.alumnoId == invitacion.alumnoId &&
+                                    it.empresaId == userId
+                        }
+                        .maxByOrNull { it.fecha.toString() }
 
                     if (oferta != null && alumno != null) {
                         EmpresaCard(
                             nombre = "${alumno.nombre} ${alumno.apellido}",
                             sector = alumno.titulacion,
-                            descripcion = oferta.titulo,
+                            descripcion = "${oferta.titulo} \n Respuesta: ${notificacionRelacionada?.estadoRespuesta?.uppercase() ?: "PENDIENTE"}",
                             imagenUri = RetrofitInstance.buildUri(alumno.imagen),
                             onClick = {
-                                val notificacionRelacionada = notificaciones.find {
-                                    it.ofertaId == oferta.id?.toLong() &&
-                                            it.alumnoId == alumno.id?.toLong() &&
-                                            it.empresaId == userId
-                                }
-
                                 val idNotificacion = notificacionRelacionada?.id?.toLong() ?: 0L
                                 val estadoRespuesta = notificacionRelacionada?.estadoRespuesta ?: ""
 
@@ -234,6 +236,7 @@ fun MisOfertasScreen(
                         )
                     }
                 }
+
             }
             item {
                 Spacer(modifier = Modifier.height(80.dp))

@@ -20,10 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -39,7 +41,10 @@ import com.torre.b2c2c_tfg.domain.usecase.CrearNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionPorIdUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertaByIdUseCase
+import com.torre.b2c2c_tfg.ui.components.AutoDismissCorrectText
+import com.torre.b2c2c_tfg.ui.components.AutoDismissErrorText
 import com.torre.b2c2c_tfg.ui.components.ButtonGeneric
+import com.torre.b2c2c_tfg.ui.components.IconArrowBack
 import com.torre.b2c2c_tfg.ui.viewmodel.OfertaDetalleScreenViewModel
 import com.torre.b2c2c_tfg.ui.components.PerfilDetalleHeader
 import com.torre.b2c2c_tfg.ui.components.SectionDescription
@@ -81,29 +86,30 @@ fun OfertaDetalleScreen(
 
     val empresa by viewModel.empresa.collectAsState()
     val oferta by viewModel.oferta.collectAsState()
-    val aplicacionExitosa by viewModel.aplicacionExitosa.collectAsState()
     val yaAplicada by viewModel.yaAplicada.collectAsState()
+    var mensajeErrorLocal by remember { mutableStateOf<String?>(null) }
+    var mensajeCorectLocal by remember { mutableStateOf<String?>(null) }
+    var refreshKey by remember { mutableStateOf(0) }
 
-    LaunchedEffect(aplicacionExitosa) {
-        when (aplicacionExitosa) {
-            true -> {
-                Toast.makeText(context, "Aplicación enviada", Toast.LENGTH_SHORT).show()
-                navController.popBackStack()
-            }
-            false -> Toast.makeText(context, "Error al aplicar", Toast.LENGTH_SHORT).show()
-            else -> {}
-        }
-    }
+
     val estadoRespuestaBackend by viewModel.estadoRespuesta.collectAsState()
     val tipoNotificacionBackend by viewModel.tipoNotificacion.collectAsState()
 
     LaunchedEffect(idNotificacion) {
         idNotificacion?.let { viewModel.cargarEstadoRespuesta(it) }
-        println("🪵 OfertaDetalleScreen - idNotificacion recibido: $idNotificacion")
+        println("OfertaDetalleScreen - idNotificacion recibido: $idNotificacion")
 
     }
 
+    LaunchedEffect(refreshKey, idOferta) {
+        viewModel.cargarOfertaConEmpresa(idOferta)
+        viewModel.comprobarSiYaAplicada(alumnoId, idOferta)
+        idNotificacion?.let { viewModel.cargarEstadoRespuesta(it) }
+    }
 
+
+    AutoDismissErrorText(text = mensajeErrorLocal, onDismiss = { mensajeErrorLocal = null })
+    AutoDismissCorrectText( text = mensajeCorectLocal, onDismiss = { mensajeCorectLocal = null })
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -112,6 +118,8 @@ fun OfertaDetalleScreen(
             .verticalScroll(rememberScrollState()) // Habilita el desplazamiento vertical
     ) {
         empresa?.let {
+            IconArrowBack(onClick = { navController.popBackStack() })
+            
             PerfilDetalleHeader(
                 imagenUri = RetrofitInstance.buildUri(empresa?.imagen),
                 nombre = it.nombre ?: "Empresa"
@@ -192,7 +200,8 @@ fun OfertaDetalleScreen(
                         onClick = {
                             idNotificacion?.let {
                                 viewModel.responderNotificacion(it, "inter_mutuo")
-                                Toast.makeText(context, "Interés mutuo registrado", Toast.LENGTH_SHORT).show()
+                                mensajeCorectLocal = "Interés mutuo registrado"
+                                refreshKey++
                             }
                         }
                     )
@@ -202,7 +211,8 @@ fun OfertaDetalleScreen(
                         onClick = {
                             idNotificacion?.let {
                                 viewModel.responderNotificacion(it, "no_interesado")
-                                Toast.makeText(context, "No interesado", Toast.LENGTH_SHORT).show()
+                                mensajeCorectLocal = "No interesado registrado"
+                                refreshKey++
                             }
                         }
                     )
@@ -246,14 +256,11 @@ fun OfertaDetalleScreen(
                     val alumnoId = sessionViewModel.userId.value ?: return@ButtonGeneric
                     val ofertaId = oferta?.id?.toLong() ?: return@ButtonGeneric
                     println("Aplicando a la oferta con ID: ${oferta?.id}")
-                    Toast.makeText(context, "Pulsado botón APLICAR", Toast.LENGTH_SHORT).show()
                     viewModel.aplicarAOferta(alumnoId, ofertaId)
+                    mensajeCorectLocal = "Aplicación enviada"
+                    refreshKey++
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
-                enabled = !yaAplicada
-            )
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp), enabled = !yaAplicada)
 
         }
     }

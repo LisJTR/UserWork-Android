@@ -58,8 +58,6 @@ fun HeaderContentofScreens(
                 .padding(end = 16.dp),
             horizontalArrangement = Arrangement.End
         ) {
-
-            Spacer(modifier = Modifier.weight(10f))
             IconMessage(onClick = {
                 navController.navigate(ScreenRoutes.Notification)
             })
@@ -105,7 +103,7 @@ fun HeaderContentofScreens(
                 .padding(end = 16.dp),
             horizontalArrangement = Arrangement.End
         ) {
-            
+
         }
 
 

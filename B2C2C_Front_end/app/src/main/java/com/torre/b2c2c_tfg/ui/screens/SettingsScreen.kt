@@ -34,9 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.torre.b2c2c_tfg.ui.components.CambiarPasswordDialog
 import com.torre.b2c2c_tfg.ui.components.ConfirmDialog
+import com.torre.b2c2c_tfg.ui.components.IconCloseButton
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SettingsScreenViewModel
+import androidx.compose.ui.Alignment
+import com.torre.b2c2c_tfg.ui.components.IconCloseButton
 
 
 

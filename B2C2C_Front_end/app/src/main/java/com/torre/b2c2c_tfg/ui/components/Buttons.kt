@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ButtonGeneric(
     text: String,
-    onClick:() -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     containerColor: Color = MaterialTheme.colorScheme.primary,
