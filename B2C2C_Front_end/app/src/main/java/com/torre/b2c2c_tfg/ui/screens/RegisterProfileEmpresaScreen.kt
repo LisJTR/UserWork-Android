@@ -266,6 +266,7 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
             )
         }
 
+        // Mostamos mensajes de error y éxito
         AutoDismissErrorText(text = mensajeErrorLocal, onDismiss = { mensajeErrorLocal = null })
         AutoDismissCorrectText( text = mensajeCorectLocal, onDismiss = { mensajeCorectLocal = null })
         ButtonGeneric(

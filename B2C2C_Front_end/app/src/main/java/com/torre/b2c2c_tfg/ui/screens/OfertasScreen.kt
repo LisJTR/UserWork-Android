@@ -76,15 +76,9 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
 
     val notificationViewModel = remember {
         NotificationViewModel(
-            getNotificacionesPorAlumnoUseCase = GetNotificacionesPorAlumnoUseCase(
-                NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))
-            ),
-            getNotificacionesPorEmpresaUseCase = GetNotificacionesPorEmpresaUseCase(
-                NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))
-            ),
-            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(
-                NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))
-            )
+            getNotificacionesPorAlumnoUseCase = GetNotificacionesPorAlumnoUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getNotificacionesPorEmpresaUseCase = GetNotificacionesPorEmpresaUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
+            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context)))
         )
     }
 
