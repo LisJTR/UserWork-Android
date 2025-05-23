@@ -24,9 +24,13 @@ import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.data.repository.AlumnoRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.EmpresaRepositoryImpl
+import com.torre.b2c2c_tfg.data.repository.NotificacionRepositoryImpl
 import com.torre.b2c2c_tfg.data.repository.OfertaRepositoryImpl
+import com.torre.b2c2c_tfg.domain.usecase.ActualizarNotificacionUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetAlumnoUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetEmpresaUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorAlumnoUseCase
+import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionesPorEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetOfertasUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetSectoresUnicosUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetTitulacionesUnicasUseCase
@@ -40,6 +44,7 @@ import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.components.EmpresaCard
 import com.torre.b2c2c_tfg.ui.components.AlumnoCard
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
+import com.torre.b2c2c_tfg.ui.viewmodel.NotificationViewModel
 
 
 @Composable
@@ -49,35 +54,13 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
 
     val viewModel = remember {
         OfertasScreenViewModel(
-            getAlumnoUseCase = GetAlumnoUseCase(
-                AlumnoRepositoryImpl(
-                    RetrofitInstance.getInstance(
-                        context
-                    )
-                )
-            ),
-            getEmpresaUseCase = GetEmpresaUseCase(
-                EmpresaRepositoryImpl(
-                    RetrofitInstance.getInstance(
-                        context
-                    )
-                )
-            ),
-            getSectoresUnicosUseCase = GetSectoresUnicosUseCase(
-                EmpresaRepositoryImpl(
-                    RetrofitInstance.getInstance(context)
-                )
-            ),
-            getTitulacionesUnicasUseCase = GetTitulacionesUnicasUseCase(
-                AlumnoRepositoryImpl(
-                    RetrofitInstance.getInstance(context)
-                )
-            ),
+            getAlumnoUseCase = GetAlumnoUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getEmpresaUseCase = GetEmpresaUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getSectoresUnicosUseCase = GetSectoresUnicosUseCase(EmpresaRepositoryImpl(RetrofitInstance.getInstance(context))),
+            getTitulacionesUnicasUseCase = GetTitulacionesUnicasUseCase(AlumnoRepositoryImpl(RetrofitInstance.getInstance(context))),
             alumnoRepository = AlumnoRepositoryImpl(RetrofitInstance.getInstance(context)),
             empresaRepository = EmpresaRepositoryImpl(RetrofitInstance.getInstance(context)),
-            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(
-                OfertaRepositoryImpl(
-                    RetrofitInstance.getInstance(context)
+            getTodasLasOfertasUseCase = GetTodasLasOfertasUseCase(OfertaRepositoryImpl(RetrofitInstance.getInstance(context)
                 )
             )
         )
@@ -91,12 +74,28 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
     val ofertas by viewModel.ofertasFiltradas.collectAsState(initial = emptyList())
     val alumnos by viewModel.alumnosFiltrados.collectAsState(initial = emptyList())
 
+    val notificationViewModel = remember {
+        NotificationViewModel(
+            getNotificacionesPorAlumnoUseCase = GetNotificacionesPorAlumnoUseCase(
+                NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))
+            ),
+            getNotificacionesPorEmpresaUseCase = GetNotificacionesPorEmpresaUseCase(
+                NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))
+            ),
+            actualizarNotificacionUseCase = ActualizarNotificacionUseCase(
+                NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))
+            )
+        )
+    }
+
     LaunchedEffect(userType) {
         if (userType == "alumno") {
             viewModel.cargarEmpresas()
             viewModel.cargarTodasLasOfertas()
+            notificationViewModel.cargarNotificaciones(userId, "alumno")
         } else if (userType == "empresa") {
             viewModel.cargarAlumnos()
+            notificationViewModel.cargarNotificaciones(userId, "empresa")
         }
     }
 
@@ -114,6 +113,7 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
 
         HeaderContentofScreens(
             sessionViewModel = sessionViewModel,
+            notificationViewModel = notificationViewModel,
             viewModel = viewModel,
             onFiltroSeleccionado = { seleccion ->
                 println("Filtro seleccionado en pantalla: $seleccion")

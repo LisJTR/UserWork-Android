@@ -164,6 +164,7 @@ fun MisOfertasScreen(
     ) {
         HeaderContentofScreens(
             sessionViewModel = sessionViewModel,
+            notificationViewModel = notificationViewModel,
             viewModel = headerViewModel,
             onFiltroSeleccionado = {},
             navController = navController

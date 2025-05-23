@@ -3,6 +3,7 @@ package com.torre.b2c2c_tfg.ui.screens
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,6 +41,7 @@ import com.torre.b2c2c_tfg.ui.util.FiltroNotificacion
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.torre.b2c2c_tfg.ui.components.IconArrowBack
 
 
 @Composable
@@ -79,22 +81,26 @@ fun NotificationScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            IconArrowBack( onClick = { navController.popBackStack() })
             Text("Notificaciones", style = MaterialTheme.typography.titleLarge)
-            IconFilter(onClick = { showFiltroMenu = true })
-        }
+            Box {
+                IconFilter(onClick = { showFiltroMenu = true })
 
-        FiltroDropdown(
-            expanded = showFiltroMenu,
-            onDismissRequest = { showFiltroMenu = false },
-            opciones = listOf("Todas", "Respondidas", "Pendientes"),
-            onSeleccion = {
-                notificacionViewModel.filtroActual.value = when (it) {
-                    "Respondidas" -> FiltroNotificacion.RESPONDIDAS
-                    "Pendientes" -> FiltroNotificacion.PENDIENTES
-                    else -> FiltroNotificacion.TODAS
-                }
+                FiltroDropdown(
+                    expanded = showFiltroMenu,
+                    onDismissRequest = { showFiltroMenu = false },
+                    opciones = listOf("Todas", "Respondidas", "Pendientes"),
+                    onSeleccion = {
+                        notificacionViewModel.filtroActual.value = when (it) {
+                            "Respondidas" -> FiltroNotificacion.RESPONDIDAS
+                            "Pendientes" -> FiltroNotificacion.PENDIENTES
+                            else -> FiltroNotificacion.TODAS
+                        }
+                        showFiltroMenu = false
+                    }
+                )
             }
-        )
+        }
 
         LazyColumn(
             modifier = Modifier
