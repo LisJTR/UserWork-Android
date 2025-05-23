@@ -39,7 +39,6 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
     var password by remember { mutableStateOf("") }
     var showRegisterDialog by remember { mutableStateOf(false) }
 
-    // Viewmodel para el login
     val context = LocalContext.current
     val loginViewModel = remember {
         //LoginViewModel(LoginUseCase(FakeLoginRepository()))
@@ -130,10 +129,10 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             onPasswordChange = { password = it },
             onDismiss = { showLoginDialog = false },
             onLoginClick = {
-                println("🟡 BOTÓN LOGIN PULSADO")
+                println("BOTÓN LOGIN PULSADO")
 
                 if (username.isBlank() || password.isBlank()) {
-                    println("❌ Campos vacíos: username='$username' password='$password'")
+                    println("Campos vacíos: username='$username' password='$password'")
                     return@LoginDialog
                 }
 
@@ -142,7 +141,7 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
                 val correoFinal = if (isEmail) username else null
 
                 if (usernameFinal == null && correoFinal == null) {
-                    println("❌ No se proporcionó username ni correo")
+                    println("No se proporcionó username ni correo")
                     return@LoginDialog
                 }
 

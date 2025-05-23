@@ -230,7 +230,7 @@ fun OfertaDetalleScreen(
                 } else {
                     estadoRespuestaBackend?.let { respuesta ->
                         Text(
-                            text = estadoRespuestaBackend!!.uppercase(),
+                            text = "Respondido: ${estadoRespuestaBackend!!.uppercase()}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(vertical = 16.dp)
