@@ -61,12 +61,24 @@ fun ProfileCard(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
                 if (subtitle.isNotEmpty()) {
-                    Text(text = subtitle, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
                 }
                 if (description.isNotEmpty()) {
-                    Text(text = description, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
                 }
             }
 

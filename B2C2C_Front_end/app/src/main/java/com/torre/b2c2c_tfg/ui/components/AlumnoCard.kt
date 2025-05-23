@@ -36,7 +36,7 @@ fun AlumnoCard(
             .padding(8.dp)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.8f)
+            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f)
         ),
         shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

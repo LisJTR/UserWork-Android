@@ -16,13 +16,16 @@ import com.torre.b2c2c_tfg.ui.theme.Orange
 @Composable
 fun PerfilProgresoCompleto(porcentaje: Float) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Perfil completado: ${(porcentaje * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium)
+        Text("Perfil completado: " +
+                "${(porcentaje * 100).toInt()}%",
+                style = MaterialTheme.typography.bodyMedium
+        )
         LinearProgressIndicator(
             progress = porcentaje.coerceIn(0f, 1f),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            color = Orange
+            color = MaterialTheme.colorScheme.tertiary
         )
     }
 }

@@ -9,8 +9,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
@@ -46,13 +48,14 @@ fun BottomBar(
     // Componente de barra de navegación inferior
     // Nota: Es necesario especificar los colores manualmente ya que no los toma automáticamente del theme
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurface
 
     ) {
         bottomNavItems.forEach { item ->
+            val selected = currentDestination == item.route
             NavigationBarItem(
-                selected = currentDestination == item.route,
+                selected = selected,
                 onClick = {
                     navController.navigate(item.route) {
                         launchSingleTop = true
@@ -62,17 +65,19 @@ fun BottomBar(
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = item.name,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        contentDescription = item.name
                     )
                 },
                 label = {
                     Text(
-                        text = item.name,
-                        color = MaterialTheme.colorScheme.secondaryContainer
+                        text = item.name
                     )
                 },
-                alwaysShowLabel = true
+                alwaysShowLabel = true,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent,
+
+                )
             )
         }
     }

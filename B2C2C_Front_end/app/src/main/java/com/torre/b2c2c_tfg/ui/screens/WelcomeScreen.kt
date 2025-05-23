@@ -100,13 +100,6 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
                     .padding(top = 90.dp)
             )
 
-            TextTitle(
-                text = "¿Has olvidado tu contraseña?",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .padding(top = 10.dp)
-
-            )
 
             TextTitle(
                 text = "¿No tienes una cuenta?   Regístrate",

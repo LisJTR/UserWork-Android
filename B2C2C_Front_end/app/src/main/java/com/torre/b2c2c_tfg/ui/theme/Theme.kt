@@ -14,96 +14,35 @@ import androidx.compose.ui.platform.LocalContext
 
 
 private val DarkColorScheme = darkColorScheme(
-    primary = primaryD,                        // Color principal (botones, acentos, etc.)
-    onPrimary = onPrimaryD,                    // Texto/icono sobre primary
-    secondary = secondaryD,                    // Color secundario (chips, botones secundarios)
-    onSecondary = onSecondaryD,                // Texto/icono sobre secondary
-    tertiary = tertiaryD,                      // Color adicional para variar UI
-    onTertiary = onTertiaryD,                  // Texto/icono sobre tertiary
-    error = errorD,                            // Colores para errores
-    onError = onErrorD,                        // Texto sobre color de error
-
-    primaryContainer = primaryContainerD,      // Fondo para elementos destacados (cards, botones)
-    onPrimaryContainer = onPrimaryContainerD,  // Texto sobre primaryContainer
-    secondaryContainer = secondaryContainerD,  // Fondo para secondary
-    onSecondaryContainer = onSecondaryContainerD, // Texto sobre secondaryContainer
-    tertiaryContainer = tertiaryContainerD,    // Fondo para tertiary
-    onTertiaryContainer = onTertiaryContainerD,// Texto sobre tertiaryContainer
-    errorContainer = errorContainerD,          // Fondo para errores (snackbars, alerts)
-    onErrorContainer = onErrorContainerD,      // Texto sobre errorContainer
-
-    surfaceDim = surfaceDimD,                  // Fondo más oscuro (background principal en dark)
-    surface = surfaceD,                        // Fondo base (pantalla, cards, etc.)
-    surfaceBright = surfaceBrightD,            // Fondo claro en dark mode
-    inverseSurface = inverseSurfaceD,          // Fondo usado en componentes inversos (ej: Snackbars)
-    inverseOnSurface = inverseOnSurfaceD,      // Texto sobre inverseSurface
-    inversePrimary = inversePrimaryD,          // Versión invertida de primary (para contraste)
-
-    surfaceContainerLowest = surfContrainerLowestD,  // Fondo muy neutro
-    surfaceContainerLow = surfContrainerLowD,
-    surfaceContainer = surfContrainerD,
-    surfaceContainerHigh = surfContrainerHighD,
-    surfaceContainerHighest = surfContrainerHighestD,
-
-    onSurface = onSurfaceD,                    // Texto/iconos sobre surface
-    outline = outlineD,                        // Borde de componentes (inputs, cards)
-    outlineVariant = outlineVariantD,          // Borde más suave o alternativo
-    scrim = scrimD,                             // Efecto de desenfoque/fondo detrás de diálogos
-    onSurfaceVariant = onSurfaceVarD,          // Texto sobre outlineVariant
-    surfaceVariant = surfaceVariantD           // Fondo más suave o alternativo
-
-
+    primary = colorPrimaryDark,
+    onPrimary = colorOnPrimaryDark,
+    secondary = colorSecondaryDark,
+    onSecondary = colorOnSecondaryDark,
+    background = colorBackgroundDark,
+    surface = colorSurfaceDark,
+    onSurface = colorOnSurfaceDark,
+    error = colorErrorDark,
+    onError = colorOnErrorDark,
+    outline = colorOutlineDark,
+    tertiary = colorTercearyDark,
+    surfaceVariant = colorsurfaceVariantDark,
+    surfaceContainer = colorSurfaceContainerDark,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = primaryL,
-    onPrimary = onPrimaryL,
-    secondary = secondaryL,
-    onSecondary = onSecondaryL,
-    tertiary = tertiaryL,
-    onTertiary = onTertiaryL,
-    error = errorL, onError = onErrorL,
-
-    primaryContainer = primaryContainerL,
-    onPrimaryContainer = onPrimaryContainerL,
-    secondaryContainer = secondaryContainerL,
-    onSecondaryContainer = onSecondaryContainerL,
-    tertiaryContainer = tertiaryContainerL,
-    onTertiaryContainer = onTertiaryContainerL,
-    errorContainer = errorContainerL,
-    onErrorContainer = onErrorContainerL,
-
-    surfaceDim = surfaceDimL,
-    surface = surfaceL,
-    surfaceBright = surfaceBrightL,
-    inverseSurface = inverseSurfaceL,
-    inverseOnSurface = inverseOnSurfaceL,
-    inversePrimary = inversePrimaryL,
-
-    surfaceContainerLowest = surfContrainerLowestL,
-    surfaceContainerLow = surfContrainerLowL,
-    surfaceContainer = surfContrainerL,
-    surfaceContainerHigh = surfContrainerHighL,
-    surfaceContainerHighest = surfContrainerHighestL,
-
-    onSurfaceVariant = onSurfaceVarL,
-    onSurface = onSurfaceL,
-    outline = outlineL,
-    outlineVariant = outlineVariantL,
-    scrim = scrimL,
-    surfaceVariant = surfaceVariantL,
-
-
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = colorPrimaryLight,
+    onPrimary = colorOnPrimaryLight,
+    secondary = colorSecondaryLight,
+    onSecondary = colorOnSecondaryLight,
+    background = colorBackgroundLight,
+    surface = colorSurfaceLight,
+    onSurface = colorOnSurfaceLight,
+    error = colorErrorLight,
+    onError = colorOnErrorLight,
+    outline = colorOutlineLight,
+    tertiary = colorTercearyLight,
+    surfaceVariant = colorsurfaceVariantLight,
+    surfaceContainer = colorSurfaceContainerLight,
 )
 
 @Composable
