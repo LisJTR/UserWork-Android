@@ -21,6 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import android.provider.OpenableColumns
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import com.torre.b2c2c_tfg.ui.util.FileUtils.copyUriToTempFile
 import com.torre.b2c2c_tfg.ui.util.FileUtils.getFileNameFromUri
 import java.io.File
@@ -119,7 +121,9 @@ fun UserSelectedImage(
                 .crossfade(true)
                 .build(),
             contentDescription = "Imagen seleccionada por el usuario",
-            modifier = modifier.size(150.dp)
+            modifier = modifier
+                .size(150.dp)
+                .clip(CircleShape)
         )
     }
 }
