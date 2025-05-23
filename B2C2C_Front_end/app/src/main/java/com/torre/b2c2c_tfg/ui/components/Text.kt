@@ -1,20 +1,16 @@
 package com.torre.b2c2c_tfg.ui.components
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 
 //Campo de texto para el titulo
 @Composable
@@ -45,14 +41,13 @@ fun SectionDescription(
 fun TextTitle(
     text: String,
     style: TextStyle = MaterialTheme.typography.headlineLarge,
-    color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
-
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+    color: Color? = null,
+    modifier: Modifier = Modifier
 ) {
     Text(
         text = text,
         style = style,
-        color = color,
+        color = color ?: MaterialTheme.colorScheme.onSurface,
         modifier = modifier
     )
 }
@@ -91,6 +86,8 @@ fun OutlinedInputTextField(
     onValueChange: (String) -> Unit,
     label: String,
     modifier : Modifier = Modifier,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    trailingIcon: @Composable (() -> Unit)? = null,
     enabled: Boolean = true
 ) {
     OutlinedTextField(
@@ -109,9 +106,14 @@ fun OutlinedInputTextField(
         modifier = modifier,
         enabled = enabled,
         textStyle = MaterialTheme.typography.bodySmall,
+        visualTransformation = visualTransformation,
+        trailingIcon = trailingIcon, 
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.secondary,
-            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
+            focusedTextColor = MaterialTheme.colorScheme.primary,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            cursorColor = MaterialTheme.colorScheme.primary
 
         )
     )

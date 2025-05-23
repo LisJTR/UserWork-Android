@@ -41,7 +41,7 @@ fun PerfilDetalleHeader(imagenUri: Uri?, nombre: String) {
             modifier = Modifier
                 .size(80.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
             contentScale = ContentScale.Crop
         )
 
@@ -49,7 +49,8 @@ fun PerfilDetalleHeader(imagenUri: Uri?, nombre: String) {
 
         TextTitle(
             text = nombre,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

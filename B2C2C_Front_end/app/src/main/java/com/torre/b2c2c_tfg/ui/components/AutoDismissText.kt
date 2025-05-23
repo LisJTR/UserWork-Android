@@ -26,7 +26,7 @@ fun AutoDismissErrorText(
 
         Text(
             text = text,
-            color = Color.Red,
+            color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall,
             modifier = modifier
         )
@@ -50,7 +50,7 @@ fun AutoDismissCorrectText(
 
             Text(
                 text = text,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onError,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = modifier
             )

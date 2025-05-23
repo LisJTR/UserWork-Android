@@ -34,8 +34,8 @@ fun ButtonGeneric(
         colors = ButtonDefaults.elevatedButtonColors(
             //Especificamos el stylo porque el boton Elevated coge directamente el color primary
             //sino el surface
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary
+        containerColor =  containerColor,
+        contentColor =  contentColor
         )
     ) {
         Text(text = text)
@@ -52,14 +52,14 @@ fun ButtonSettingItem(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.LightGray)
+            .background(MaterialTheme.colorScheme.primary)
             .clickable(onClick = onClick)
             .padding(vertical = 12.dp)
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 16.dp)
         )
     }

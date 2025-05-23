@@ -67,12 +67,15 @@ fun IconMessage(
                     .align(Alignment.TopEnd)
                     .offset(x = 4.dp, y = (-4).dp)
                     .size(18.dp)
-                    .background(Color.Red, shape = CircleShape),
+                    .background(MaterialTheme.colorScheme.error, shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = notificacionesSinLeer.toString(),
-                    style = MaterialTheme.typography.labelSmall.copy(color = Color.White, fontSize = 10.sp),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = MaterialTheme.colorScheme.onError,
+                        fontSize = 10.sp
+                    ),
                     textAlign = TextAlign.Center
                 )
             }

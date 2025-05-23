@@ -6,80 +6,36 @@ import androidx.compose.ui.graphics.Color
 
 //Light Theme
 
-val primaryL= Color(0xFF6F86AD)
-val onPrimaryL= Color(0xFFffffff)
-val secondaryL= Color(0xFFAFBBDC)
-val onSecondaryL= Color(0xFFffffff)
-val tertiaryL= Color(0xFF1B2354)
-val onTertiaryL= Color(0xFFffffff)
-val errorL= Color(0xFFba1a1a)
-val onErrorL= Color(0xFFffffff)
-val primaryContainerL= Color(0xFF6285BB)
-val onPrimaryContainerL= Color(0x922E3CA1)
-val secondaryContainerL= Color(0xFFd2e0ff)
-val onSecondaryContainerL= Color(0xFF55637d)
-val tertiaryContainerL= Color(0xFFe2d7e0)
-val onTertiaryContainerL= Color(0xFF645d64)
-val errorContainerL= Color(0xFFffdad6)
-val onErrorContainerL= Color(0xFF93000a)
-val surfaceDimL= Color(0x79BCB1C4)
-val surfaceL= Color(0xFF7399BE)
-val surfaceBrightL = Color(0xFFf9f9ff)
-val inverseSurfaceL= Color(0xFF2f3035)
-val inverseOnSurfaceL= Color(0xFF2f3035)
-val inversePrimaryL = Color(0xFFaac7ff)
-val surfContrainerLowestL = Color (0xFFffffff)
-val surfContrainerLowL = Color (0xFFf3f3f9)
-val surfContrainerL = Color(0xFFBFBFCC)
-val surfContrainerHighL = Color (0xFFe8e7ed)
-val surfContrainerHighestL = Color(0xFF6B84D5)
-val onSurfaceL= Color(0xFF1a1c20)
-val onSurfaceVarL= Color(0xFF393C57)
-val outlineL = Color(0xB272727E)
-val outlineVariantL = Color(0xFFc3c6d2)
-val scrimL = Color(0xFF000000)
-val shadowL = Color(0xFF000000)
-val surfaceVariantL = Color(0xFFE7E0EC)
 
-//val background= Color(0xFFCBD9E1)
-//val onBackground= Color(0xFFffffff)
+// Colores claros
+val colorPrimaryLight = Color(0xFF6F86AD)        // Botones principales, acentos
+val colorOnPrimaryLight = Color.White           // Texto sobre botones primarios
+val colorSecondaryLight = Color(0xFFAFBBDC)     // Chips, botones secundarios
+val colorOnSecondaryLight = Color.White
+val colorBackgroundLight = Color(0xFFF9F9FF)    // Fondo general
+val colorSurfaceLight = Color(0xFFB0C3EF)       // Superficies: cards, sheets
+val colorOnSurfaceLight = Color(0xFF1A1C20)     // Texto sobre superficie
+val colorErrorLight = Color(0xFFBA1A1A)         // Errores
+val colorOnErrorLight = Color.White
+val colorOutlineLight = Color(0xB272727E)       // Bordes inputs/cards
+val colorTercearyLight = Color(0xFFBDA29B)
+val colorsurfaceVariantLight = Color(0x9AA2B0FF) // Headers
+val colorSurfaceContainerLight = Color(0xFFEADFE6) // Contenedores secundarios
 
-//Dark Theme
-
-val primaryD= Color(0xFFaac7ff)
-val onPrimaryD= Color(0xFF002f64)
-val secondaryD= Color(0xFF8287B4)
-val onSecondaryD= Color(0xFF233148)
-val tertiaryD= Color(0xFFfff3fd)
-val onTertiaryD= Color(0xFF352e35)
-val errorD= Color(0xFFffb4ab)
-val onErrorD= Color(0xFF690005)
-val primaryContainerD= Color(0xFF769cdf)
-val onPrimaryContainerD= Color(0xFF00326a)
-val secondaryContainerD= Color(0xFF3c4962)
-val onSecondaryContainerD= Color(0xFFabb9d6)
-val tertiaryContainerD= Color(0xFFe2d7e0)
-val onTertiaryContainerD= Color(0xFF645d64)
-val errorContainerD= Color(0xFF93000a)
-val onErrorContainerD= Color(0xFFffdad6)
-val surfaceDimD= Color(0xFF121317)
-val surfaceD= Color(0xFF121317)
-val surfaceBrightD = Color(0xFF38393e)
-val inverseSurfaceD= Color(0xFFe2e2e8)
-val inverseOnSurfaceD= Color(0xFF2f3035)
-val inversePrimaryD = Color(0xFF365e9d)
-val surfContrainerLowestD = Color (0xFF0c0e12)
-val surfContrainerLowD = Color (0xFF1a1c20)
-val surfContrainerD = Color(0x6A323A6E)
-val surfContrainerHighD = Color (0xFF282a2e)
-val surfContrainerHighestD = Color (0xFF333539)
-val onSurfaceD= Color(0xFFe2e2e8)
-val onSurfaceVarD= Color(0xFF9363E1)
-val outlineD = Color(0xFF8d909b)
-val outlineVariantD = Color(0xFF434750)
-val scrimD = Color(0xFF000000)
-val shadowD= Color(0xFF000000)
-val surfaceVariantD = Color(0xFF49454F)
+// Colores oscuros
+val colorPrimaryDark = Color(0xFFC5CAFF)
+val colorOnPrimaryDark = Color(0xFF002F64)
+val colorSecondaryDark = Color(0xFF8287B4)
+val colorOnSecondaryDark = Color(0xFF233148)
+val colorBackgroundDark = Color(0xFF121317)
+val colorSurfaceDark = Color(0xFFD1BCD9)
+val colorOnSurfaceDark = Color(0xFFE2E2E8)
+val colorErrorDark = Color(0xFFFFB4AB)
+val colorOnErrorDark = Color(0xFF690005)
+val colorOutlineDark = Color(0xFF8D909B)
+val colorTercearyDark = Color(0xFFC5ACA8)
+val colorsurfaceVariantDark = Color(0xA3817174)
+val colorSurfaceContainerDark = Color(0xFFB3B3BD)
 
 //Color Palette
 

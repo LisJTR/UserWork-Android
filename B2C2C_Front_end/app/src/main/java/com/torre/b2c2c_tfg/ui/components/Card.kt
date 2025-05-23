@@ -1,6 +1,7 @@
 package com.torre.b2c2c_tfg.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,10 +49,11 @@ fun OfferCardForm(
     onView: () -> Unit,
     onHide: () -> Unit
 ) {
+    val isDark = isSystemInDarkTheme()
     val backgroundColor = when {
-        !isSaved -> MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.4f) // NUEVA (más oscura)
+        !isSaved -> MaterialTheme.colorScheme.surfaceContainer.copy(alpha = if (isDark) 0.9f else 0.4f) // NUEVA (más oscura)
         isPublic -> MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 1f)   // GUARDADA y pública
-        else -> MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.8f)     // GUARDADA pero privada
+        else -> MaterialTheme.colorScheme.surfaceContainer.copy(alpha = if (isDark) 0.8f else 0.8f)   // GUARDADA pero privada
     }
 
     Card(
@@ -99,12 +101,6 @@ fun OfferCardForm(
                 IconButton(onClick = onDelete) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
-                IconButton(onClick = onView) {
-                    Icon(Icons.Default.Visibility, contentDescription = "Marcar como visible")
-                }
-                IconButton(onClick = onHide) {
-                    Icon(Icons.Default.VisibilityOff, contentDescription = "Marcar como oculta")
-                }
             }
         }
     }
@@ -120,7 +116,7 @@ fun HabilidadChip(
         modifier = Modifier
             .padding(4.dp)
             .background(
-                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
+                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f),
                 shape = MaterialTheme.shapes.medium
             )
             .padding(horizontal = 12.dp, vertical = 8.dp)
