@@ -70,6 +70,7 @@ import com.torre.b2c2c_tfg.ui.components.PerfilProgresoCompleto
 import com.torre.b2c2c_tfg.ui.components.UploadFileComponent
 import com.torre.b2c2c_tfg.ui.util.FileUtils
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.derivedStateOf
 
 
 
@@ -108,21 +109,27 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
     var mensajeErrorLocal by remember { mutableStateOf<String?>(null) }
     var mensajeCorectLocal by remember { mutableStateOf<String?>(null) }
 
-    val porcentajeCompletado = run {
-        val totalCampos = 8
-        var completados = 0
+    val porcentajeCompletado by remember(
+        nombreEmpresa, username, sector, ciudad,
+        telefono, correo, descripcion, imageUri
+    ) {
+        derivedStateOf {
+            val totalCampos = 8
+            var completados = 0
 
-        if (nombreEmpresa.isNotBlank()) completados++
-        if (username.isNotBlank()) completados++
-        if (sector.isNotBlank()) completados++
-        if (ciudad.isNotBlank()) completados++
-        if (descripcion.isNotBlank()) completados++
-        if (correo.isNotBlank()) completados++
-        if (telefono.isNotBlank()) completados++
-        if (imageUri != null) completados++
+            if (nombreEmpresa.isNotBlank()) completados++
+            if (username.isNotBlank()) completados++
+            if (sector.isNotBlank()) completados++
+            if (ciudad.isNotBlank()) completados++
+            if (telefono.isNotBlank()) completados++
+            if (correo.isNotBlank()) completados++
+            if (descripcion.isNotBlank()) completados++
+            if (imageUri != null) completados++
 
-        completados / totalCampos.toFloat()
+            completados / totalCampos.toFloat()
+        }
     }
+
 
 
     val viewModel = remember {

@@ -35,7 +35,7 @@ fun NoticiaCard(noticia: NoticiaRss) {
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
+            containerColor = MaterialTheme.colorScheme.tertiary
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -47,7 +47,7 @@ fun NoticiaCard(noticia: NoticiaRss) {
             Text(
                 text = noticia.fecha,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
             )
             Spacer( modifier = Modifier.padding(4.dp) )
             Text(
@@ -59,7 +59,7 @@ fun NoticiaCard(noticia: NoticiaRss) {
             Text(
                 text = "Ver más...",
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
             )
         }
     }

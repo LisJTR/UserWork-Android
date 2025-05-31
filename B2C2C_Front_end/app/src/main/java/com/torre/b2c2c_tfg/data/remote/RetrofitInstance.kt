@@ -15,7 +15,7 @@ object RetrofitInstance {
 
     // URLs del servidor
     // url apunto al emulador mismo
-    private const val BASE_URL ="http://192.168.1.38:8080/"
+    private const val BASE_URL ="http://172.19.176.1:8080/"
     // url para acceder desde el ordenador con el emulador
    // private const val BASE_URL_EMULADOR = "http://10.0.2.2:8080/"
     //val BASE_URL = BASE_URL_EMULADOR

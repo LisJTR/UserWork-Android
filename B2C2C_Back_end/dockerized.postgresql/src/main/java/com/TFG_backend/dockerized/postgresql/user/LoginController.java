@@ -44,7 +44,10 @@ public class LoginController {
             return ResponseEntity.ok(new LoginResponse("Login exitoso", empresa.getId(), "empresa"));
         }
 
-        return ResponseEntity.status(401).body(new LoginResponse("Credenciales incorrectas", null, null));
+        return ResponseEntity.status(401)
+        	    .header("Content-Type", "application/json")
+        	    .body(new LoginResponse("Credenciales incorrectas", null, null));
+
     }
     
     @PostMapping("/change-password")

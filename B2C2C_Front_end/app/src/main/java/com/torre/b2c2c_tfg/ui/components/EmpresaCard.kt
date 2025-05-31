@@ -30,7 +30,7 @@ fun EmpresaCard(
     onClick: () -> Unit = {},
     trailingContent: @Composable (() -> Unit)? = null
 ) {
-    val containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f)
+    val containerColor = MaterialTheme.colorScheme.surfaceContainer
 
     Card(
         modifier = Modifier

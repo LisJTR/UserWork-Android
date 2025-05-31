@@ -190,7 +190,7 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
                         }
                     }
                 }
-                println("📋 Lista combinada tiene: ${listaCombinada.count { it is NoticiaRss }} noticias y ${listaCombinada.count { it is Oferta }} ofertas")
+                println("Lista combinada tiene: ${listaCombinada.count { it is NoticiaRss }} noticias y ${listaCombinada.count { it is Oferta }} ofertas")
 
             }
 
@@ -216,7 +216,7 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
                     }
                 }
 
-                println("📋 Empresa: combinada contiene ${listaCombinadaEmpresa.count { it is NoticiaRss }} noticias y ${listaCombinadaEmpresa.count { it is Alumno }} alumnos")
+                println("Empresa: combinada contiene ${listaCombinadaEmpresa.count { it is NoticiaRss }} noticias y ${listaCombinadaEmpresa.count { it is Alumno }} alumnos")
             }
             item {
                 Spacer(modifier = Modifier.height(80.dp))

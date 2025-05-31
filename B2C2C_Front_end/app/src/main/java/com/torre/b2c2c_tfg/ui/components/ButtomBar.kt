@@ -48,7 +48,7 @@ fun BottomBar(
     // Componente de barra de navegación inferior
     // Nota: Es necesario especificar los colores manualmente ya que no los toma automáticamente del theme
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
         contentColor = MaterialTheme.colorScheme.onSurface
 
     ) {

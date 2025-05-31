@@ -29,7 +29,7 @@ fun OfertaSeleccionDialog(
         title = {
             Text("Selecciona una oferta",
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onPrimary
             )
         },
         text = {
@@ -39,7 +39,7 @@ fun OfertaSeleccionDialog(
                     Text(
                         text = titulo,
                         color = if (estaDeshabilitada)
-                            MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
                         else
                             MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier
@@ -59,7 +59,7 @@ fun OfertaSeleccionDialog(
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.primary,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
         textContentColor = MaterialTheme.colorScheme.onSurface
     )

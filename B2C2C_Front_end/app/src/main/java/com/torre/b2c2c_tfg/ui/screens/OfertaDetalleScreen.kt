@@ -152,7 +152,7 @@ fun OfertaDetalleScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceDim)
+                    .background(MaterialTheme.colorScheme. surfaceContainer)
                     .padding(16.dp)
             ) {
                 TextTitle(

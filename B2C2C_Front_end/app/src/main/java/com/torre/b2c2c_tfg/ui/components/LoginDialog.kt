@@ -25,7 +25,8 @@ fun LoginDialog(
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onDismiss: () -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    mensajeErrorLocal: String? = null
 ) {
     AlertDialog(
 
@@ -71,9 +72,17 @@ fun LoginDialog(
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(imageVector = image, contentDescription = "Toggle password visibility")
                         }
+
+
                     }
                 )
-
+                if (!mensajeErrorLocal.isNullOrBlank()) {
+                    Text(
+                        text = mensajeErrorLocal,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
                 Spacer(modifier = Modifier.height(12.dp))
 
                 ButtonGeneric(

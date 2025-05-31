@@ -8,33 +8,33 @@ import androidx.compose.ui.graphics.Color
 
 
 // Colores claros
-val colorPrimaryLight = Color(0xFF6F86AD)        // Botones principales, acentos
+val colorPrimaryLight = Color(0xFF778FB7)        // Botones principales, acentos
 val colorOnPrimaryLight = Color.White           // Texto sobre botones primarios
-val colorSecondaryLight = Color(0xFFAFBBDC)     // Chips, botones secundarios
+val colorSecondaryLight = Color(0xFF5B748F)     // Chips, botones secundarios
 val colorOnSecondaryLight = Color.White
 val colorBackgroundLight = Color(0xFFF9F9FF)    // Fondo general
-val colorSurfaceLight = Color(0xFFB0C3EF)       // Superficies: cards, sheets
+val colorSurfaceLight = Color(0xFF979FBB)       // Superficies: cards, sheets
 val colorOnSurfaceLight = Color(0xFF1A1C20)     // Texto sobre superficie
 val colorErrorLight = Color(0xFFBA1A1A)         // Errores
-val colorOnErrorLight = Color.White
+val colorOnErrorLight = Color(0xFF2335A2)
 val colorOutlineLight = Color(0xB272727E)       // Bordes inputs/cards
-val colorTercearyLight = Color(0xFFBDA29B)
-val colorsurfaceVariantLight = Color(0x9AA2B0FF) // Headers
-val colorSurfaceContainerLight = Color(0xFFEADFE6) // Contenedores secundarios
+val colorTercearyLight = Color(0xFFA5B2BE)
+val colorsurfaceVariantLight = Color(0xFFB6C7DE) // Headers
+val colorSurfaceContainerLight = Color(0xFFAEBAD0) // Contenedores secundarios
 
 // Colores oscuros
-val colorPrimaryDark = Color(0xFFC5CAFF)
+val colorPrimaryDark = Color(0xFFC5C8D9)
 val colorOnPrimaryDark = Color(0xFF002F64)
-val colorSecondaryDark = Color(0xFF8287B4)
+val colorSecondaryDark = Color(0xFFC9C9DA)
 val colorOnSecondaryDark = Color(0xFF233148)
 val colorBackgroundDark = Color(0xFF121317)
-val colorSurfaceDark = Color(0xFFD1BCD9)
+val colorSurfaceDark = Color(0xFFBCB2BE)
 val colorOnSurfaceDark = Color(0xFFE2E2E8)
 val colorErrorDark = Color(0xFFFFB4AB)
 val colorOnErrorDark = Color(0xFF690005)
 val colorOutlineDark = Color(0xFF8D909B)
 val colorTercearyDark = Color(0xFFC5ACA8)
-val colorsurfaceVariantDark = Color(0xA3817174)
+val colorsurfaceVariantDark = Color(0xFF817174)
 val colorSurfaceContainerDark = Color(0xFFB3B3BD)
 
 //Color Palette
