@@ -26,6 +26,7 @@ import com.torre.b2c2c_tfg.ui.components.TextTitle
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.LoginViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
+import kotlinx.coroutines.delay
 
 
 // UI principal
@@ -38,6 +39,7 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showRegisterDialog by remember { mutableStateOf(false) }
+    var mensajeErrorLocal by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
     val loginViewModel = remember {
@@ -46,8 +48,7 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
         )
     }
 
-    val loginResult by loginViewModel.loginResult.collectAsState()
-
+    val loginResult = loginViewModel.loginResult.collectAsState().value
     val userId = loginViewModel.loggedUserId.collectAsState().value
     val userType = loginViewModel.loggedUserType.collectAsState().value
 
@@ -65,10 +66,11 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             }
 
             navController.navigate(route)
+        } else if (loginResult.isNotBlank() && !loginResult.contains("exitoso")) {
+            mensajeErrorLocal = loginResult // mensaje de error login
         }
     }
-
-
+   
     Column(
         verticalArrangement = Arrangement.spacedBy(
             10.dp, alignment = Alignment.CenterVertically),
@@ -120,11 +122,14 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             password = password,
             onUsernameChange = { username = it },
             onPasswordChange = { password = it },
-            onDismiss = { showLoginDialog = false },
+            onDismiss = {
+                showLoginDialog = false
+                mensajeErrorLocal = null },
             onLoginClick = {
                 println("BOTÓN LOGIN PULSADO")
 
                 if (username.isBlank() || password.isBlank()) {
+                    mensajeErrorLocal = "Por favor, completa todos los campos."
                     println("Campos vacíos: username='$username' password='$password'")
                     return@LoginDialog
                 }
@@ -144,8 +149,17 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
                     password = password
                 )
             },
+            mensajeErrorLocal = mensajeErrorLocal
         )
     }
+    // Hace que el error desaparezca solo después de 3 segundos
+    LaunchedEffect(mensajeErrorLocal) {
+        if (!mensajeErrorLocal.isNullOrBlank()) {
+            delay(2000)
+            mensajeErrorLocal = null
+        }
+    }
+
 
     //Dialog que muestra el tipo de usuario a registrar
     if (showRegisterDialog) {

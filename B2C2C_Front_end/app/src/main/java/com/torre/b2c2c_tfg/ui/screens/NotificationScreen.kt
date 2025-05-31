@@ -51,6 +51,7 @@ fun NotificationScreen(
 ) {
     val context = LocalContext.current
     val userId = sessionViewModel.userId.collectAsState().value ?: 0L
+    val userType = sessionViewModel.userType.collectAsState().value ?: ""
 
     val notificacionViewModel = remember {
         NotificationViewModel(
@@ -64,11 +65,17 @@ fun NotificationScreen(
     var showFiltroMenu by remember { mutableStateOf(false) }
     val notificaciones by notificacionViewModel.notificacionesFiltradas.collectAsState(initial = emptyList())
 
+
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     LaunchedEffect(currentBackStackEntry ) {
         sessionViewModel.userType.value?.let { tipoUsuario ->
             notificacionViewModel.cargarNotificaciones(userId, tipoUsuario)
         }
+    }
+
+    // 👇 AQUI ESTA LA CLAVE:
+    LaunchedEffect(Unit) {
+        notificacionViewModel.iniciarAutoRefresco(userId, userType)
     }
 
     Column(
@@ -108,6 +115,16 @@ fun NotificationScreen(
                 .weight(1f) // IMPORTANTE: ocupa el resto del espacio y permite scroll
         ) {
             items(notificaciones) { notificacion ->
+
+                val backgroundColor = when (notificacion.tipo) {
+                    "respuesta" -> when (notificacion.estadoRespuesta) {
+                        "seleccionado", "inter_mutuo" -> MaterialTheme.colorScheme.primary
+                        "descartado", "no_interesado" -> MaterialTheme.colorScheme.secondary
+                        else -> MaterialTheme.colorScheme.surfaceVariant
+                    }
+                    else -> MaterialTheme.colorScheme.surface
+                }
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -138,6 +155,7 @@ fun NotificationScreen(
                                 }
                             }
                         },
+                    colors = CardDefaults.cardColors(containerColor = backgroundColor),
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {

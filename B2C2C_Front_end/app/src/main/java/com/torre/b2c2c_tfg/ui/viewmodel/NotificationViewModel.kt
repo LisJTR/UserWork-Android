@@ -21,6 +21,17 @@ class NotificationViewModel(
     private val _notificaciones = MutableStateFlow<List<Notificacion>>(emptyList())
     val notificaciones: StateFlow<List<Notificacion>> = _notificaciones
     val filtroActual = MutableStateFlow(FiltroNotificacion.TODAS)
+
+    fun iniciarAutoRefresco(userId: Long, userType: String, intervaloMs: Long = 5000L) {
+        viewModelScope.launch {
+            while (true) {
+                cargarNotificaciones(userId, userType)
+                kotlinx.coroutines.delay(intervaloMs)
+            }
+        }
+    }
+
+
     val notificacionesFiltradas = notificaciones.combine(filtroActual) { lista, filtro ->
         when (filtro) {
             FiltroNotificacion.TODAS -> lista

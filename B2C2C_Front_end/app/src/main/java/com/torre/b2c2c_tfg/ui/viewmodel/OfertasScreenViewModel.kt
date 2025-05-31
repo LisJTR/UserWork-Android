@@ -79,7 +79,7 @@ class OfertasScreenViewModel (
             try {
                 val lista = empresaRepository.getAllEmpresas()
                 empresas.value = empresaRepository.getAllEmpresas()
-                lista.forEach { println("🧾 Empresa: ${it.id} - ${it.nombre}") }
+                lista.forEach { println(" Empresa: ${it.id} - ${it.nombre}") }
             } catch (e: Exception) {
                 println("Error cargando empresas: ${e.message}")
             }
@@ -102,7 +102,7 @@ class OfertasScreenViewModel (
                 val lista = getTodasLasOfertasUseCase()
                 ofertas.value = lista
                 lista.forEach {
-                    println("🎯 Oferta: ${it.titulo} - Empresa ID: ${it.empresaId}")
+                    println(" Oferta: ${it.titulo} - Empresa ID: ${it.empresaId}")
                 }
             } catch (e: Exception) {
                 println("Error al cargar ofertas: ${e.message}")
