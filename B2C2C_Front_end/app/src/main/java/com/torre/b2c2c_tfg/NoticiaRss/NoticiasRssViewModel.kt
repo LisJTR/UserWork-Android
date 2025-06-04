@@ -1,4 +1,4 @@
-package com.torre.b2c2c_tfg.data.NoticiaRss
+package com.torre.b2c2c_tfg.NoticiaRss
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

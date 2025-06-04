@@ -45,6 +45,13 @@ fun HeaderContentofScreens(
 
     val dropdownVisible = remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        val userId = sessionViewModel.userId.value ?: 0L
+        val userType = sessionViewModel.userType.value ?: ""
+        notificationViewModel.iniciarAutoRefresco(userId, userType)
+    }
+
+
     LaunchedEffect(userType) {
         if (userType == "alumno") {
             viewModel.cargarAlumno(userId)

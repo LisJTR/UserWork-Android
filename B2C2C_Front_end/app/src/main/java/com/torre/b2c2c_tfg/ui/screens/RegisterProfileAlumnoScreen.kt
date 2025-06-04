@@ -159,7 +159,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                 titulacion = it.titulacion.orEmpty()
                 descripcion = it.descripcion.orEmpty()
                 imageUri = RetrofitInstance.buildUri(it.imagen)
-                cvUri = it.cvUri?.toUri()
+                cvUri = RetrofitInstance.buildUri(it.cvUri)
                 nombreDoc = it.nombreDoc.orEmpty()
                 listaHabilidades.clear()
                 listaHabilidades.addAll(it.habilidades.orEmpty().split(",").filter { h -> h.isNotBlank() })
@@ -336,22 +336,6 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
             },
             modifier = Modifier.width(300.dp).padding(top = 20.dp)
         )
-    }
-}
-
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Preview(showBackground = true)
-@Composable
-fun LoginAlumnoScreenPreview() {
-    val navController = rememberNavController()
-
-    Scaffold(
-        bottomBar = {
-            BottomBar(navController = navController, userType = UserType.ALUMNO)
-        }
-    ) {
-        RegisterProfileAlumnoScreen(navController = navController,sessionViewModel = SessionViewModel())
     }
 }
 

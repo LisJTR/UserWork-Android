@@ -41,6 +41,25 @@ class OfertasScreenViewModel (
     val ofertas = MutableStateFlow<List<Oferta>>(emptyList())
     val filtroSeleccionado = MutableStateFlow<String?>(null)
 
+    fun iniciarAutoRefresco(userType: String, userId: Long, intervaloMs: Long = 5000L) {
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.flow {
+                while (true) {
+                    emit(Unit)
+                    kotlinx.coroutines.delay(intervaloMs)
+                }
+            }.collect {
+                if (userType == "alumno") {
+                    cargarAlumno(userId)
+                    cargarFiltros("alumno")
+                } else if (userType == "empresa") {
+                    cargarEmpresa(userId)
+                    cargarFiltros("empresa")
+                }
+                cargarTodasLasOfertas()
+            }
+        }
+    }
 
 
     fun cargarAlumno(id: Long) {

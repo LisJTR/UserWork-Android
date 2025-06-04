@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
@@ -51,6 +52,7 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
     val loginResult = loginViewModel.loginResult.collectAsState().value
     val userId = loginViewModel.loggedUserId.collectAsState().value
     val userType = loginViewModel.loggedUserType.collectAsState().value
+
 
     LaunchedEffect(loginResult) {
         if (loginResult.contains("exitoso") && userId != null && userType != null) {
@@ -182,15 +184,4 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
     }
 
 
-}
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Preview(showBackground = true)
-@Composable
-fun WelcomeScreenPreview() {
-    B2C2C_TFGTheme {
-        Scaffold {
-            WelcomeScreen(navController = rememberNavController(), sessionViewModel = SessionViewModel())
-        }
-    }
 }

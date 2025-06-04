@@ -31,6 +31,11 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val sessionViewModel: SessionViewModel = viewModel()
 
+            // 👇 CARGAR LA SESIÓN NADA MÁS ABRIR LA APP
+            LaunchedEffect(Unit) {
+                sessionViewModel.loadSession()
+            }
+
             // 🔁 Recoge el userId (si ya hay sesión)
             val userId = sessionViewModel.userId.collectAsState().value ?: 0L
             val themePrefs = remember { ThemePreferences(context) }
