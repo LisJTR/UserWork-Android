@@ -24,9 +24,13 @@ class NotificationViewModel(
 
     fun iniciarAutoRefresco(userId: Long, userType: String, intervaloMs: Long = 5000L) {
         viewModelScope.launch {
-            while (true) {
+            kotlinx.coroutines.flow.flow {
+                while (true) {
+                    emit(Unit)
+                    kotlinx.coroutines.delay(intervaloMs)
+                }
+            }.collect {
                 cargarNotificaciones(userId, userType)
-                kotlinx.coroutines.delay(intervaloMs)
             }
         }
     }

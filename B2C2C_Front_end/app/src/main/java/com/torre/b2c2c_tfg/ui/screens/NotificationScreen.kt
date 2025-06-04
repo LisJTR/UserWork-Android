@@ -42,6 +42,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.torre.b2c2c_tfg.ui.components.IconArrowBack
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+
+
 
 
 @Composable
@@ -64,8 +68,14 @@ fun NotificationScreen(
     val filtro by notificacionViewModel.filtroActual.collectAsState()
     var showFiltroMenu by remember { mutableStateOf(false) }
     val notificaciones by notificacionViewModel.notificacionesFiltradas.collectAsState(initial = emptyList())
+    var isRefreshing by remember { mutableStateOf(false) }
 
-
+    val swipeRefreshState = remember { SwipeRefreshState(isRefreshing) }
+    // Carga inicial
+    LaunchedEffect(Unit) {
+        notificacionViewModel.cargarNotificaciones(userId, userType)
+    }
+    // Recargar al volver de otra pantalla
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     LaunchedEffect(currentBackStackEntry ) {
         sessionViewModel.userType.value?.let { tipoUsuario ->
@@ -73,100 +83,103 @@ fun NotificationScreen(
         }
     }
 
-    // 👇 AQUI ESTA LA CLAVE:
-    LaunchedEffect(Unit) {
-        notificacionViewModel.iniciarAutoRefresco(userId, userType)
-    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconArrowBack( onClick = { navController.popBackStack() })
-            Text("Notificaciones", style = MaterialTheme.typography.titleLarge)
-            Box {
-                IconFilter(onClick = { showFiltroMenu = true })
-
-                FiltroDropdown(
-                    expanded = showFiltroMenu,
-                    onDismissRequest = { showFiltroMenu = false },
-                    opciones = listOf("Todas", "Respondidas", "Pendientes"),
-                    onSeleccion = {
-                        notificacionViewModel.filtroActual.value = when (it) {
-                            "Respondidas" -> FiltroNotificacion.RESPONDIDAS
-                            "Pendientes" -> FiltroNotificacion.PENDIENTES
-                            else -> FiltroNotificacion.TODAS
-                        }
-                        showFiltroMenu = false
-                    }
-                )
-            }
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = {
+            isRefreshing = true
+            notificacionViewModel.cargarNotificaciones(userId, userType)
+            isRefreshing = false
         }
-
-        LazyColumn(
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f) // IMPORTANTE: ocupa el resto del espacio y permite scroll
+                .fillMaxSize()
+                .systemBarsPadding()
         ) {
-            items(notificaciones) { notificacion ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconArrowBack(onClick = { navController.popBackStack() })
+                Text("Notificaciones", style = MaterialTheme.typography.titleLarge)
+                Box {
+                    IconFilter(onClick = { showFiltroMenu = true })
 
-                val backgroundColor = when (notificacion.tipo) {
-                    "respuesta" -> when (notificacion.estadoRespuesta) {
-                        "seleccionado", "inter_mutuo" -> MaterialTheme.colorScheme.primary
-                        "descartado", "no_interesado" -> MaterialTheme.colorScheme.secondary
-                        else -> MaterialTheme.colorScheme.surfaceVariant
-                    }
-                    else -> MaterialTheme.colorScheme.surface
-                }
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clickable {
-                            notificacionViewModel.marcarComoLeida(notificacion)
-                            when (notificacion.destinatarioTipo) {
-                                "alumno" -> {
-                                    val idOferta = notificacion.ofertaId ?: return@clickable
-                                    navController.navigate(
-                                        ScreenRoutes.ofertaDetalleDesdeNotificacionAlumno(
-                                            idOferta,
-                                            notificacion.id?.toLong() ?: 0L
-                                        )
-                                    )
-                                }
-                                "empresa" -> {
-                                    val idAlumno = notificacion.alumnoId ?: return@clickable
-                                    val idOferta = notificacion.ofertaId ?: return@clickable
-                                    navController.navigate(
-                                        ScreenRoutes.perfilDetalleDesdeNotificacionEmpresa(
-                                            idAlumno,
-                                            idOferta,
-                                            notificacion.id?.toLong() ?: 0L,
-                                            notificacion.estadoRespuesta
-                                        )
-                                    )
-                                }
+                    FiltroDropdown(
+                        expanded = showFiltroMenu,
+                        onDismissRequest = { showFiltroMenu = false },
+                        opciones = listOf("Todas", "Respondidas", "Pendientes"),
+                        onSeleccion = {
+                            notificacionViewModel.filtroActual.value = when (it) {
+                                "Respondidas" -> FiltroNotificacion.RESPONDIDAS
+                                "Pendientes" -> FiltroNotificacion.PENDIENTES
+                                else -> FiltroNotificacion.TODAS
                             }
-                        },
-                    colors = CardDefaults.cardColors(containerColor = backgroundColor),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = notificacion.mensaje, style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "Estado: ${notificacion.estadoRespuesta ?: "pendiente"}", style = MaterialTheme.typography.bodySmall)
-                        Text(text = "Visto: ${if (notificacion.leido) "Sí" else "No"}", style = MaterialTheme.typography.bodySmall)
-                    }
+                            showFiltroMenu = false
+                        }
+                    )
                 }
             }
-            item {
-                Spacer(modifier = Modifier.height(80.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                items(notificaciones) { notificacion ->
+                    val backgroundColor = when (notificacion.tipo) {
+                        "respuesta" -> when (notificacion.estadoRespuesta) {
+                            "seleccionado", "inter_mutuo" -> MaterialTheme.colorScheme.primary
+                            "descartado", "no_interesado" -> MaterialTheme.colorScheme.secondary
+                            else -> MaterialTheme.colorScheme.surfaceVariant
+                        }
+                        else -> MaterialTheme.colorScheme.surface
+                    }
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clickable {
+                                notificacionViewModel.marcarComoLeida(notificacion)
+                                when (notificacion.destinatarioTipo) {
+                                    "alumno" -> {
+                                        val idOferta = notificacion.ofertaId ?: return@clickable
+                                        navController.navigate(
+                                            ScreenRoutes.ofertaDetalleDesdeNotificacionAlumno(
+                                                idOferta,
+                                                notificacion.id?.toLong() ?: 0L
+                                            )
+                                        )
+                                    }
+                                    "empresa" -> {
+                                        val idAlumno = notificacion.alumnoId ?: return@clickable
+                                        val idOferta = notificacion.ofertaId ?: return@clickable
+                                        navController.navigate(
+                                            ScreenRoutes.perfilDetalleDesdeNotificacionEmpresa(
+                                                idAlumno,
+                                                idOferta,
+                                                notificacion.id?.toLong() ?: 0L,
+                                                notificacion.estadoRespuesta
+                                            )
+                                        )
+                                    }
+                                }
+                            },
+                        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = notificacion.mensaje, style = MaterialTheme.typography.bodyLarge)
+                            Text(text = "Estado: ${notificacion.estadoRespuesta ?: "pendiente"}", style = MaterialTheme.typography.bodySmall)
+                            Text(text = "Visto: ${if (notificacion.leido) "Sí" else "No"}", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }

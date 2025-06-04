@@ -380,23 +380,3 @@ fun RegisterProfileEmpresaScreen(navController: NavController, sessionViewModel:
 
 
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Preview(showBackground = true)
-@Composable
-fun RegisterProfileEmpresaScreenPreview() {
-    val navController = rememberNavController()
-
-    //Se especifica el bottomBar para que aparezca en la pantalla de Preview
-    B2C2C_TFGTheme {
-        Scaffold(
-            bottomBar = {
-                BottomBar(navController = navController, userType = UserType.EMPRESA)
-            }
-        ) {
-            RegisterProfileEmpresaScreen(navController = navController, sessionViewModel = SessionViewModel())
-        }
-    }
-}
-
-
-

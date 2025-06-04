@@ -1,4 +1,4 @@
-package com.torre.b2c2c_tfg.data.NoticiaRss
+package com.torre.b2c2c_tfg.NoticiaRss
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

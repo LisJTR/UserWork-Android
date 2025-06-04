@@ -21,9 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.torre.b2c2c_tfg.data.NoticiaRss.NoticiaCard
-import com.torre.b2c2c_tfg.data.NoticiaRss.NoticiaRss
-import com.torre.b2c2c_tfg.data.NoticiaRss.NoticiasRssViewModel
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.torre.b2c2c_tfg.NoticiaRss.NoticiaCard
+import com.torre.b2c2c_tfg.NoticiaRss.NoticiaRss
+import com.torre.b2c2c_tfg.NoticiaRss.NoticiasRssViewModel
 import com.torre.b2c2c_tfg.data.model.Alumno
 import com.torre.b2c2c_tfg.data.model.Oferta
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
@@ -50,6 +51,10 @@ import com.torre.b2c2c_tfg.ui.components.EmpresaCard
 import com.torre.b2c2c_tfg.ui.components.AlumnoCard
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.NotificationViewModel
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.google.accompanist.swiperefresh.SwipeRefresh
+
 
 @Composable
 fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewModel, isUserEmpresa: Boolean) {
@@ -80,7 +85,6 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
     val noticiasRssViewModel = remember { NoticiasRssViewModel() }
     val noticias = noticiasRssViewModel.noticias
 
-
     val notificationViewModel = remember {
         NotificationViewModel(
             getNotificacionesPorAlumnoUseCase = GetNotificacionesPorAlumnoUseCase(NotificacionRepositoryImpl(RetrofitInstance.getInstance(context))),
@@ -89,137 +93,132 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
         )
     }
 
-    LaunchedEffect(userType) {
+    var isRefreshing by remember { mutableStateOf(false) }
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
+    fun recargarDatos() {
         if (userType == "alumno") {
             viewModel.cargarEmpresas()
             viewModel.cargarTodasLasOfertas()
             notificationViewModel.cargarNotificaciones(userId, "alumno")
             noticiasRssViewModel.cargarNoticias("https://www.insertaempleo.es/actualidad/noticias/rss.xml")
-            println("Noticias cargadas: ${noticiasRssViewModel.noticias.size}")
-
         } else if (userType == "empresa") {
             viewModel.cargarAlumnos()
+            viewModel.cargarTodasLasOfertas()
             notificationViewModel.cargarNotificaciones(userId, "empresa")
             noticiasRssViewModel.cargarNoticias("https://rss.elconfidencial.com/empresas/")
         }
     }
 
+    LaunchedEffect(userType) { recargarDatos() }
+
+    LaunchedEffect(Unit) {
+        if (userType != null) {
+            viewModel.iniciarAutoRefresco(userType, userId)
+        }
+    }
+
+
 
     println("Empresas: ${empresas.size}")
     println("Ofertas: ${ofertas.size}")
 
+    val listaCombinada = remember(ofertas, noticias) {
+        val combinada = mutableListOf<Any>()
+        val noticiasLimitadas = noticias.shuffled().take(3)
+        val posiciones = (0..ofertas.size).shuffled().take(noticiasLimitadas.size).sorted()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 60.dp) // por si tienes barra de navegación inferior
-            .systemBarsPadding()
+        var noticiaIndex = 0
+        for (i in 0..ofertas.size) {
+            if (posiciones.contains(i) && noticiaIndex < noticiasLimitadas.size) {
+                combinada.add(noticiasLimitadas[noticiaIndex++])
+            }
+            if (i < ofertas.size) {
+                combinada.add(ofertas[i])
+            }
+        }
+        combinada
+    }
+
+    val listaCombinadaEmpresa = remember(alumnos, noticias) {
+        val combinada = mutableListOf<Any>()
+        val noticiasLimitadas = noticias.shuffled().take(3)
+        val posiciones = (0..alumnos.size).shuffled().take(noticiasLimitadas.size).sorted()
+
+        var noticiaIndex = 0
+        for (i in 0..alumnos.size) {
+            if (posiciones.contains(i) && noticiaIndex < noticiasLimitadas.size) {
+                combinada.add(noticiasLimitadas[noticiaIndex++])
+            }
+            if (i < alumnos.size) {
+                combinada.add(alumnos[i])
+            }
+        }
+        combinada
+    }
+
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = {
+            isRefreshing = true
+            recargarDatos()
+            isRefreshing = false
+        }
     ) {
-
-        HeaderContentofScreens(
-            sessionViewModel = sessionViewModel,
-            notificationViewModel = notificationViewModel,
-            viewModel = viewModel,
-            onFiltroSeleccionado = { seleccion ->
-                println("Filtro seleccionado en pantalla: $seleccion")
-                viewModel.filtroSeleccionado.value = seleccion
-            },
-            navController = navController
-        )
-
-        val listaCombinada = remember(ofertas, noticias) {
-            val combinada = mutableListOf<Any>()
-            val noticiasLimitadas = noticias.shuffled().take(3) // 3 noticias como máximo
-            val posiciones = (0..ofertas.size).shuffled().take(noticiasLimitadas.size).sorted()
-
-            var noticiaIndex = 0
-            for (i in 0..ofertas.size) {
-                if (posiciones.contains(i) && noticiaIndex < noticiasLimitadas.size) {
-                    combinada.add(noticiasLimitadas[noticiaIndex++])
-                }
-                if (i < ofertas.size) {
-                    combinada.add(ofertas[i])
-                }
-            }
-            combinada
-        }
-
-        val listaCombinadaEmpresa = remember(alumnos, noticias) {
-            val combinada = mutableListOf<Any>()
-            val noticiasLimitadas = noticias.shuffled().take(3)
-            val posiciones = (0..alumnos.size).shuffled().take(noticiasLimitadas.size).sorted()
-
-            var noticiaIndex = 0
-            for (i in 0..alumnos.size) {
-                if (posiciones.contains(i) && noticiaIndex < noticiasLimitadas.size) {
-                    combinada.add(noticiasLimitadas[noticiaIndex++])
-                }
-                if (i < alumnos.size) {
-                    combinada.add(alumnos[i])
-                }
-            }
-            combinada
-        }
-
-
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .weight(1f)
+                .padding(bottom = 60.dp)
+                .systemBarsPadding()
         ) {
-            if (userType == "alumno") {
-                items(listaCombinada) { item ->
-                    when (item) {
-                        is Oferta -> {
-                            val empresa = empresas.find { it.id?.toLong() == item.empresaId.toLong() }
-                            empresa?.let {
-                                EmpresaCard(
-                                    nombre = it.nombre,
-                                    sector = it.sector,
-                                    descripcion = item.titulo,
-                                    imagenUri = RetrofitInstance.buildUri(it.imagen),
-                                    onClick = {
-                                        navController.navigate(ScreenRoutes.ofertaDetalle(item.id?.toLong() ?: 0L))
-                                    }
+            HeaderContentofScreens(
+                sessionViewModel = sessionViewModel,
+                notificationViewModel = notificationViewModel,
+                viewModel = viewModel,
+                onFiltroSeleccionado = { seleccion -> viewModel.filtroSeleccionado.value = seleccion },
+                navController = navController
+            )
+
+
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                if (userType == "alumno") {
+                    items(listaCombinada) { item ->
+                        when (item) {
+                            is Oferta -> {
+                                val empresa = empresas.find { it.id?.toLong() == item.empresaId.toLong() }
+                                empresa?.let {
+                                    EmpresaCard(
+                                        nombre = it.nombre,
+                                        sector = it.sector,
+                                        descripcion = item.titulo,
+                                        imagenUri = RetrofitInstance.buildUri(it.imagen),
+                                        onClick = { navController.navigate(ScreenRoutes.ofertaDetalle(item.id?.toLong() ?: 0L)) }
+                                    )
+                                }
+                            }
+                            is NoticiaRss -> { NoticiaCard(noticia = item) }
+                        }
+                    }
+                }
+
+                if (userType == "empresa") {
+                    items(listaCombinadaEmpresa) { item ->
+                        when (item) {
+                            is Alumno -> {
+                                AlumnoCard(
+                                    nombre = item.nombre,
+                                    apellido = item.apellido,
+                                    titulacion = item.titulacion,
+                                    ciudad = item.ciudad,
+                                    imagenUri = RetrofitInstance.buildUri(item.imagen),
+                                    onClick = { navController.navigate(ScreenRoutes.perfilDetalle(item.id?.toLong() ?: 0L)) }
                                 )
                             }
-                        }
-
-                        is NoticiaRss -> {
-                            NoticiaCard(noticia = item)
+                            is NoticiaRss -> { NoticiaCard(noticia = item) }
                         }
                     }
                 }
-                println("Lista combinada tiene: ${listaCombinada.count { it is NoticiaRss }} noticias y ${listaCombinada.count { it is Oferta }} ofertas")
-
-            }
-
-            if (userType == "empresa") {
-                items(listaCombinadaEmpresa) { item ->
-                    when (item) {
-                        is Alumno -> {
-                            AlumnoCard(
-                                nombre = item.nombre,
-                                apellido = item.apellido,
-                                titulacion = item.titulacion,
-                                ciudad = item.ciudad,
-                                imagenUri = RetrofitInstance.buildUri(item.imagen),
-                                onClick = {
-                                    navController.navigate(ScreenRoutes.perfilDetalle(item.id?.toLong() ?: 0L))
-                                }
-                            )
-                        }
-
-                        is NoticiaRss -> {
-                            NoticiaCard(noticia = item)
-                        }
-                    }
-                }
-
-                println("Empresa: combinada contiene ${listaCombinadaEmpresa.count { it is NoticiaRss }} noticias y ${listaCombinadaEmpresa.count { it is Alumno }} alumnos")
-            }
-            item {
-                Spacer(modifier = Modifier.height(80.dp))
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }
@@ -228,22 +227,3 @@ fun OfertasScreen(navController: NavController,sessionViewModel: SessionViewMode
 
 
 
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Preview(showBackground = true)
-@Composable
-fun OfertasScreen() {
-    val navController = rememberNavController()
-
-    //Se especifica el bottomBar para que aparezca en la pantalla de Preview
-    B2C2C_TFGTheme {
-        Scaffold(
-
-            bottomBar = {
-                BottomBar(navController = navController, userType = UserType.EMPRESA)
-            }
-        ) {
-            OfertasScreen(navController = navController, sessionViewModel = SessionViewModel() , isUserEmpresa = true)
-        }
-    }
-}

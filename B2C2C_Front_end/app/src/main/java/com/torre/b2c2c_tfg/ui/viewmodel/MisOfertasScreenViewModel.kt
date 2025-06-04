@@ -23,6 +23,19 @@ class MisOfertasScreenViewModel(
     private val _invitacionesRecibidas = MutableStateFlow<List<Invitacion>>(emptyList())
     val invitacionesRecibidas: StateFlow<List<Invitacion>> = _invitacionesRecibidas
 
+    fun iniciarAutoRefresco(alumnoId: Long?, empresaId: Long?, intervaloMs: Long = 5000L) {
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.flow {
+                while (true) {
+                    emit(Unit)
+                    kotlinx.coroutines.delay(intervaloMs)
+                }
+            }.collect {
+                alumnoId?.let { cargarOfertasAplicadas(it) }
+                empresaId?.let { cargarInvitaciones(it) }
+            }
+        }
+    }
 
     fun cargarOfertasAplicadas(alumnoId: Long) {
         viewModelScope.launch {

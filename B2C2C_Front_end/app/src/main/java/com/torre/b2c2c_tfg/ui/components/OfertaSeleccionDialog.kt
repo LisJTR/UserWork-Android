@@ -39,9 +39,9 @@ fun OfertaSeleccionDialog(
                     Text(
                         text = titulo,
                         color = if (estaDeshabilitada)
-                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
+                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f)
                         else
-                            MaterialTheme.colorScheme.tertiary,
+                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
