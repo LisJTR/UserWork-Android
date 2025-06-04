@@ -41,6 +41,25 @@ class OfertasScreenViewModel (
     val ofertas = MutableStateFlow<List<Oferta>>(emptyList())
     val filtroSeleccionado = MutableStateFlow<String?>(null)
 
+    fun iniciarAutoRefresco(userType: String, userId: Long, intervaloMs: Long = 5000L) {
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.flow {
+                while (true) {
+                    emit(Unit)
+                    kotlinx.coroutines.delay(intervaloMs)
+                }
+            }.collect {
+                if (userType == "alumno") {
+                    cargarAlumno(userId)
+                    cargarFiltros("alumno")
+                } else if (userType == "empresa") {
+                    cargarEmpresa(userId)
+                    cargarFiltros("empresa")
+                }
+                cargarTodasLasOfertas()
+            }
+        }
+    }
 
 
     fun cargarAlumno(id: Long) {
@@ -79,7 +98,7 @@ class OfertasScreenViewModel (
             try {
                 val lista = empresaRepository.getAllEmpresas()
                 empresas.value = empresaRepository.getAllEmpresas()
-                lista.forEach { println("🧾 Empresa: ${it.id} - ${it.nombre}") }
+                lista.forEach { println(" Empresa: ${it.id} - ${it.nombre}") }
             } catch (e: Exception) {
                 println("Error cargando empresas: ${e.message}")
             }
@@ -102,7 +121,7 @@ class OfertasScreenViewModel (
                 val lista = getTodasLasOfertasUseCase()
                 ofertas.value = lista
                 lista.forEach {
-                    println("🎯 Oferta: ${it.titulo} - Empresa ID: ${it.empresaId}")
+                    println(" Oferta: ${it.titulo} - Empresa ID: ${it.empresaId}")
                 }
             } catch (e: Exception) {
                 println("Error al cargar ofertas: ${e.message}")

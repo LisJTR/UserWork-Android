@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,9 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.torre.b2c2c_tfg.ui.components.CambiarPasswordDialog
 import com.torre.b2c2c_tfg.ui.components.ConfirmDialog
+import com.torre.b2c2c_tfg.ui.components.IconCloseButton
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SettingsScreenViewModel
+import androidx.compose.ui.Alignment
+import com.torre.b2c2c_tfg.ui.components.IconCloseButton
 
 
 
@@ -159,7 +163,8 @@ fun SettingsScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .systemBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,14 +26,22 @@ fun OfertaSeleccionDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {}, // no lo necesitamos
-        title = { Text("Selecciona una oferta") },
+        title = {
+            Text("Selecciona una oferta",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimary
+            )
+        },
         text = {
             Column {
                 ofertas.forEach { titulo ->
                     val estaDeshabilitada = deshabilitadas.contains(titulo)
                     Text(
                         text = titulo,
-                        color = if (estaDeshabilitada) Color.Gray else Color.Unspecified,
+                        color = if (estaDeshabilitada)
+                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f)
+                        else
+                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
@@ -49,6 +58,9 @@ fun OfertaSeleccionDialog(
                     )
                 }
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.primary,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurface
     )
 }

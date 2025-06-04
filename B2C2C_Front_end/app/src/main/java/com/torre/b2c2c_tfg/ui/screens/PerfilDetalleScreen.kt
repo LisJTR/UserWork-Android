@@ -38,7 +38,10 @@ import com.torre.b2c2c_tfg.domain.usecase.GetEstadoRespuestaPorIdUseCase
 import com.torre.b2c2c_tfg.ui.components.OfertaSeleccionDialog
 import com.torre.b2c2c_tfg.domain.usecase.GetInvitacionPorEmpresaUseCase
 import com.torre.b2c2c_tfg.domain.usecase.GetNotificacionPorIdUseCase
-
+import com.torre.b2c2c_tfg.ui.components.AutoDismissCorrectText
+import com.torre.b2c2c_tfg.ui.components.AutoDismissErrorText
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -59,6 +62,10 @@ fun PerfilDetalleScreen(
     var showDialog by remember { mutableStateOf(false) }
     var ofertaSeleccionadaTitulo by remember { mutableStateOf("OFERTAS ACTIVAS") }
     var ofertaSeleccionadaId by remember { mutableStateOf<Long?>(null) }
+    var mensajeErrorLocal by remember { mutableStateOf<String?>(null) }
+    var mensajeCorectLocal by remember { mutableStateOf<String?>(null) }
+    var refreshKey by remember { mutableStateOf(0) }
+
 
     val viewModel = remember {
         PerfilDetalleViewModel(
@@ -95,16 +102,24 @@ fun PerfilDetalleScreen(
 
     LaunchedEffect(idNotificacion) {
         idNotificacion?.let { viewModel.cargarEstadoRespuesta(it) }
-        println("🪵 PerfilDetalleScreen - idNotificacion recibido: $idNotificacion")
+        println("PerfilDetalleScreen - idNotificacion recibido: $idNotificacion")
 
     }
 
+    LaunchedEffect(refreshKey, idAlumno) {
+        viewModel.cargarAlumno(idAlumno)
+        viewModel.cargarInvitacionesEnviadas(empresaId, idAlumno)
+        idNotificacion?.let { viewModel.cargarEstadoRespuesta(it) }
+    }
+
+    val coroutineScope = rememberCoroutineScope()
 
     alumno?.let {
         Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .systemBarsPadding()
                     .padding(start = 16.dp, top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -115,6 +130,13 @@ fun PerfilDetalleScreen(
                 imagenUri = RetrofitInstance.buildUri(it.imagen),
                 nombre = "${it.nombre} ${it.apellido}")
 
+            // Recalcular estos valores cuando cambie el estado
+            val yaInvitada = remember(ofertasYaUsadas, ofertaSeleccionadaId) {
+                ofertaSeleccionadaId in ofertasYaUsadas
+            }
+            val todasUsadas = remember(ofertasYaUsadas, listaOfertas) {
+                listaOfertas.all { it.id?.toLong() in ofertasYaUsadas }
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -147,6 +169,9 @@ fun PerfilDetalleScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                AutoDismissErrorText(text = mensajeErrorLocal, onDismiss = { mensajeErrorLocal = null })
+                AutoDismissCorrectText( text = mensajeCorectLocal, onDismiss = { mensajeCorectLocal = null })
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
@@ -158,7 +183,7 @@ fun PerfilDetalleScreen(
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(fullUrl))
                             context.startActivity(intent)
                         } else {
-                            Toast.makeText(context, "CV no disponible", Toast.LENGTH_SHORT).show()
+                            mensajeErrorLocal = "CV no disponible"
                         }
                     })
                 }
@@ -175,7 +200,8 @@ fun PerfilDetalleScreen(
                                 onClick = {
                                     idNotificacion?.let {
                                         viewModel.responderNotificacion(it, "seleccionado")
-                                        Toast.makeText(context, "Alumno seleccionado", Toast.LENGTH_SHORT).show()
+                                        mensajeCorectLocal = "Alumno seleccionado"
+                                        refreshKey++
                                     }
                                 }
                             )
@@ -183,7 +209,8 @@ fun PerfilDetalleScreen(
                                 onClick = {
                                     idNotificacion?.let {
                                         viewModel.responderNotificacion(it, "descartado")
-                                        Toast.makeText(context, "Alumno descartado", Toast.LENGTH_SHORT).show()
+                                        mensajeCorectLocal = "Alumno descartado"
+                                        refreshKey++
                                     }
                                 }
                             )
@@ -192,7 +219,7 @@ fun PerfilDetalleScreen(
                         if (tipoNotificacionBackend != "respuesta") {
                             estadoRespuestaBackend?.let { respuesta ->
                                 Text(
-                                    text = "Ya has respondido: ${estadoRespuestaBackend!!.uppercase()}",
+                                    text = "Respuesta : ${estadoRespuestaBackend!!.uppercase()}",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.padding(vertical = 16.dp)
@@ -201,7 +228,7 @@ fun PerfilDetalleScreen(
                         } else {
                             estadoRespuestaBackend?.let { respuesta ->
                                 Text(
-                                    text = estadoRespuestaBackend!!.uppercase(),
+                                    text = "Respuesta : ${estadoRespuestaBackend!!.uppercase()}",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.padding(vertical = 16.dp)
@@ -211,8 +238,8 @@ fun PerfilDetalleScreen(
                     }
 
                 } else {
-                    val yaInvitada = ofertaSeleccionadaId in ofertasYaUsadas
-                    val todasUsadas = listaOfertas.all { it.id?.toLong() in ofertasYaUsadas }
+                   // val yaInvitada = ofertaSeleccionadaId in ofertasYaUsadas
+                    //val todasUsadas = listaOfertas.all { it.id?.toLong() in ofertasYaUsadas }
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -226,12 +253,18 @@ fun PerfilDetalleScreen(
                             modifier = Modifier.wrapContentWidth()
                         )
 
+
                         ButtonGeneric(
                             text = "INTERESADO",
                             onClick = {
-                                ofertaSeleccionadaId?.let {
-                                    viewModel.enviarInvitacion(empresaId, it, idAlumno)
-                                    Toast.makeText(context, "Interesado a la oferta", Toast.LENGTH_SHORT).show()
+                                ofertaSeleccionadaId?.let { idOferta ->
+                                    coroutineScope.launch {
+                                        viewModel.enviarInvitacion(empresaId, idOferta, idAlumno)
+                                        delay(400)
+                                        viewModel.cargarInvitacionesEnviadas(empresaId, idAlumno)
+                                        refreshKey++
+                                    }
+                                    mensajeCorectLocal = "Solicitud enviada"
                                 }
                             },
                             enabled = ofertaSeleccionadaId != null && !yaInvitada,

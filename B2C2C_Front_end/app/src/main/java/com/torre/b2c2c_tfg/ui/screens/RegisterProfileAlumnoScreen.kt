@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +25,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -65,6 +67,7 @@ import com.torre.b2c2c_tfg.ui.util.FileUtils
 import java.io.File
 
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: SessionViewModel, contentPadding: PaddingValues = PaddingValues(), esEdicion: Boolean = false) {
@@ -80,7 +83,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     var ciudad by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
     var nombreCentro by remember { mutableStateOf("") }
-    var tituloCurso by remember { mutableStateOf("") }
+    var titulacion by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
     var nuevaHabilidad by remember { mutableStateOf("") }
     val listaHabilidades = remember { mutableStateListOf<String>() }
@@ -90,23 +93,34 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     var mensajeErrorLocal by remember { mutableStateOf<String?>(null) }
     var mensajeCorectLocal by remember { mutableStateOf<String?>(null) }
 
-    val porcentajeCompletado = run {
-        val totalCampos = 10
-        var completados = 0
+    val porcentajeCompletado by remember(
+        imageUri, nombre, username, apellido, telefono, correoElectronico,
+        ciudad, direccion, nombreCentro, titulacion, descripcion,
+        listaHabilidades, cvUri
+    ) {
+        derivedStateOf {
+            val totalCampos = 13
+            var completados = 0
 
-        if (nombre.isNotBlank()) completados++
-        if (apellido.isNotBlank()) completados++
-        if (username.isNotBlank()) completados++
-        if (correoElectronico.isNotBlank()) completados++
-        if (ciudad.isNotBlank()) completados++
-        if (direccion.isNotBlank()) completados++
-        if (nombreCentro.isNotBlank()) completados++
-        if (descripcion.isNotBlank()) completados++
-        if (imageUri != null) completados++
-        if (cvUri != null) completados++
+            if (imageUri != null) completados++
+            if (nombre.isNotBlank()) completados++
+            if (username.isNotBlank()) completados++
+            if (apellido.isNotBlank()) completados++
+            if (telefono.isNotBlank()) completados++
+            if (correoElectronico.isNotBlank()) completados++
+            if (ciudad.isNotBlank()) completados++
+            if (direccion.isNotBlank()) completados++
+            if (nombreCentro.isNotBlank()) completados++
+            if (titulacion.isNotBlank()) completados++
+            if (descripcion.isNotBlank()) completados++
+            if (listaHabilidades.size >= 3) completados++
+            if (cvUri != null) completados++
 
-        completados / totalCampos.toFloat()
+            completados / totalCampos.toFloat()
+        }
     }
+
+
 
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
@@ -142,9 +156,10 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                 ciudad = it.ciudad.orEmpty()
                 direccion = it.direccion.orEmpty()
                 nombreCentro = it.centro.orEmpty()
+                titulacion = it.titulacion.orEmpty()
                 descripcion = it.descripcion.orEmpty()
                 imageUri = RetrofitInstance.buildUri(it.imagen)
-                cvUri = it.cvUri?.toUri()
+                cvUri = RetrofitInstance.buildUri(it.cvUri)
                 nombreDoc = it.nombreDoc.orEmpty()
                 listaHabilidades.clear()
                 listaHabilidades.addAll(it.habilidades.orEmpty().split(",").filter { h -> h.isNotBlank() })
@@ -166,6 +181,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .systemBarsPadding()
             .padding(top = 50.dp)
             .padding(horizontal = 50.dp)
             .verticalScroll(rememberScrollState())
@@ -198,7 +214,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
         OutlinedInputTextField(ciudad, { ciudad = it }, "Ciudad", Modifier.height(60.dp))
         OutlinedInputTextField(direccion, { direccion = it }, "Dirección", Modifier.height(60.dp))
         OutlinedInputTextField(nombreCentro, { nombreCentro = it }, "Nombre del centro*", Modifier.height(60.dp))
-        OutlinedInputTextField(tituloCurso, { tituloCurso = it }, "Título que se está cursando", Modifier.height(60.dp))
+        OutlinedInputTextField(titulacion, { titulacion = it }, "Título que se está cursando", Modifier.height(60.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             OutlinedInputTextField(nuevaHabilidad, { nuevaHabilidad = it }, "Habilidades", Modifier.weight(1f))
@@ -297,7 +313,7 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
                         ciudad = ciudad,
                         direccion = direccion,
                         centro = nombreCentro,
-                        titulacion = tituloCurso,
+                        titulacion = titulacion,
                         descripcion = descripcion,
                         habilidades = habilidadesTexto,
                         cvUri = urlDelCV,
@@ -320,22 +336,6 @@ fun RegisterProfileAlumnoScreen(navController: NavController, sessionViewModel: 
             },
             modifier = Modifier.width(300.dp).padding(top = 20.dp)
         )
-    }
-}
-
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Preview(showBackground = true)
-@Composable
-fun LoginAlumnoScreenPreview() {
-    val navController = rememberNavController()
-
-    Scaffold(
-        bottomBar = {
-            BottomBar(navController = navController, userType = UserType.ALUMNO)
-        }
-    ) {
-        RegisterProfileAlumnoScreen(navController = navController,sessionViewModel = SessionViewModel())
     }
 }
 

@@ -24,10 +24,10 @@ class OfertaViewModel(
             try {
                 println("🛠️ Enviando oferta: $oferta")
                 val resultado = crearOfertaUseCase(oferta)
-                println("✅ Resultado guardar oferta: $resultado")
+                println(" Resultado guardar oferta: $resultado")
                 onResult(if (resultado) oferta else null)
             } catch (e: Exception) {
-                println("❌ Error guardando oferta: ${e.message}")
+                println(" Error guardando oferta: ${e.message}")
                 onResult(null)
             }
         }

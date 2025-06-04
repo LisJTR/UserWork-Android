@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
+import com.torre.b2c2c_tfg.ui.viewmodel.NotificationViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.OfertasScreenViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 
@@ -30,6 +31,7 @@ import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
 fun HeaderContentofScreens(
     sessionViewModel: SessionViewModel,
     viewModel: OfertasScreenViewModel,
+    notificationViewModel: NotificationViewModel,
     onFiltroSeleccionado: (String) -> Unit,
     navController: NavController
 ) {
@@ -38,8 +40,17 @@ fun HeaderContentofScreens(
     val alumno by viewModel.alumno.collectAsState()
     val empresa by viewModel.empresa.collectAsState()
     val filtroActual = viewModel.filtroSeleccionado.collectAsState().value
+    val notificacionesSinLeer = notificationViewModel.notificaciones.collectAsState().value.count { !it.leido }
+
 
     val dropdownVisible = remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        val userId = sessionViewModel.userId.value ?: 0L
+        val userType = sessionViewModel.userType.value ?: ""
+        notificationViewModel.iniciarAutoRefresco(userId, userType)
+    }
+
 
     LaunchedEffect(userType) {
         if (userType == "alumno") {
@@ -58,11 +69,10 @@ fun HeaderContentofScreens(
                 .padding(end = 16.dp),
             horizontalArrangement = Arrangement.End
         ) {
-
-            Spacer(modifier = Modifier.weight(10f))
-            IconMessage(onClick = {
-                navController.navigate(ScreenRoutes.Notification)
-            })
+            IconMessage(
+                onClick = { navController.navigate(ScreenRoutes.Notification) },
+                notificacionesSinLeer = notificacionesSinLeer
+            )
         }
 
         // Mostrar el perfil según tipo
@@ -106,10 +116,6 @@ fun HeaderContentofScreens(
             horizontalArrangement = Arrangement.End
         ) {
 
-            Spacer(modifier = Modifier.weight(10f))
-            IconMessage(onClick = {
-                navController.navigate(ScreenRoutes.Notification)
-            })
         }
 
 

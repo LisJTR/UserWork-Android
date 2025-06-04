@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.torre.b2c2c_tfg.data.remote.RetrofitInstance
@@ -26,6 +27,7 @@ import com.torre.b2c2c_tfg.ui.components.TextTitle
 import com.torre.b2c2c_tfg.ui.navigation.ScreenRoutes
 import com.torre.b2c2c_tfg.ui.viewmodel.LoginViewModel
 import com.torre.b2c2c_tfg.ui.viewmodel.SessionViewModel
+import kotlinx.coroutines.delay
 
 
 // UI principal
@@ -38,8 +40,8 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showRegisterDialog by remember { mutableStateOf(false) }
+    var mensajeErrorLocal by remember { mutableStateOf<String?>(null) }
 
-    // Viewmodel para el login
     val context = LocalContext.current
     val loginViewModel = remember {
         //LoginViewModel(LoginUseCase(FakeLoginRepository()))
@@ -47,10 +49,10 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
         )
     }
 
-    val loginResult by loginViewModel.loginResult.collectAsState()
-
+    val loginResult = loginViewModel.loginResult.collectAsState().value
     val userId = loginViewModel.loggedUserId.collectAsState().value
     val userType = loginViewModel.loggedUserType.collectAsState().value
+
 
     LaunchedEffect(loginResult) {
         if (loginResult.contains("exitoso") && userId != null && userType != null) {
@@ -66,16 +68,20 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             }
 
             navController.navigate(route)
+        } else if (loginResult.isNotBlank() && !loginResult.contains("exitoso")) {
+            mensajeErrorLocal = loginResult // mensaje de error login
         }
     }
-
-
+   
     Column(
         verticalArrangement = Arrangement.spacedBy(
             10.dp, alignment = Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .padding(30.dp)
+                .fillMaxSize()
+                .systemBarsPadding()
+                .padding(30.dp),
+
 
     ) {
 
@@ -98,13 +104,6 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
                     .padding(top = 90.dp)
             )
 
-            TextTitle(
-                text = "¿Has olvidado tu contraseña?",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .padding(top = 10.dp)
-
-            )
 
             TextTitle(
                 text = "¿No tienes una cuenta?   Regístrate",
@@ -125,12 +124,15 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
             password = password,
             onUsernameChange = { username = it },
             onPasswordChange = { password = it },
-            onDismiss = { showLoginDialog = false },
+            onDismiss = {
+                showLoginDialog = false
+                mensajeErrorLocal = null },
             onLoginClick = {
-                println("🟡 BOTÓN LOGIN PULSADO")
+                println("BOTÓN LOGIN PULSADO")
 
                 if (username.isBlank() || password.isBlank()) {
-                    println("❌ Campos vacíos: username='$username' password='$password'")
+                    mensajeErrorLocal = "Por favor, completa todos los campos."
+                    println("Campos vacíos: username='$username' password='$password'")
                     return@LoginDialog
                 }
 
@@ -139,7 +141,7 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
                 val correoFinal = if (isEmail) username else null
 
                 if (usernameFinal == null && correoFinal == null) {
-                    println("❌ No se proporcionó username ni correo")
+                    println("No se proporcionó username ni correo")
                     return@LoginDialog
                 }
 
@@ -149,8 +151,17 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
                     password = password
                 )
             },
+            mensajeErrorLocal = mensajeErrorLocal
         )
     }
+    // Hace que el error desaparezca solo después de 3 segundos
+    LaunchedEffect(mensajeErrorLocal) {
+        if (!mensajeErrorLocal.isNullOrBlank()) {
+            delay(2000)
+            mensajeErrorLocal = null
+        }
+    }
+
 
     //Dialog que muestra el tipo de usuario a registrar
     if (showRegisterDialog) {
@@ -173,15 +184,4 @@ fun WelcomeScreen(navController: NavController, sessionViewModel: SessionViewMod
     }
 
 
-}
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Preview(showBackground = true)
-@Composable
-fun WelcomeScreenPreview() {
-    B2C2C_TFGTheme {
-        Scaffold {
-            WelcomeScreen(navController = rememberNavController(), sessionViewModel = SessionViewModel())
-        }
-    }
 }

@@ -61,6 +61,9 @@ dependencies {
     // Dependencias para usar datastore
     implementation(libs.datastorePreferences)
 
+    //  Agrega esta dependencia en tu build.gradle si aún no la tienes:
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.31.5-beta")
+
 
 
     implementation(libs.androidx.core.ktx)

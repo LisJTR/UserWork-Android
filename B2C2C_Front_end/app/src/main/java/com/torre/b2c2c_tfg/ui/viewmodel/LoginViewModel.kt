@@ -37,21 +37,23 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
 
     fun login(username: String?, email: String?, password: String) {
         viewModelScope.launch {
+
+            _loginResult.value = ""
             try {
-                println("🔄 Ejecutando login con -> username=$username, email=$email")
+                println("Ejecutando login con -> username=$username, email=$email")
                 val result = loginUseCase(LoginRequest(username, email, password))
 
-                println("✅ Respuesta login: $result")
+                println("Respuesta login: $result")
                 if (result.isSuccessful && result.body() != null) {
                     val loginResponse = result.body()!!
                     _loginResult.value = loginResponse.mensaje
                     _loggedUserId.value = loginResponse.id
                     _loggedUserType.value = loginResponse.tipo
                 } else {
-                    _loginResult.value = "Error de login"
+                    _loginResult.value = "Credenciales incorrectas"
                 }
             } catch (e: Exception) {
-                _loginResult.value = "Excepción: ${e.message}"
+                _loginResult.value = "Error al conectar con el servidor"
             }
         }
     }
