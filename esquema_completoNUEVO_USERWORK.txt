@@ -1,0 +1,89 @@
+
+-- Tabla: alumno
+CREATE TABLE alumno (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    nombre VARCHAR(255),
+    apellido VARCHAR(255),
+    username VARCHAR(255) UNIQUE,
+    password VARCHAR(255),
+    foto VARCHAR(255),
+    titulacion VARCHAR(255),
+    direccion VARCHAR(255),
+    ciudad VARCHAR(255),
+    telefono VARCHAR(255),
+    correo_electronico VARCHAR(255) UNIQUE,
+    centro VARCHAR(255),
+    descripcion VARCHAR(255),
+    aptitudes VARCHAR(255),
+    curriculum VARCHAR(255),
+    nombre_doc VARCHAR(255)
+);
+
+-- Tabla: empresa
+CREATE TABLE empresa (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    nombre VARCHAR(255),
+    username VARCHAR(255) UNIQUE,
+    logo VARCHAR(255),
+    sector VARCHAR(255),
+    ciudad VARCHAR(255),
+    telefono INTEGER,
+    correo_electronico VARCHAR(255) UNIQUE,
+    password VARCHAR(255),
+    descripcion VARCHAR(255)
+);
+
+-- Tabla: oferta
+CREATE TABLE oferta (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    titulo VARCHAR(255),
+    aptitudes VARCHAR(255),
+    descripcion VARCHAR(255),
+    que_se_ofrece VARCHAR(255),
+    publicada BOOLEAN DEFAULT true,
+    fecha_publicacion VARCHAR(255) DEFAULT CURRENT_TIMESTAMP,
+    empresa_id BIGINT,
+    CONSTRAINT oferta_empresa_id_fkey FOREIGN KEY (empresa_id) REFERENCES empresa(id) ON DELETE CASCADE
+);
+
+-- Tabla: aplicacion_oferta
+CREATE TABLE aplicacion_oferta (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    alumno_id BIGINT,
+    oferta_id BIGINT,
+    fecha_aplicacion TIMESTAMP,
+    estado VARCHAR(255),
+    CONSTRAINT aplicacion_oferta_alumno_id_fkey FOREIGN KEY (alumno_id) REFERENCES alumno(id),
+    CONSTRAINT aplicacion_oferta_oferta_id_fkey FOREIGN KEY (oferta_id) REFERENCES oferta(id)
+);
+
+-- Tabla: invitacion
+CREATE TABLE invitacion (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    empresa_id BIGINT,
+    alumno_id BIGINT,
+    oferta_id BIGINT,
+    fecha TIMESTAMP,
+    estado VARCHAR(255),
+    CONSTRAINT invitacion_empresa_id_fkey FOREIGN KEY (empresa_id) REFERENCES empresa(id),
+    CONSTRAINT invitacion_alumno_id_fkey FOREIGN KEY (alumno_id) REFERENCES alumno(id),
+    CONSTRAINT invitacion_oferta_id_fkey FOREIGN KEY (oferta_id) REFERENCES oferta(id)
+);
+
+-- Tabla: notificacion
+CREATE TABLE notificacion (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    tipo VARCHAR(255) NOT NULL,
+    mensaje TEXT NOT NULL,
+    alumno_id BIGINT,
+    empresa_id BIGINT,
+    oferta_id BIGINT,
+    destinatario_tipo VARCHAR(255) NOT NULL,
+    leido BOOLEAN DEFAULT false,
+    estado_respuesta VARCHAR(255) DEFAULT 'pendiente',
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT notificacion_alumno_id_fkey FOREIGN KEY (alumno_id) REFERENCES alumno(id),
+    CONSTRAINT notificacion_empresa_id_fkey FOREIGN KEY (empresa_id) REFERENCES empresa(id),
+    CONSTRAINT notificacion_oferta_id_fkey FOREIGN KEY (oferta_id) REFERENCES oferta(id),
+    CONSTRAINT unica_notificacion UNIQUE (alumno_id, empresa_id, oferta_id, tipo)
+);
