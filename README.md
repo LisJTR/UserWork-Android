@@ -13,6 +13,7 @@ El objetivo principal del proyecto ha sido aplicar los conocimientos adquiridos 
 - **HTML5**
 - **CSS3**
 - **JavaScript**
+- **TypeScript**
 
 ### Frontend Móvil:
 - **React Native**
