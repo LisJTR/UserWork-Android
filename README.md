@@ -1,10 +1,10 @@
 
-# TFG - Aplicación de Intermediación Laboral
+#🖥️ TFG - Aplicación de Intermediación Laboral
 
 Este proyecto es el Trabajo de Fin de Grado (TFG) del ciclo de **Desarrollo de Aplicaciones Multiplataforma (DAM)**.  
 La aplicación está orientada a facilitar el contacto entre estudiantes y empresas, permitiendo a los alumnos aplicar a ofertas de empleo y a las empresas mostrar interés en candidatos.
 
-## Tecnologías utilizadas
+##🚀 Tecnologías utilizadas
 
 ### Frontend Android
 
@@ -107,7 +107,7 @@ Tablas principales:
 - Ambos roles reciben notificaciones sobre aplicaciones e invitaciones.
 - Las respuestas a notificaciones se almacenan y visualizan en la app.
 
-## Despliegue
+##🚀 Despliegue
 
 ### Backend
 
