@@ -21,112 +21,101 @@ La aplicación está orientada a facilitar el contacto entre estudiantes y empre
     width="45%" />
 </p>
 
-##🚀 Tecnologías utilizadas
+## 🚀 Tecnologías utilizadas
 
-### Frontend Android
+### 📱 Frontend Android
 
-- Android Studio (Jetpack Compose)
-- Kotlin
-- Clean Architecture
-- Retrofit (peticiones HTTP)
-- Gestión de archivos (subida de imágenes y PDF)
-- Persistencia local con SharedPreferences
+- 🛠️ Jetpack Compose (Android Studio)
+- 🧠 Kotlin + Clean Architecture
+- 🌐 Retrofit (peticiones HTTP)
+- 🗂️ Subida de imágenes y PDF
+- 💾 SharedPreferences (persistencia local)
 
-### Backend
+### ⚙️ Backend
 
-- Java 17
-- Spring Boot
-- PostgreSQL (Dockerizado)
-- REST API
-- Spring Crypto
-- Subida y almacenamiento de archivos en servidor local (`/uploads`)
+- ☕ Java 17 + Spring Boot
+- 🐘 PostgreSQL (Dockerizado)
+- 🔐 Spring Crypto + REST API
+- 📁 Subida de archivos a servidor (`/uploads`)
 
-### Infraestructura y herramientas
+### 🧰 Infraestructura y herramientas
 
-- Docker (contenedorización de base de datos y backend)
-- Supabase (gestión inicial de la base de datos)
-- Git y GitHub (control de versiones)
+- 🐳 Docker (contenedorización de backend y base de datos)
+- 🧪 Supabase (gestión inicial de la BD)
+- 🌐 Git + GitHub (control de versiones)
 
 ## Descripción funcional
 
-### Roles de usuario
+### 👥 Roles de usuario
 
-#### Alumno
-- Registro de perfil (datos personales, formación, CV, habilidades, foto de perfil)
-- Aplicación a ofertas de empleo
-- Visualización de ofertas aplicadas
-- Gestión de notificaciones
-- Recepción de invitaciones de empresas
-- Respuesta a invitaciones (interesado / no interesado)
-
-#### Empresa
-- Registro de perfil (datos de empresa, descripción, sector, etc.)
-- Publicación de ofertas de empleo
-- Visualización de candidatos
-- Envío de invitaciones a alumnos
-- Respuesta a candidaturas (seleccionado / descartado)
+#### 👩‍🎓 Alumno
+- Registro de perfil (formación, CV, foto, habilidades)
+- Aplicar a ofertas de empleo
+- Ver ofertas aplicadas
+- Recibir y responder invitaciones
 - Gestión de notificaciones
 
-### Funcionalidades principales
+#### 🏢 Empresa
+- Registro de empresa (sector, descripción, etc.)
+- Publicar ofertas de empleo
+- Ver candidatos
+- Enviar invitaciones a alumnos
+- Gestionar notificaciones y candidaturas
 
-- Sistema de autenticación y registro
-- Gestión de perfiles de usuario (alumno y empresa)
-- CRUD de ofertas de empleo
-- Aplicación y seguimiento de ofertas
-- Gestión de invitaciones y notificaciones entre usuarios
-- Subida y gestión de archivos (imágenes, currículum en PDF)
-- Sistema de notificaciones visuales (badge)
-- Visualización de noticias externas mediante feeds RSS
+### ⚙️ Funcionalidades principales
 
-## Arquitectura
+- 🔐 Autenticación y registro de usuarios
+- 🧑‍💻 Gestión de perfiles (alumno / empresa)
+- 📢 Publicación y aplicación a ofertas
+- ✉️ Sistema de notificaciones e invitaciones
+- 📤 Subida de archivos (CV, imágenes)
+- 📰 Lectura de noticias vía feeds RSS
+- ✅ CRUD completo de ofertas y perfiles
 
-El proyecto sigue una arquitectura **Full Stack separada**:
+## 🏗️ Arquitectura del proyecto
 
 ### Backend (API REST)
 
-- Organizado en paquetes por dominio:
-  - `user` (usuarios)
-  - `oferta` (ofertas)
-  - `aplicacion` (aplicaciones a ofertas)
-  - `invitacion` (invitaciones)
-  - `notificacion` (notificaciones)
-- Manejo de lógica de negocio en los controladores y servicios.
-- Almacenamiento de archivos en el servidor (almacenamiento persistente).
-- Implementación de relaciones en base de datos mediante claves foráneas (Long IDs).
+- Paquetes organizados por dominio:
+  - `user`, `oferta`, `aplicacion`, `invitacion`, `notificacion`
+- Servicios + controladores bien separados
+- Almacenamiento de archivos local (`/uploads`)
+- Relaciones en base de datos por claves foráneas (`Long`)
 
 ### Frontend Android
 
-- Patrón Clean Architecture y separación de capas:
-  - Data Layer (repositories, models, Retrofit)
-  - Domain Layer (use cases)
-  - Presentation Layer (ViewModels y Compose UI)
-- Gestión de estado mediante `StateFlow` y `ViewModel`.
-- Navegación con Jetpack Compose Navigation.
+- Arquitectura en capas (Clean Architecture)
+  - `Data`: Repositorios, modelos, Retrofit
+  - `Domain`: Casos de uso
+  - `Presentation`: ViewModel + UI (Compose)
+- Estado con `StateFlow`
+- Navegación con Jetpack Compose Navigation
 
-## Base de datos
 
-La base de datos utilizada es **PostgreSQL**. Inicialmente gestionada en Supabase y posteriormente migrada a un contenedor Docker local.  
+## 🗄️ Base de datos (PostgreSQL)
+
+Inicialmente diseñada con Supabase y luego dockerizada.  
 Tablas principales:
 
-- `alumno`
-- `empresa`
-- `oferta`
+- `alumno`, `empresa`, `oferta`
 - `aplicacion_oferta`
 - `invitacion`
 - `notificacion`
 
-## Flujo de trabajo (ejemplos)
+## 🔄 Flujo de trabajo (ejemplo)
 
-- Un alumno se registra, completa su perfil y sube su CV.
-- Las empresas publican sus ofertas.
-- El alumno aplica a ofertas de interés.
-- Las empresas pueden ver los perfiles de los alumnos y enviar invitaciones.
-- Ambos roles reciben notificaciones sobre aplicaciones e invitaciones.
-- Las respuestas a notificaciones se almacenan y visualizan en la app.
+1. 👩‍🎓 El alumno se registra y sube su CV
+2. 🏢 La empresa publica ofertas
+3. 📬 El alumno aplica a las ofertas
+4. 👀 La empresa revisa perfiles y envía invitaciones
+5. 🔁 Ambos responden a notificaciones
+6. 📱 Todo se visualiza y gestiona desde la app
+
 
 ##🚀 Despliegue
 
-### Backend
+## 🚀 Despliegue del backend
 
 ```bash
-docker-compose up
+docker-compose up --build
+
