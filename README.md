@@ -1,8 +1,25 @@
 
-#🖥️ TFG - Aplicación de Intermediación Laboral
+#🖥 UserWork
 
 Este proyecto es el Trabajo de Fin de Grado (TFG) del ciclo de **Desarrollo de Aplicaciones Multiplataforma (DAM)**.  
 La aplicación está orientada a facilitar el contacto entre estudiantes y empresas, permitiendo a los alumnos aplicar a ofertas de empleo y a las empresas mostrar interés en candidatos.
+
+## 📱 Vista previa de la app
+
+<p align="center">
+  <img src="https://github.com/LisJTR/UserWork-Android/blob/main/1.%20Pantalla%20Inicio.png?raw=true" width="45%" />
+  <img src="https://github.com/LisJTR/UserWork-Android/blob/main/1.2.%20Pantalla%20para%20logearse.png?raw=true" width="45%" />
+</p>
+<p align="center">
+  <img src="https://github.com/LisJTR/UserWork-Android/blob/main/2.%20Pantalla%20oferta%20-%20EMPRESA.png?raw=true" width="45%" />
+  <img src="https://github.com/LisJTR/UserWork-Android/blob/main/6.%20Pantalla%20notoficacion%20ALUMNO.png?raw=true" width="45%" />
+</p>
+<p align="center">
+  <img src="https://github.com/LisJTR/UserWork-Android/blob/main/6.1.%20Pantalla%20notoficacion%20card%20EMPRESA%20RESPONDIDO.png?raw=true"
+    width="45%" />
+  <img src="https://github.com/LisJTR/UserWork-Android/blob/main/5.%20Pantalla%20Ajuste.png?raw=true"
+    width="45%" />
+</p>
 
 ##🚀 Tecnologías utilizadas
 
